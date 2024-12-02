@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 
 export default function AccountPage() {
   const { data: session } = useSession();
+  console.log('data', session)
 
   return (
     <div className="p-8">
@@ -18,6 +19,12 @@ export default function AccountPage() {
           <label className="text-sm text-gray-600">Email</label>
           <p className="font-medium">
             {session?.user?.email || "Not available"}
+          </p>
+        </div>
+        <div>
+          <label className="text-sm text-gray-600">Email</label>
+          <p className="font-medium">
+            {session?.user.color || "Not available"}
           </p>
         </div>
       </div>

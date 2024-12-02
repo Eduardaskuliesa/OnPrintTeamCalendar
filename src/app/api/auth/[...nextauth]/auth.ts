@@ -35,6 +35,7 @@ export const authOptions: AuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
+          color: user.color
         };
       },
     }),
@@ -43,12 +44,14 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
+        token.color = user.color
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.role = token.role;
+        session.user.color = token.color;
       }
       return session;
     },
