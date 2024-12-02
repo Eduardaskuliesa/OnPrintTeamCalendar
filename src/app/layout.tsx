@@ -37,7 +37,7 @@ export default function RootLayout({
           <ToastContainer
             position="top-center"
             autoClose={2000}
-            theme="colored"
+            theme="light"
             pauseOnHover={false}
             limit={3}
             newestOnTop
