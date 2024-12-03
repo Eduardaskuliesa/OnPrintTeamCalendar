@@ -12,34 +12,59 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth";
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, unstable_cache } from 'next/cache';
+
 
 const dynamoName = process.env.DYNAMODB_NAME;
 
-// Get all users
+async function queryUsers() {
+  console.log('DB Query executed at:', new Date().toISOString());
+  
+  const getAllUsers = new ScanCommand({
+    TableName: dynamoName || "",
+    ProjectionExpression: "email, #name, #role, color, createdAt, updatedAt",
+    ExpressionAttributeNames: {
+      "#name": "name",
+      "#role": "role"
+    },
+  });
+
+  const response = await dynamoDb.send(getAllUsers);
+  
+  if (!response || !response.Items) {
+    throw new Error("Failed to fetch users");
+  }
+
+  return response.Items;
+}
+
+// Create a stable cache key based on the session
+async function getUserCacheKey() {
+  const session = await getServerSession(authOptions);
+  return `users-${session?.user?.email}-${session?.user?.role}`;
+}
+
+// The main getUsers function
 export async function getUsers() {
   try {
     const session = await getServerSession(authOptions);
+    
     if (session?.user?.role !== "ADMIN") {
       throw new Error("Unauthorized");
     }
 
-    const getAllUsers = new ScanCommand({
-      TableName: dynamoName || "",
-      ProjectionExpression: "email, #name, #role, color, createdAt, updatedAt",
-      ExpressionAttributeNames: {
-        "#name": "name",
-        "#role": "role"
-      },
-    });
+    // Get a stable cache key
+    const cacheKey = await getUserCacheKey();
 
-    const response = await dynamoDb.send(getAllUsers);
+    // Use unstable_cache with the stable key
+    const cachedUsers = await unstable_cache(
+      queryUsers,
+      [cacheKey],
+      { revalidate: 3600, tags: ['users'] }
+    )();
 
-    if (!response || !response.Items) {
-      throw new Error("Failed to fetch users");
-    }
-
-    return { data: response.Items };
+    return { data: cachedUsers };
+    
   } catch (error: any) {
     console.error("Error fetching users:", error);
     throw new Error(error.message);

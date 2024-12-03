@@ -60,6 +60,10 @@ export default function UserList({ users, onUserDeleted }: UserListProps) {
       </span>
     ),
   };
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  };
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -102,7 +106,7 @@ export default function UserList({ users, onUserDeleted }: UserListProps) {
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                {new Date(user.createdAt).toLocaleDateString()}
+              {formatDate(user.createdAt)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <button
