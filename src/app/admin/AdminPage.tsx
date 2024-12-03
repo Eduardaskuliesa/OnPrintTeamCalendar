@@ -3,9 +3,8 @@
 import { User } from "@/app/types/api";
 import CreateUserForm from "./CreateUserForm";
 import UserList from "./UserList";
-import { useState, useCallback } from "react";
-import { getUsers } from "../lib/actions/users"; 
-import { toast } from "react-toastify";
+import { useState} from "react";
+
 
 export default function AdminPage({ initialUsers }: { initialUsers: User[] }) {
   const [users, setUsers] = useState<User[]>(initialUsers);
