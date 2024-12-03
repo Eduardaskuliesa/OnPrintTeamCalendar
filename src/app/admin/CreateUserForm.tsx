@@ -4,9 +4,10 @@
 import { useState } from "react";
 import { createUser } from "../lib/actions/users";
 import { toast } from "react-toastify";
+import { User } from "../types/api";
 
 interface CreateUserFormProps {
-  onUserCreated: () => Promise<void>;
+  onUserCreated: (newUser: User) => void;  // Add this prop
 }
 
 export interface FormData {
@@ -45,8 +46,16 @@ export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
     try {
       setLoading(true);
       await createUser(formData);
+      const newUser = {
+        email: formData.email,
+        name: formData.name,
+        color: formData.color,
+        role: 'USER',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      onUserCreated(newUser)
       toast.success("User created successfully");
-      await onUserCreated();
       setFormData({
         email: "",
         password: "",

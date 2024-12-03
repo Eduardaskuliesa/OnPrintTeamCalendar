@@ -1,11 +1,10 @@
 "use server";
 import { DeleteCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_cache } from 'next/cache';
 import { dynamoDb } from "@/app/lib/dynamodb";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { FormData } from "@/app/components/Calendar/VacationForm";
-
 
 function isWeekend(date: Date): boolean {
   const day = date.getDay();
@@ -31,8 +30,6 @@ async function checkVacationConflicts(startDate: string, endDate: string) {
       TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
     })
   );
-
-  
 
   for (const vacation of existingVacations.Items || []) {
     const vacStart = new Date(vacation.startDate);
@@ -66,6 +63,64 @@ async function checkVacationConflicts(startDate: string, endDate: string) {
 
   return { hasConflict: false };
 }
+
+// Base function to fetch vacations data
+async function fetchVacationsData() {
+  console.log('Fetching vacations from DB at:', new Date().toISOString());
+  const result = await dynamoDb.send(
+    new ScanCommand({
+      TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
+    })
+  );
+
+  const vacations = result.Items?.map((vacation) => {
+    const mainEvent = {
+      id: vacation.id,
+      title: vacation.userName,
+      start: new Date(vacation.startDate).toISOString(),
+      end: new Date(
+        new Date(vacation.endDate).setDate(new Date(vacation.endDate).getDate())
+      ).toISOString(),
+      backgroundColor: vacation.userColor,
+      status: vacation.status,
+      email: vacation.userEmail,
+    };
+
+    const gapEvent =
+      vacation.gapDays > 0
+        ? {
+          id: `gap-${vacation.id}`,
+          title: `Tarpas - ${vacation.userName}`,
+          start: new Date(
+            new Date(vacation.endDate).setDate(
+              new Date(vacation.endDate).getDate() + 1
+            )
+          ).toISOString(),
+          end: new Date(
+            new Date(vacation.endDate).setDate(
+              new Date(vacation.endDate).getDate() + vacation.gapDays
+            )
+          ).toISOString(),
+          backgroundColor: "#808080",
+          status: "GAP",
+        }
+        : null;
+
+    return gapEvent ? [mainEvent, gapEvent] : [mainEvent];
+  });
+
+  return vacations?.flat() || [];
+}
+
+// Cached version of getVacations
+export const getVacations = unstable_cache(
+  fetchVacationsData,
+  ['vacations-list'],
+  { 
+    revalidate: 3600, // Cache for 1 hour
+    tags: ['vacations']
+  }
+);
 
 export async function bookVacation(formData: FormData) {
   try {
@@ -127,52 +182,6 @@ export async function bookVacation(formData: FormData) {
   }
 }
 
-export async function getVacations() {
-  const result = await dynamoDb.send(
-    new ScanCommand({
-      TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
-    })
-  );
-
-  const vacations = result.Items?.map((vacation) => {
-    const mainEvent = {
-      id: vacation.id,
-      title: vacation.userName,
-      start: new Date(vacation.startDate).toISOString(),
-      end: new Date(
-        new Date(vacation.endDate).setDate(new Date(vacation.endDate).getDate())
-      ).toISOString(),
-      backgroundColor: vacation.userColor,
-      status: vacation.status,
-      email: vacation.userEmail,
-    };
-
-    const gapEvent =
-      vacation.gapDays > 0
-        ? {
-          id: `gap-${vacation.id}`,
-          title: `Tarpas - ${vacation.userName}`,
-          start: new Date(
-            new Date(vacation.endDate).setDate(
-              new Date(vacation.endDate).getDate() + 1
-            )
-          ).toISOString(),
-          end: new Date(
-            new Date(vacation.endDate).setDate(
-              new Date(vacation.endDate).getDate() + vacation.gapDays
-            )
-          ).toISOString(),
-          backgroundColor: "#808080",
-          status: "GAP",
-        }
-        : null;
-
-    return gapEvent ? [mainEvent, gapEvent] : [mainEvent];
-  });
-
-  return vacations?.flat() || [];
-}
-
 export async function deleteVacation(id: string) {
   try {
     const session = await getServerSession(authOptions);
@@ -187,6 +196,7 @@ export async function deleteVacation(id: string) {
       })
     );
 
+    revalidatePath("/");
     return { success: true };
   } catch (error) {
     return { success: false, error: `Failed to delete vacation`, message: error };

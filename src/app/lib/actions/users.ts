@@ -3,12 +3,12 @@
 import { FormData } from "@/app/admin/CreateUserForm";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { dynamoDb } from "@/app/lib/dynamodb";
-import { 
-  ScanCommand, 
-  PutCommand, 
-  DeleteCommand, 
-  GetCommand, 
-  UpdateCommand 
+import {
+  ScanCommand,
+  PutCommand,
+  DeleteCommand,
+  GetCommand,
+  UpdateCommand
 } from "@aws-sdk/lib-dynamodb";
 import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth";
@@ -19,7 +19,7 @@ const dynamoName = process.env.DYNAMODB_NAME;
 
 async function queryUsers() {
   console.log('DB Query executed at:', new Date().toISOString());
-  
+
   const getAllUsers = new ScanCommand({
     TableName: dynamoName || "",
     ProjectionExpression: "email, #name, #role, color, createdAt, updatedAt",
@@ -30,7 +30,7 @@ async function queryUsers() {
   });
 
   const response = await dynamoDb.send(getAllUsers);
-  
+
   if (!response || !response.Items) {
     throw new Error("Failed to fetch users");
   }
@@ -48,15 +48,15 @@ async function getUserCacheKey() {
 export async function getUsers() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (session?.user?.role !== "ADMIN") {
       throw new Error("Unauthorized");
     }
 
-    // Get a stable cache key
+
     const cacheKey = await getUserCacheKey();
 
-    // Use unstable_cache with the stable key
+
     const cachedUsers = await unstable_cache(
       queryUsers,
       [cacheKey],
@@ -64,7 +64,7 @@ export async function getUsers() {
     )();
 
     return { data: cachedUsers };
-    
+
   } catch (error: any) {
     console.error("Error fetching users:", error);
     throw new Error(error.message);
@@ -106,9 +106,9 @@ export async function createUser(formData: FormData) {
     });
 
     await dynamoDb.send(createUser);
-    
+    console.log("Revalidating path at:", new Date().toISOString());
     revalidatePath('/admin');
-    
+
     return { message: "User created successfully" };
   } catch (error: any) {
     if (error.name === "ConditionalCheckFailedException") {
@@ -136,7 +136,7 @@ export async function getUser(email: string) {
     });
 
     const response = await dynamoDb.send(getUser);
-    
+
     if (!response.Item) {
       throw new Error("User not found");
     }
@@ -174,8 +174,8 @@ export async function deleteUser(email: string) {
 
 // Update password
 export async function updatePassword(
-  email: string, 
-  currentPassword: string, 
+  email: string,
+  currentPassword: string,
   newPassword: string
 ) {
   try {

@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -49,11 +49,11 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
 
-  const refreshEvents = async () => {
+  const refreshEvents = useCallback(async () => {
     const data = await getVacations();
     setEvents(data);
-  };
-  console.log(selectedEvent);
+  }, []);
+
 
   const handleEventClick = (info: any) => {
     if (

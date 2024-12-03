@@ -10,7 +10,7 @@ import DeleteUserConfirmation, {
 
 interface UserListProps {
   users: User[];
-  onUserDeleted: () => Promise<void>;
+  onUserDeleted: (deletedEmail: string) => void
 }
 
 export default function UserList({ users, onUserDeleted }: UserListProps) {
@@ -30,7 +30,7 @@ export default function UserList({ users, onUserDeleted }: UserListProps) {
       try {
         await deleteUser(userToDelete.email);
         toast.success("User deleted successfully");
-        await onUserDeleted();
+        onUserDeleted(userToDelete.email);
       } catch (error: any) {
         toast.error(error.message || "Failed to delete user");
       } finally {

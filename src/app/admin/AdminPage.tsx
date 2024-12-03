@@ -9,17 +9,12 @@ import { toast } from "react-toastify";
 
 export default function AdminPage({ initialUsers }: { initialUsers: User[] }) {
   const [users, setUsers] = useState<User[]>(initialUsers);
-  const refreshUsers = useCallback(async () => {
-    try {
-      const { data } = await getUsers();
-      setUsers(data as User[]);
-    } catch (error: any) {
-      toast.error("Failed to refresh users list", error);
-    }
-  }, []);
+  const handleUserCreated = (newUser: User) => {
+    setUsers(prevUsers => [...prevUsers, newUser]);
+  };
 
-  const handleUserCreated = async () => {
-    await refreshUsers();
+  const handleUserDeleted = (deletedEmail: string) => {
+    setUsers(prevUsers => prevUsers.filter(user => user.email !== deletedEmail));
   };
 
   return (
@@ -29,7 +24,7 @@ export default function AdminPage({ initialUsers }: { initialUsers: User[] }) {
       </div>
 
       <CreateUserForm onUserCreated={handleUserCreated} />
-      <UserList onUserDeleted={refreshUsers} users={users} />
+      <UserList onUserDeleted={handleUserDeleted} users={users} />
     </div>
   );
 }
