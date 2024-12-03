@@ -5,6 +5,7 @@ import { dynamoDb } from "@/app/lib/dynamodb";
 import bcrypt from "bcryptjs";
 
 export const authOptions: AuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: "Credentials",
