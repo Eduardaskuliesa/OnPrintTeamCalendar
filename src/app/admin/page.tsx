@@ -1,4 +1,3 @@
-export const revalidate = 3600;
 import { getUsers } from "../lib/actions/users";
 import { User } from "../types/api";
 import AdminPage from "./AdminPage";

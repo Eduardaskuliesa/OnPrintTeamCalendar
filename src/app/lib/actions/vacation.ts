@@ -64,6 +64,7 @@ async function checkVacationConflicts(startDate: string, endDate: string) {
   return { hasConflict: false };
 }
 
+
 // Base function to fetch vacations data
 async function fetchVacationsData() {
   console.log('Fetching vacations from DB at:', new Date().toISOString());
@@ -170,7 +171,7 @@ export async function bookVacation(formData: FormData) {
       })
     );
     revalidateTag('vacations'); 
-    revalidatePath("/");
+    revalidatePath("/")
     return { success: true, data: vacation };
   } catch (error) {
     console.error("Failed to book vacation:", error);
@@ -194,8 +195,7 @@ export async function deleteVacation(id: string) {
         Key: { id },
       })
     );
-    revalidateTag('vacations'); 
-
+    revalidateTag('vacations');
     revalidatePath("/");
     return { success: true };
   } catch (error) {
