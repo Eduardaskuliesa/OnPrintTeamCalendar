@@ -32,8 +32,7 @@ async function checkVacationConflicts(startDate: string, endDate: string) {
     })
   );
 
-  const workingDays = getWorkingDays(new Date(startDate), new Date(endDate));
-  const shouldCheckGap = workingDays > 2;
+  
 
   for (const vacation of existingVacations.Items || []) {
     const vacStart = new Date(vacation.startDate);
@@ -151,21 +150,21 @@ export async function getVacations() {
     const gapEvent =
       vacation.gapDays > 0
         ? {
-            id: `gap-${vacation.id}`,
-            title: `Tarpas - ${vacation.userName}`,
-            start: new Date(
-              new Date(vacation.endDate).setDate(
-                new Date(vacation.endDate).getDate() + 1
-              )
-            ).toISOString(),
-            end: new Date(
-              new Date(vacation.endDate).setDate(
-                new Date(vacation.endDate).getDate() + vacation.gapDays
-              )
-            ).toISOString(),
-            backgroundColor: "#808080",
-            status: "GAP",
-          }
+          id: `gap-${vacation.id}`,
+          title: `Tarpas - ${vacation.userName}`,
+          start: new Date(
+            new Date(vacation.endDate).setDate(
+              new Date(vacation.endDate).getDate() + 1
+            )
+          ).toISOString(),
+          end: new Date(
+            new Date(vacation.endDate).setDate(
+              new Date(vacation.endDate).getDate() + vacation.gapDays
+            )
+          ).toISOString(),
+          backgroundColor: "#808080",
+          status: "GAP",
+        }
         : null;
 
     return gapEvent ? [mainEvent, gapEvent] : [mainEvent];
@@ -190,6 +189,6 @@ export async function deleteVacation(id: string) {
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: "Failed to delete vacation" };
+    return { success: false, error: `Failed to delete vacation`, message: error };
   }
 }

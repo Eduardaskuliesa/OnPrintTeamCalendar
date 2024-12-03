@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormData } from "@/app/admin/CreateUserForm";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { dynamoDb } from "@/app/lib/dynamodb";

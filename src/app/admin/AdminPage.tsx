@@ -4,7 +4,7 @@ import { User } from "@/app/types/api";
 import CreateUserForm from "./CreateUserForm";
 import UserList from "./UserList";
 import { useState, useCallback } from "react";
-import { getUsers } from "../lib/actions/users"; // Your server action
+import { getUsers } from "../lib/actions/users"; 
 import { toast } from "react-toastify";
 
 export default function AdminPage({ initialUsers }: { initialUsers: User[] }) {

@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { User } from "@/app/types/api";
 import { deleteUser } from "../lib/actions/users";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import DeleteConfirmation from "../ui/DeleteConfirmation";
 import { Loader } from "lucide-react";
 import DeleteUserConfirmation, {
   ConfirmationMessage,
