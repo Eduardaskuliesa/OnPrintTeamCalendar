@@ -27,12 +27,12 @@ const NavItem = ({ href, icon, text, isCollapsed }: NavItemProps) => {
       } py-3
         ${
           isActive
-            ? "bg-blue-100 text-blue-600"
-            : "text-gray-600 hover:text-blue-600"
+            ? "bg-slate-50 text-[#102C57]"
+            : "text-gray-700 hover:text-[#102C57]"
         }
-        hover:bg-blue-50 transition-all duration-200`}
+        hover:bg-slate-100 transition-all duration-200`}
     >
-      <div className={`${isActive ? "text-blue-600" : "text-gray-500"}`}>
+      <div className={`${isActive ? "text-[#102C57]" : "text-gray-700"}`}>
         {icon}
       </div>
       {!isCollapsed && (
@@ -71,12 +71,12 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`fixed h-full bg-white border-r shadow-sm
+      className={`fixed h-full bg-[#EADBC8] border-r border-blue-100 shadow-sm
       ${isCollapsed ? "w-16" : "w-44"} transition-all duration-300`}
     >
-      <div className="flex items-center p-4 border-b">
+      <div className="flex items-center p-4 border-b border-slate-100">
         <div
-          className={`font-bold text-blue-600 ${
+          className={`font-bold text-[#102C57] ${
             isCollapsed ? "hidden" : "block"
           } whitespace-nowrap overflow-hidden transition-opacity duration-300
           ${isCollapsed ? "opacity-0" : "opacity-100"}`}
@@ -85,8 +85,8 @@ const Sidebar = () => {
         </div>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 ml-auto rounded-md hover:bg-blue-50 text-gray-500
-            hover:text-blue-600 transition-colors"
+          className="p-2 ml-auto rounded-md hover:bg-slate-50 text-gray-700
+            hover:text-[#102C57] transition-colors"
         >
           {isCollapsed ? <Menu size={20} /> : <X size={20} />}
         </button>
@@ -98,13 +98,13 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      <div className="absolute bottom-0 w-full border-t">
+      <div className="absolute bottom-0 w-full border-t border-slate-100">
         <button
           onClick={handleLogout}
           className={`flex items-center w-full ${
             isCollapsed ? "justify-center" : "px-4"
           }
-            py-3 text-red-500 hover:bg-red-50 transition-colors`}
+            py-3 text-rose-700 hover:bg-red-50 transition-colors`}
         >
           <LogOut size={20} />
           {!isCollapsed && <span className="ml-3">Logout</span>}

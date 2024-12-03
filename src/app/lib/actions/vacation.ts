@@ -1,7 +1,7 @@
 "use server";
 import { DeleteCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
-import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { dynamoDb } from "@/app/lib/dynamodb";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { FormData } from "@/app/components/Calendar/VacationForm";
@@ -10,7 +10,6 @@ function isWeekend(date: Date): boolean {
   const day = date.getDay();
   return day === 0 || day === 6;
 }
-
 function getWorkingDays(startDate: Date, endDate: Date): number {
   let days = 0;
   const current = new Date(startDate);
@@ -64,10 +63,9 @@ async function checkVacationConflicts(startDate: string, endDate: string) {
   return { hasConflict: false };
 }
 
-
 // Base function to fetch vacations data
 async function fetchVacationsData() {
-  console.log('Fetching vacations from DB at:', new Date().toISOString());
+  console.log("Fetching vacations from DB at:", new Date().toISOString());
   const result = await dynamoDb.send(
     new ScanCommand({
       TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
@@ -90,21 +88,21 @@ async function fetchVacationsData() {
     const gapEvent =
       vacation.gapDays > 0
         ? {
-          id: `gap-${vacation.id}`,
-          title: `Tarpas - ${vacation.userName}`,
-          start: new Date(
-            new Date(vacation.endDate).setDate(
-              new Date(vacation.endDate).getDate() + 1
-            )
-          ).toISOString(),
-          end: new Date(
-            new Date(vacation.endDate).setDate(
-              new Date(vacation.endDate).getDate() + vacation.gapDays
-            )
-          ).toISOString(),
-          backgroundColor: "#808080",
-          status: "GAP",
-        }
+            id: `gap-${vacation.id}`,
+            title: `Tarpas - ${vacation.userName}`,
+            start: new Date(
+              new Date(vacation.endDate).setDate(
+                new Date(vacation.endDate).getDate() + 1
+              )
+            ).toISOString(),
+            end: new Date(
+              new Date(vacation.endDate).setDate(
+                new Date(vacation.endDate).getDate() + vacation.gapDays
+              )
+            ).toISOString(),
+            backgroundColor: "#808080",
+            status: "GAP",
+          }
         : null;
 
     return gapEvent ? [mainEvent, gapEvent] : [mainEvent];
@@ -115,10 +113,10 @@ async function fetchVacationsData() {
 
 export const getVacations = unstable_cache(
   fetchVacationsData,
-  ['vacations-list'],
-  { 
-    revalidate: 604800, 
-    tags: ['vacations']
+  ["vacations-list"],
+  {
+    revalidate: 604800,
+    tags: ["vacations"],
   }
 );
 
@@ -170,8 +168,8 @@ export async function bookVacation(formData: FormData) {
         ConditionExpression: "attribute_not_exists(id)",
       })
     );
-    revalidateTag('vacations'); 
-    revalidatePath("/")
+    revalidateTag("vacations");
+    revalidatePath("/", "layout");
     return { success: true, data: vacation };
   } catch (error) {
     console.error("Failed to book vacation:", error);
@@ -195,10 +193,14 @@ export async function deleteVacation(id: string) {
         Key: { id },
       })
     );
-    revalidateTag('vacations');
-    revalidatePath("/");
-    return { success: true };
+    revalidateTag("vacations");
+    revalidatePath("/", "layout");
+    return { success: true, deletedId: id };
   } catch (error) {
-    return { success: false, error: `Failed to delete vacation`, message: error };
+    return {
+      success: false,
+      error: `Failed to delete vacation`,
+      message: error,
+    };
   }
 }

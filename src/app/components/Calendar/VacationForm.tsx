@@ -73,7 +73,7 @@ const VacationForm = ({ isOpen, onClose, onSuccess }: VacationFormProps) => {
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md relative">
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-blue-600" />
+            <CalendarIcon className="w-5 h-5 text-vdcoffe" />
             <h2 className="text-xl font-semibold text-gray-900">
               Registruoti atostogas
             </h2>
@@ -136,7 +136,7 @@ const VacationForm = ({ isOpen, onClose, onSuccess }: VacationFormProps) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full px-4 py-2 text-sm font-medium text-gray-950 bg-lcoffe border border-transparent rounded-md shadow-sm hover:bg-dcoffe focus:outline-none focus:ring-2 focus:ring-slate-50 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>

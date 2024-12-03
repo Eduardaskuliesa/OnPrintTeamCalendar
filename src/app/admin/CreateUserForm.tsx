@@ -5,9 +5,34 @@ import { useState } from "react";
 import { createUser } from "../lib/actions/users";
 import { toast } from "react-toastify";
 import { User } from "../types/api";
+import { X } from "lucide-react";
+
+const COLORS = [
+  "#800000",
+  "#9A6324",
+  "#808000",
+  "#000075",
+  "#e6194B",
+  "#469990",
+  "#f58231",
+  "#ffe119",
+  "#bfef45",
+  "#3cb44b",
+  "#42d4f4",
+  "#4363d8",
+  "#911eb4",
+  "#f032e6",
+  "#fabed4",
+  "#ffd8b1",
+  "#fffac8",
+  "#dcbeff",
+  "#B22222",
+  "#483D8B",
+];
 
 interface CreateUserFormProps {
-  onUserCreated: (newUser: User) => void;  // Add this prop
+  onUserCreated: (newUser: User) => void;
+  onCancel: () => void;
 }
 
 export interface FormData {
@@ -18,14 +43,17 @@ export interface FormData {
   role?: string;
 }
 
-export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
+export default function CreateUserForm({
+  onUserCreated,
+  onCancel,
+}: CreateUserFormProps) {
   const [loading, setLoading] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
     name: "",
-    color: "#000000",
+    color: COLORS[0],
   });
 
   const handleInputChange = (
@@ -37,8 +65,9 @@ export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
     });
   };
 
-  const toggleFormVisibility = () => {
-    setShowForm(!showForm);
+  const handleColorSelect = (color: string) => {
+    setFormData({ ...formData, color });
+    setShowColorPicker(false);
   };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -50,102 +79,143 @@ export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
         email: formData.email,
         name: formData.name,
         color: formData.color,
-        role: 'USER',
+        role: "USER",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      onUserCreated(newUser)
-      toast.success("User created successfully");
+      onUserCreated(newUser);
+      toast.success("Vartotojas sėkmingai sukurtas");
       setFormData({
         email: "",
         password: "",
         name: "",
-        color: "#000000",
+        color: COLORS[0],
       });
-      toggleFormVisibility();
     } catch (error: any) {
-      toast.error(error.message || "Failed to create user");
+      toast.error(error.message || "Nepavyko sukurti vartotojo");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 mb-8">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Create New User</h2>
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          onClick={toggleFormVisibility}
-        >
-          {showForm ? "Close" : "Create User"}
-        </button>
+    <div className="bg-white p-6 rounded-xl">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold text-gray-900">
+          Naujas Vartotojas
+        </h2>
       </div>
-      {showForm && (
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Color
-              </label>
-              <input
-                type="color"
-                name="color"
-                value={formData.color}
-                onChange={handleInputChange}
-                required
-                className="mt-1 w-[50px] rounded-md  border-gray-300 h-10"
-              />
-            </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Vardas
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-dcoffe focus:border-transparent transition-all"
+            placeholder="Jonas Jonaitis"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              El. paštas
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-dcoffe focus:border-transparent transition-all"
+              placeholder="jonas@pavyzdys.lt"
+            />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Slaptažodis
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-dcoffe focus:border-transparent transition-all"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <div className="relative">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Spalva
+          </label>
+          <button
+            type="button"
+            onClick={() => setShowColorPicker(!showColorPicker)}
+            className="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-dcoffe focus:border-transparent"
+          >
+            <div className="flex items-center space-x-2">
+              <div
+                className="w-6 h-6 rounded-full border border-gray-200"
+                style={{ backgroundColor: formData.color }}
+              />
+              <span className="text-gray-700">Pasirinkti spalvą</span>
+            </div>
+            <X
+              size={18}
+              className={`transform transition-transform ${
+                showColorPicker ? "rotate-0" : "rotate-45"
+              }`}
+            />
+          </button>
+
+          {showColorPicker && (
+            <div className="absolute z-10 mt-2 p-3 bg-white rounded-xl shadow-lg border border-gray-200 w-64 right-0">
+              <div className="grid grid-cols-5 gap-2">
+                {COLORS.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => handleColorSelect(color)}
+                    className={`w-8 h-8 rounded-full border-2 transition-all ${
+                      formData.color === color
+                        ? "border-dcoffe scale-110"
+                        : "border-gray-200 hover:border-gray-300 hover:scale-105"
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end space-x-3 pt-4">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+          >
+            Atšaukti
+          </button>
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+            className="px-4 py-2 bg-lcoffe text-db rounded-md hover:bg-dcoffe transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Creating..." : "Create User"}
+            {loading ? "Kuriama..." : "Sukurti"}
           </button>
-        </form>
-      )}
+        </div>
+      </form>
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { deleteVacation, getVacations } from "@/app/lib/actions/vacation";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
+import { Plus } from "lucide-react";
 
 interface Event {
   id: string;
@@ -34,9 +35,13 @@ const CalendarToolbar: React.FC<CalendarToolbarProps> = ({ onAddVacation }) => (
     <h1 className="text-2xl font-semibold text-gray-800">Vacation Calendar</h1>
     <button
       onClick={onAddVacation}
-      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2"
+      className="px-4 py-2 group bg-vdcoffe text-white rounded-md hover:bg-dcoffe hover:text-db transition-colors shadow-sm flex items-center gap-2"
     >
-      <span>+</span> Book Vacation
+      <Plus
+        size={18}
+        className="transform  transition-transform group-hover:rotate-90 "
+      ></Plus>{" "}
+      Book Vacation
     </button>
   </div>
 );
@@ -54,7 +59,6 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
     setEvents(data);
   }, []);
 
-
   const handleEventClick = (info: any) => {
     if (
       session?.user?.role !== "ADMIN" ||
@@ -70,7 +74,13 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
 
     const result = await deleteVacation(selectedEvent.id);
     if (result.success) {
-      await refreshEvents();
+      setEvents((prev) =>
+        prev.filter(
+          (event) =>
+            event.id !== result.deletedId &&
+            event.id !== `gap-${result.deletedId}`
+        )
+      );
       toast.success("Atostogos ištrintos");
     } else {
       toast.error(result.error || "Nepavyko ištrinti atostogų");
@@ -82,7 +92,7 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
   return (
     <div className="p-6 max-w-[1200px] mx-auto">
       <CalendarToolbar onAddVacation={() => setShowAddModal(true)} />
-      <div className="bg-white p-6 rounded-lg shadow-lg">
+      <div className="bg-white border-2 border-slate-50 p-6 rounded-lg shadow-xl">
         {isLoading && <CalendarSkeleton />}
         <div className={isLoading ? "invisible" : "visible"}>
           <FullCalendar

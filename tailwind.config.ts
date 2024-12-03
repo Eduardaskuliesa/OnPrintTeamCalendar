@@ -11,6 +11,10 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        db: "#102C57",
+        dcoffe: "#DAC0A3",
+        vdcoffe: "#6F4E37",
+        lcoffe: "#EADBC8",
       },
     },
   },

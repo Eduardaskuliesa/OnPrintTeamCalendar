@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
+  --background: #fefaf6;
   --foreground: #171717;
 }
 
@@ -27,9 +27,22 @@ body {
 }
 
 .fc .fc-button {
+  color: #171717;
+  border-color: #f8fafc;
   margin: 0 2px;
+  background-color: #dac0a3;
 }
-
+.fc .fc-button:hover {
+  background-color: #6f4e37;
+  border-color: #f8fafc;
+  color: #f8fafc;
+}
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background-color: #6f4e37;
+  border-color: #f8fafc;
+  color: #f8fafc;
+}
 
 .fc .fc-toolbar {
   gap: 8px;
