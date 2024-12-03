@@ -60,7 +60,7 @@ export async function getUsers() {
     const cachedUsers = await unstable_cache(
       queryUsers,
       [cacheKey],
-      { revalidate: 3600, tags: ['users'] }
+      { revalidate: 604800, tags: ['users'] }
     )();
 
     return { data: cachedUsers };

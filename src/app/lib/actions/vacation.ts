@@ -1,7 +1,7 @@
 "use server";
 import { DeleteCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
-import { revalidatePath, unstable_cache } from 'next/cache';
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 import { dynamoDb } from "@/app/lib/dynamodb";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { FormData } from "@/app/components/Calendar/VacationForm";
@@ -112,12 +112,11 @@ async function fetchVacationsData() {
   return vacations?.flat() || [];
 }
 
-// Cached version of getVacations
 export const getVacations = unstable_cache(
   fetchVacationsData,
   ['vacations-list'],
   { 
-    revalidate: 3600, // Cache for 1 hour
+    revalidate: 604800, 
     tags: ['vacations']
   }
 );
@@ -170,7 +169,7 @@ export async function bookVacation(formData: FormData) {
         ConditionExpression: "attribute_not_exists(id)",
       })
     );
-
+    revalidateTag('vacations'); 
     revalidatePath("/");
     return { success: true, data: vacation };
   } catch (error) {
@@ -195,6 +194,7 @@ export async function deleteVacation(id: string) {
         Key: { id },
       })
     );
+    revalidateTag('vacations'); 
 
     revalidatePath("/");
     return { success: true };
