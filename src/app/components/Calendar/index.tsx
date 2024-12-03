@@ -53,7 +53,7 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
     const data = await getVacations();
     setEvents(data);
   };
-  console.log(selectedEvent)
+  console.log(selectedEvent);
 
   const handleEventClick = (info: any) => {
     if (
@@ -65,11 +65,9 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
     setShowDeleteDialog(true);
   };
 
-  console.log(initialVacations)
-
   const handleDelete = async () => {
     if (!selectedEvent) return;
- 
+
     const result = await deleteVacation(selectedEvent.id);
     if (result.success) {
       await refreshEvents();

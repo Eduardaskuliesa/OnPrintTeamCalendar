@@ -1,24 +1,31 @@
+export interface ConfirmationMessage {
+  title: string;
+  message: React.ReactNode;
+}
 
 interface DeleteConfirmationProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   userName?: string;
+  confirmationMessage: ConfirmationMessage;
 }
 
-const DeleteConfirmation = ({
+const DeleteUserConfirmation = ({
   isOpen,
   onClose,
   onConfirm,
-  userName,
+  confirmationMessage,
 }: DeleteConfirmationProps) => {
   if (!isOpen) return null;
-  console.log(userName);
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-        <h3 className="text-lg font-medium mb-4">Patvirtinkite ištrynimą</h3>
-        <p className="mb-6">Ar tikrai norite ištrinti {userName} atostogas?</p>
+        <h3 className="text-lg font-medium mb-4">
+          {confirmationMessage.title}
+        </h3>
+        <p className="mb-6">{confirmationMessage.message}</p>
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
@@ -38,4 +45,4 @@ const DeleteConfirmation = ({
   );
 };
 
-export default DeleteConfirmation;
+export default DeleteUserConfirmation;

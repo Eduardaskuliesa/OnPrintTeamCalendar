@@ -11,6 +11,11 @@ interface VacationFormProps {
 }
 type ErrorType = "OVERLAP" | "GAP_CONFLICT" | "default";
 
+export interface FormData {
+  startDate: string;
+  endDate: string;
+}
+
 const VacationForm = ({ isOpen, onClose, onSuccess }: VacationFormProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

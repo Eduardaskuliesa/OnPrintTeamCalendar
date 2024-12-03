@@ -52,27 +52,19 @@ const Sidebar = () => {
   const handleLogout = async () => {
     try {
       await signOut({ redirect: false });
-      toast.success("Successfully logged out!", {
-        autoClose: 2000,
-        pauseOnHover: false,
-        position: "top-center",
-        theme: "colored",
-        style: { fontSize: "16px", fontWeight: "500" },
-      });
+      toast.success("Successfully logged out!");
 
       router.push("/login");
     } catch (error: any) {
       console.log(error);
-      toast.error("Error logging out", {
-        position: "top-center",
-        theme: "colored",
-        style: { fontSize: "16px", fontWeight: "500" },
-      });
+      toast.error("Error logging out");
     }
   };
 
   const navItems = [
-    ...(session?.user?.role === 'ADMIN' ? [{ href: "/admin", icon: <User size={20} />, text: "Admin" }] : []),
+    ...(session?.user?.role === "ADMIN"
+      ? [{ href: "/admin", icon: <User size={20} />, text: "Admin" }]
+      : []),
     { href: "/", icon: <Calendar size={20} />, text: "Calendar" },
     { href: "/account", icon: <Settings size={20} />, text: "Account" },
   ];

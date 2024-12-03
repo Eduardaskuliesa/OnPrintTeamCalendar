@@ -9,6 +9,7 @@ async function getInitialVacations() {
 
 const Home = async () => {
   const initialVacations = await getInitialVacations();
+
   return <Calendar initialVacations={initialVacations}></Calendar>;
 };
 

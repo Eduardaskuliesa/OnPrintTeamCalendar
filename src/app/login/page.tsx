@@ -2,7 +2,7 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,16 +20,12 @@ export default function LoginPage() {
     });
 
     if (response?.error) {
-      toast.error("Invalid credentials", {
-        theme: "colored",
-      });
+      toast.error("Invalid credentials", {});
       setLoading(false);
       return;
     }
 
-    toast.success("Successfully logged in!", {
-      theme: "colored",
-    });
+    toast.success("Successfully logged in!", {});
 
     router.push("/");
     router.refresh();
@@ -37,7 +33,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white px-4">
-
       <div className="w-full max-w-md space-y-8 bg-white rounded-xl shadow-lg p-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900">

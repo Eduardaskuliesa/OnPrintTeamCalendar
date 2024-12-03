@@ -124,7 +124,7 @@ export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
                 value={formData.color}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 h-10"
+                className="mt-1 w-[50px] rounded-md  border-gray-300 h-10"
               />
             </div>
           </div>

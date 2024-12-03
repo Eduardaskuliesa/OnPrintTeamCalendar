@@ -30,12 +30,13 @@ body {
   margin: 0 2px;
 }
 
+
 .fc .fc-toolbar {
   gap: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 16px; 
+  width: 16px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {

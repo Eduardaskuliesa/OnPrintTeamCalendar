@@ -6,6 +6,7 @@ import { dynamoDb } from "@/app/lib/dynamodb";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { FormData } from "@/app/components/Calendar/VacationForm";
 
+
 function isWeekend(date: Date): boolean {
   const day = date.getDay();
   return day === 0 || day === 6;
@@ -34,12 +35,10 @@ async function checkVacationConflicts(startDate: string, endDate: string) {
   const workingDays = getWorkingDays(new Date(startDate), new Date(endDate));
   const shouldCheckGap = workingDays > 2;
 
-  // Check for direct date conflicts
   for (const vacation of existingVacations.Items || []) {
     const vacStart = new Date(vacation.startDate);
     const vacEnd = new Date(vacation.endDate);
 
-    // Check for overlapping dates
     if (new Date(startDate) <= vacEnd && new Date(endDate) >= vacStart) {
       return {
         hasConflict: true,
@@ -50,20 +49,19 @@ async function checkVacationConflicts(startDate: string, endDate: string) {
       };
     }
 
-    // Only check gap conflicts if vacation is longer than 2 working days
-    if (shouldCheckGap) {
-      const gapEnd = new Date(vacEnd);
-      gapEnd.setDate(gapEnd.getDate() + vacation.gapDays);
+    const gapStart = new Date(vacEnd);
+    gapStart.setDate(gapStart.getDate() + 1);
+    const gapEnd = new Date(vacEnd);
+    gapEnd.setDate(gapEnd.getDate() + vacation.gapDays);
 
-      if (new Date(startDate) <= gapEnd && new Date(endDate) >= vacStart) {
-        return {
-          hasConflict: true,
-          error: {
-            type: "GAP_CONFLICT",
-            dates: [{ start: vacation.endDate, end: gapEnd.toISOString() }],
-          },
-        };
-      }
+    if (new Date(startDate) <= gapEnd && new Date(endDate) >= gapStart) {
+      return {
+        hasConflict: true,
+        error: {
+          type: "GAP_CONFLICT",
+          dates: [{ start: gapStart.toISOString(), end: gapEnd.toISOString() }],
+        },
+      };
     }
   }
 
@@ -147,7 +145,7 @@ export async function getVacations() {
       ).toISOString(),
       backgroundColor: vacation.userColor,
       status: vacation.status,
-      email: vacation.userEmail
+      email: vacation.userEmail,
     };
 
     const gapEvent =
@@ -167,7 +165,6 @@ export async function getVacations() {
             ).toISOString(),
             backgroundColor: "#808080",
             status: "GAP",
-           
           }
         : null;
 
