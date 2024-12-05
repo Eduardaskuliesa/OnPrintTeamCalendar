@@ -20,8 +20,8 @@ export default function VacationRequestList({
   initialRequests: Vacation[];
 }) {
   const [requests, setRequests] = useState(initialRequests);
-  const [loadingApprove, setLoadingApprove] = useState<string | null>(null);
-  const [loadingReject, setLoadingReject] = useState<string | null>(null);
+  const [loadingApproveIds, setLoadingApproveIds] = useState(new Set());
+  const [loadingRejectIds, setLoadingRejectIds] = useState(new Set());
 
   const handleStatusUpdate = async (
     id: string,
@@ -29,13 +29,12 @@ export default function VacationRequestList({
     userEmail: string
   ) => {
     if (status === "APPROVED") {
-      setLoadingApprove(id);
+      setLoadingApproveIds((prev) => new Set(prev).add(id));
     } else {
-      setLoadingReject(id);
+      setLoadingRejectIds((prev) => new Set(prev).add(id));
     }
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500)); 
       const result = await updateVacationStatus(id, status);
       if (result.success) {
         setRequests((prev) => prev.filter((req) => req.id !== id));
@@ -50,11 +49,20 @@ export default function VacationRequestList({
       }
     } catch (error) {
       toast.error(`${error} Klaida`);
-    }
-    if (status === "APPROVED") {
-      setLoadingApprove(null);
-    } else {
-      setLoadingReject(null);
+    } finally {
+      if (status === "APPROVED") {
+        setLoadingApproveIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(id);
+          return newSet;
+        });
+      } else {
+        setLoadingRejectIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(id);
+          return newSet;
+        });
+      }
     }
   };
 
@@ -119,11 +127,12 @@ export default function VacationRequestList({
                       )
                     }
                     disabled={
-                      loadingApprove === request.id || loadingReject !== null
-                    } // Disable "Approve" button if already loading
+                      loadingApproveIds.has(request.id) ||
+                      loadingRejectIds.has(request.id)
+                    }
                     className="px-4 py-2 bg-emerald-200 text-green-800 rounded-md text-sm shadow-sm hover:bg-emerald-300 transition-colors disabled:opacity-50"
                   >
-                    {loadingApprove === request.id ? (
+                    {loadingApproveIds.has(request.id) ? (
                       <div className="flex items-center">
                         <RefreshCcw className="w-3 h-3 mr-2 animate-spin" />
                         <span>Tvirtinama</span>
@@ -141,11 +150,12 @@ export default function VacationRequestList({
                       )
                     }
                     disabled={
-                      loadingReject === request.id || loadingApprove !== null
+                      loadingRejectIds.has(request.id) ||
+                      loadingApproveIds.has(request.id)
                     }
                     className="px-4 py-2 bg-rose-200 text-red-800 rounded-md text-sm shadow-sm hover:bg-rose-300 transition-colors disabled:opacity-50"
                   >
-                    {loadingReject === request.id ? (
+                    {loadingRejectIds.has(request.id) ? (
                       <div className="flex items-center">
                         <RefreshCcw className="w-3 h-3 mr-2 animate-spin" />
                         <span>Atmetama</span>

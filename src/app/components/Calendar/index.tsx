@@ -53,6 +53,7 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   const refreshEvents = useCallback(async () => {
     const data = await getVacations();
@@ -72,21 +73,29 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
   const handleDelete = async () => {
     if (!selectedEvent) return;
 
-    const result = await deleteVacation(selectedEvent.id);
-    if (result.success) {
-      setEvents((prev) =>
-        prev.filter(
-          (event) =>
-            event.id !== result.deletedId &&
-            event.id !== `gap-${result.deletedId}`
-        )
-      );
-      toast.success("Atostogos ištrintos");
-    } else {
-      toast.error(result.error || "Nepavyko ištrinti atostogų");
+    setLoading(true);
+    try {
+      const result = await deleteVacation(selectedEvent.id);
+      if (result.success) {
+        setEvents((prev) =>
+          prev.filter(
+            (event) =>
+              event.id !== result.deletedId &&
+              event.id !== `gap-${result.deletedId}`
+          )
+        );
+        toast.success("Atostogos ištrintos");
+      } else {
+        toast.error(result.error || "Nepavyko ištrinti atostogų");
+      }
+    } catch (error) {
+      toast.error("Įvyko klaida trinant atostogas");
+      console.error("Delete vacation error:", error);
+    } finally {
+      setLoading(false);
+      setShowDeleteDialog(false);
+      setSelectedEvent(null);
     }
-    setShowDeleteDialog(false);
-    setSelectedEvent(null);
   };
 
   return (
@@ -189,6 +198,7 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
         </div>
       </div>
       <DeleteConfirmation
+        loading={loading}
         isOpen={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
         onConfirm={handleDelete}
