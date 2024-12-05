@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { User } from "@/app/types/api";
@@ -8,15 +7,24 @@ import UserList from "./UserList";
 import VacationRequestList from "./VacationRequestList";
 import { Users, Calendar, Plus, Palmtree } from "lucide-react";
 
-interface VacationRequest {
+export interface Vacation {
   id: string;
   userName: string;
+  userEmail: string;
   startDate: string;
   endDate: string;
-  status: "pending" | "approved" | "rejected";
+  status: "PENDING" | "APPROVED" | "REJECTED";
 }
 
-export default function AdminPage({ initialUsers }: { initialUsers: User[] }) {
+export default function AdminPage({
+  initialUsers,
+  initialVacations,
+  activeVacations,
+}: {
+  initialUsers: User[];
+  initialVacations: Vacation[];
+  activeVacations: Vacation[];
+}) {
   const [users, setUsers] = useState<User[]>(
     initialUsers.filter((user) => user.role !== "ADMIN")
   );
@@ -24,24 +32,6 @@ export default function AdminPage({ initialUsers }: { initialUsers: User[] }) {
     "dashboard"
   );
   const [showCreateModal, setShowCreateModal] = useState(false);
-
-  
-  const [vacationRequests] = useState<VacationRequest[]>([
-    {
-      id: "1",
-      userName: "John Doe",
-      startDate: "2024-12-24",
-      endDate: "2024-12-31",
-      status: "pending",
-    },
-    {
-      id: "2",
-      userName: "Jane Smith",
-      startDate: "2024-12-25",
-      endDate: "2024-12-28",
-      status: "pending",
-    },
-  ]);
 
   const handleUserCreated = (newUser: User) => {
     setUsers((prevUsers) => [...prevUsers, newUser]);
@@ -60,7 +50,6 @@ export default function AdminPage({ initialUsers }: { initialUsers: User[] }) {
         return (
           <div className="space-y-6 max-w-5xl">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              
               <div className="bg-slate-50 p-6 rounded-lg shadow-md border-2 border-blue-50">
                 <div className="flex items-center justify-between">
                   <h3 className="text-gray-700 font-semibold">Vartotojai</h3>
@@ -78,7 +67,7 @@ export default function AdminPage({ initialUsers }: { initialUsers: User[] }) {
                 </div>
                 <p className="text-3xl font-bold mt-2">
                   {
-                    vacationRequests.filter((r) => r.status === "pending")
+                    initialVacations.filter((r) => r.status === "PENDING")
                       .length
                   }
                 </p>
@@ -91,25 +80,28 @@ export default function AdminPage({ initialUsers }: { initialUsers: User[] }) {
                 </div>
                 <p className="text-3xl font-bold mt-2">
                   {
-                    vacationRequests.filter((r) => r.status === "approved")
+                    activeVacations.filter((r) => r.status === "APPROVED")
                       .length
                   }
                 </p>
               </div>
             </div>
 
-       
             <UserList
               users={users}
               onUserDeleted={handleUserDeleted}
-              vacationRequests={vacationRequests}
+              vacationRequests={initialVacations}
             />
           </div>
         );
       case "requests":
         return (
           <div className="max-w-5xl">
-            <VacationRequestList requests={vacationRequests} />
+            <VacationRequestList
+              initialRequests={initialVacations.filter(
+                (v) => v.status === "PENDING"
+              )}
+            />
           </div>
         );
     }
@@ -118,12 +110,10 @@ export default function AdminPage({ initialUsers }: { initialUsers: User[] }) {
   return (
     <div className="min-h-screen">
       <div className="py-4 max-w-5xl ml-[10%]">
-       
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
         </div>
 
-      
         <div className="mb-6 flex justify-between items-center">
           <div className="inline-flex rounded-lg shadow-sm border border-gray-100">
             <button
@@ -153,18 +143,14 @@ export default function AdminPage({ initialUsers }: { initialUsers: User[] }) {
           >
             <Plus
               size={20}
-              className={`transform text-black transition-transform group-hover:rotate-90`}
-                
-        
+              className="transform text-black transition-transform group-hover:rotate-90"
             />
             <span>Pridėti vartotoją</span>
           </button>
         </div>
 
-        
         {renderContent()}
 
-       
         {showCreateModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-white rounded-lg max-w-2xl w-full mx-4">

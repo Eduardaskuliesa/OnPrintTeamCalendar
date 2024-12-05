@@ -1,10 +1,17 @@
 "use server";
-import { DeleteCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  DeleteCommand,
+  PutCommand,
+  QueryCommand,
+  ScanCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { dynamoDb } from "@/app/lib/dynamodb";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { FormData } from "@/app/components/Calendar/VacationForm";
+
 
 function isWeekend(date: Date): boolean {
   const day = date.getDay();
@@ -169,7 +176,8 @@ export async function bookVacation(formData: FormData) {
       })
     );
     revalidateTag("vacations");
-    revalidatePath("/", "layout");
+    revalidateTag("admin-vacations");
+    revalidatePath("/");
     return { success: true, data: vacation };
   } catch (error) {
     console.error("Failed to book vacation:", error);
@@ -194,7 +202,8 @@ export async function deleteVacation(id: string) {
       })
     );
     revalidateTag("vacations");
-    revalidatePath("/", "layout");
+    revalidateTag("admin-vacations");
+    revalidatePath("/");
     return { success: true, deletedId: id };
   } catch (error) {
     return {
@@ -204,3 +213,78 @@ export async function deleteVacation(id: string) {
     };
   }
 }
+
+export async function updateVacationStatus(
+  id: string,
+  status: "APPROVED" | "REJECTED"
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+      throw new Error("Unauthorized");
+    }
+
+    await dynamoDb.send(
+      new UpdateCommand({
+        TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
+        Key: { id },
+        UpdateExpression: "SET #status = :status, updatedAt = :updatedAt",
+        ExpressionAttributeNames: {
+          "#status": "status",
+        },
+        ExpressionAttributeValues: {
+          ":status": status,
+          ":updatedAt": new Date().toISOString(),
+        },
+      })
+    );
+    revalidateTag("admin-vacations");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update vacation status:", error);
+    return { success: false, error: "Failed to update status" };
+  }
+}
+
+async function fetchAdminVacations() {
+  console.log("Fetching AdminVacation from DB at:", new Date().toISOString());
+  const pendingCommand = new QueryCommand({
+    TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
+    IndexName: "status-index",
+    KeyConditionExpression: "#status = :status",
+    ExpressionAttributeNames: {
+      "#status": "status",
+    },
+    ExpressionAttributeValues: {
+      ":status": "PENDING",
+    },
+  });
+
+  const approvedCommand = new QueryCommand({
+    TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
+    IndexName: "status-index",
+    KeyConditionExpression: "#status = :status",
+    ExpressionAttributeNames: {
+      "#status": "status",
+    },
+    ExpressionAttributeValues: {
+      ":status": "APPROVED",
+    },
+  });
+
+  const [pendingResult, approvedResult] = await Promise.all([
+    dynamoDb.send(pendingCommand),
+    dynamoDb.send(approvedCommand),
+  ]);
+
+  return [...(pendingResult.Items || []), ...(approvedResult.Items || [])];
+}
+export const getAdminVacations = unstable_cache(
+  fetchAdminVacations,
+  ["admin-vacations"],
+  {
+    revalidate: 86400,
+    tags: ["admin-vacations"],
+  }
+);

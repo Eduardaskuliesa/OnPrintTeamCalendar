@@ -35,7 +35,7 @@ const CalendarToolbar: React.FC<CalendarToolbarProps> = ({ onAddVacation }) => (
     <h1 className="text-2xl font-semibold text-gray-800">Vacation Calendar</h1>
     <button
       onClick={onAddVacation}
-      className="px-4 py-2 group bg-vdcoffe text-white rounded-md hover:bg-dcoffe hover:text-db transition-colors shadow-sm flex items-center gap-2"
+      className="px-4 py-2 group bg-dcoffe text-gray-950 rounded-md hover:bg-vdcoffe hover:text-gray-100 transition-colors shadow-sm flex items-center gap-2"
     >
       <Plus
         size={18}
@@ -92,7 +92,7 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
   return (
     <div className="p-6 max-w-[1200px] mx-auto">
       <CalendarToolbar onAddVacation={() => setShowAddModal(true)} />
-      <div className="bg-white border-2 border-slate-50 p-6 rounded-lg shadow-xl">
+      <div className="bg-slate-50 border-2 border-blue-50 p-6 rounded-lg shadow-xl">
         {isLoading && <CalendarSkeleton />}
         <div className={isLoading ? "invisible" : "visible"}>
           <FullCalendar

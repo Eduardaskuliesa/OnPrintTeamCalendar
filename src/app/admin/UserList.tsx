@@ -55,8 +55,8 @@ export default function UserList({
     message: (
       <span>
         Ar tikrai norite ištrinti{" "}
-        {userToDelete?.name && (
-          <span className="font-bold">{userToDelete.name}</span>
+        {userToDelete?.email && (
+          <span className="font-bold">{userToDelete.email}</span>
         )}
         ?
       </span>

@@ -1,4 +1,4 @@
-'use server'
+"use server";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormData } from "@/app/admin/CreateUserForm";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
@@ -8,24 +8,23 @@ import {
   PutCommand,
   DeleteCommand,
   GetCommand,
-  UpdateCommand
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth";
-import { revalidatePath, unstable_cache } from 'next/cache';
-
+import { revalidateTag, unstable_cache } from "next/cache";
 
 const dynamoName = process.env.DYNAMODB_NAME;
 
 async function queryUsers() {
-  console.log('DB Query executed at:', new Date().toISOString());
+  console.log("DB Query executed at:", new Date().toISOString());
 
   const getAllUsers = new ScanCommand({
     TableName: dynamoName || "",
     ProjectionExpression: "email, #name, #role, color, createdAt, updatedAt",
     ExpressionAttributeNames: {
       "#name": "name",
-      "#role": "role"
+      "#role": "role",
     },
   });
 
@@ -53,18 +52,14 @@ export async function getUsers() {
       throw new Error("Unauthorized");
     }
 
-
     const cacheKey = await getUserCacheKey();
 
-
-    const cachedUsers = await unstable_cache(
-      queryUsers,
-      [cacheKey],
-      { revalidate: 604800, tags: ['users'] }
-    )();
+    const cachedUsers = await unstable_cache(queryUsers, [cacheKey], {
+      revalidate: 604800,
+      tags: ["users"],
+    })();
 
     return { data: cachedUsers };
-
   } catch (error: any) {
     console.error("Error fetching users:", error);
     throw new Error(error.message);
@@ -80,10 +75,10 @@ export async function createUser(formData: FormData) {
     }
 
     const email = formData.email;
-    const password = formData.password
-    const name = formData.name
-    const color = formData.color
-    const role = 'USER'
+    const password = formData.password;
+    const name = formData.name;
+    const color = formData.color;
+    const role = "USER";
 
     if (!email || !password || !name) {
       throw new Error("Missing required fields");
@@ -107,12 +102,12 @@ export async function createUser(formData: FormData) {
 
     await dynamoDb.send(createUser);
     console.log("Revalidating path at:", new Date().toISOString());
-    revalidatePath('/admin');
+    revalidateTag("users");
 
     return { message: "User created successfully" };
   } catch (error: any) {
     if (error.name === "ConditionalCheckFailedException") {
-      throw new Error("Email already exists");
+      throw new Error("Šis elpaštas jau yra užimtas");
     }
     throw new Error(error.message);
   }
@@ -162,7 +157,7 @@ export async function deleteUser(email: string) {
     });
 
     await dynamoDb.send(command);
-    revalidatePath('/admin');
+    revalidateTag("users");
     return { message: "User deleted successfully" };
   } catch (error: any) {
     if (error.name === "ConditionalCheckFailedException") {

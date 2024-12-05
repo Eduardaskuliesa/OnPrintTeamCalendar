@@ -25,6 +25,12 @@ body {
 .fc-multimonth-month > .fc-daygrid-body {
   cursor: pointer;
 }
+.fc-col-header-cell .fc-scrollgrid-sync-inner {
+  background-color: #fefaf6;
+}
+.fc-scrollgrid-sync-inner {
+  background-color: white;
+}
 
 .fc .fc-button {
   color: #171717;

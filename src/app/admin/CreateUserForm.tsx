@@ -92,7 +92,7 @@ export default function CreateUserForm({
         color: COLORS[0],
       });
     } catch (error: any) {
-      toast.error(error.message || "Nepavyko sukurti vartotojo");
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
