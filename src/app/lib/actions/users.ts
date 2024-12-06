@@ -9,6 +9,7 @@ import {
   DeleteCommand,
   GetCommand,
   UpdateCommand,
+  QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
 import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth";
@@ -210,5 +211,102 @@ export async function updatePassword(
     return { message: "Password updated successfully" };
   } catch (error: any) {
     throw new Error(error.message);
+  }
+}
+
+export async function updateUser(
+  email: string,
+  userData: { name?: string; color?: string }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+      throw new Error("Unauthorized");
+    }
+    const updateExpressions = [];
+    const expressionAttributeNames: Record<string, string> = {};
+    const expressionAttributeValues: Record<string, any> = {
+      ":updatedAt": new Date().toISOString(),
+    };
+
+    if (userData.name) {
+      updateExpressions.push("#name = :name");
+      expressionAttributeNames["#name"] = "name";
+      expressionAttributeValues[":name"] = userData.name;
+    }
+
+    if (userData.color) {
+      updateExpressions.push("color = :color");
+      expressionAttributeValues[":color"] = userData.color;
+    }
+
+    // Update user
+    await dynamoDb.send(
+      new UpdateCommand({
+        TableName: process.env.DYNAMODB_NAME!,
+        Key: { email },
+        UpdateExpression: `SET ${updateExpressions.join(
+          ", "
+        )}, updatedAt = :updatedAt`,
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
+        ConditionExpression: "attribute_exists(email)",
+      })
+    );
+    if (userData.name) {
+      const { Items: vacations } = await dynamoDb.send(
+        new QueryCommand({
+          TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
+          IndexName: "userEmail-index",
+          KeyConditionExpression: "userEmail = :email",
+          ExpressionAttributeValues: {
+            ":email": email,
+          },
+        })
+      );
+      console.log(vacations?.length)
+
+      if (vacations?.length) {
+        await Promise.all(
+          vacations.map((vacation) => {
+            const updateExp = [];
+            const expValues: Record<string, any> = {};
+
+            if (userData.name) {
+              updateExp.push("userName = :userName");
+              expValues[":userName"] = userData.name;
+            }
+
+            if (userData.color) {
+              updateExp.push("userColor = :userColor");
+              expValues[":userColor"] = userData.color;
+            }
+
+            return dynamoDb.send(
+              new UpdateCommand({
+                TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
+                Key: { id: vacation.id },
+                UpdateExpression: `SET ${updateExp.join(", ")}`,
+                ExpressionAttributeValues: expValues,
+              })
+            );
+          })
+        );
+      }
+    }
+
+    revalidateTag("users");
+    revalidateTag("vacations");
+    revalidateTag("admin-vacations");
+
+    return {
+      success: true,
+      message: "User and related vacations updated successfully",
+    };
+  } catch (error: any) {
+    if (error.name === "ConditionalCheckFailedException") {
+      return { success: false, error: "User not found" };
+    }
+    return { success: false, error: error.message };
   }
 }

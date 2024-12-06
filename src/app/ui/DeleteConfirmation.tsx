@@ -6,14 +6,15 @@ interface DeleteConfirmationProps {
   onConfirm: () => void;
   userName?: string;
   loading: boolean;
+  message?: string | JSX.Element;
 }
 
 const DeleteConfirmation = ({
   isOpen,
   onClose,
   onConfirm,
-  userName,
   loading,
+  message = "Ar tikrai norite ištrinti",
 }: DeleteConfirmationProps) => {
   if (!isOpen) return null;
 
@@ -21,7 +22,9 @@ const DeleteConfirmation = ({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-sm w-full">
         <h3 className="text-lg font-medium mb-4">Patvirtinkite ištrynimą</h3>
-        <p className="mb-6">Ar tikrai norite ištrinti {userName} atostogas?</p>
+        <p className="mb-6">
+          {message}
+        </p>
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}

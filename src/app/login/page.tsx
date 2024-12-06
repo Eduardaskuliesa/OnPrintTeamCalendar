@@ -1,93 +1,130 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const response = await signIn("credentials", {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      redirect: false,
-    });
+    try {
+      const formData = new FormData(e.currentTarget);
+      const response = await signIn("credentials", {
+        email: formData.get("email"),
+        password: formData.get("password"),
+        redirect: false,
+      });
 
-    if (response?.error) {
-      toast.error("Invalid credentials", {});
+      if (response?.error) {
+        toast.error("Invalid credentials");
+        return;
+      }
+      const updatedSession = await getSession();
+
+      switch (updatedSession?.user?.role) {
+        case "ADMIN":
+          router.push("/admin");
+          toast.success("Successfully logged in!");
+          break;
+        case "USER":
+          router.push("/account");
+          toast.success("Successfully logged in!");
+          break;
+        default:
+          router.push("/");
+      }
+
+      router.refresh();
+    } catch (error: any) {
+      toast.error("Login failed. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    toast.success("Successfully logged in!", {});
-
-    router.push("/");
-    router.refresh();
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white px-4">
-      <div className="w-full max-w-md space-y-8 bg-white rounded-xl shadow-lg p-8">
+    <div className="min-h-screen bg-[#fefaf6] flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-slate-50 border-2 border-blue-50 shadow-xl rounded-xl p-8 space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-            Welcome back
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Please sign in to your account
-          </p>
+          <h2 className="text-3xl font-semibold text-[#102C57]">Sveiki</h2>
+          <p className="mt-2 text-sm text-[#6F4E37]">Prašome prisijungti</p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-5">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* Email Field */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-[#102C57]"
+            >
+              Email Address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, email: e.target.value }))
+              }
+              className="mt-1 block w-full py-3 px-4 border focus:outline-none border-lcoffe rounded-lg shadow-sm focus:ring-2 focus:ring-dcoffe focus:border-transparent transition-colors"
+              placeholder="example@domain.com"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-[#102C57]"
+            >
+              Password
+            </label>
+            <div className="relative">
               <input
                 id="password"
                 name="password"
-                type="password"
-                autoComplete="current-password"
+                type={showPassword ? "text" : "password"}
                 required
-                className="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, password: e.target.value }))
+                }
+                className="mt-1 block w-full py-3 px-4 border focus:outline-none border-lcoffe rounded-lg shadow-sm focus:ring-2 focus:ring-dcoffe focus:border-transparent transition-colors"
+                placeholder="••••••••"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#102C57]"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 px-4 bg-dcoffe flex items-center justify-center text-gray-950 rounded-lg shadow-md hover:bg-vdcoffe hover:text-white focus:outline-none focus:ring-2 focus:ring-[#DAC0A3] transition-colors  duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2  border-white border-t-transparent rounded-full animate-spin" />
             ) : (
-              "Sign in"
+              "Prisijungti"
             )}
           </button>
         </form>

@@ -3,7 +3,6 @@
 import React, { useCallback, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import CalendarSkeleton from "./CalendarSkeleton";
@@ -106,11 +105,7 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
         {isLoading && <CalendarSkeleton />}
         <div className={isLoading ? "invisible" : "visible"}>
           <FullCalendar
-            plugins={[
-              dayGridPlugin,
-              multiMonthPlugin,
-              interactionPlugin,
-            ]}
+            plugins={[dayGridPlugin, multiMonthPlugin, interactionPlugin]}
             initialView="dayGridMonth"
             locale="lt"
             firstDay={1}
@@ -136,7 +131,6 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
               year: "Metai",
             }}
             views={{
-
               multiMonthYear: {
                 multiMonthMaxColumns: 3,
                 multiMonthMinWidth: 250,
@@ -165,7 +159,7 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
                       fontSize: "0.65rem",
                       lineHeight: 1,
                       position: "relative",
-                      zIndex: 1
+                      zIndex: 1,
                     }}
                   >
                     {arg.event.title.split(" - ")[1] || arg.event.title}
@@ -184,7 +178,7 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
                     right: "0",
                     zIndex: 1,
                     margin: "1px 0",
-                    visibility: "visible"
+                    visibility: "visible",
                   }}
                 >
                   <span className="text-sm font-medium">{arg.event.title}</span>
@@ -208,7 +202,12 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
         isOpen={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
         onConfirm={handleDelete}
-        userName={selectedEvent?.extendedProps.email}
+        message={
+          <>
+            Ar tikrai norite ištrinti{" "}
+            <strong>{selectedEvent?.extendedProps.email}</strong> atostogas?
+          </>
+        }
       />
       <VacationForm
         isOpen={showAddModal}

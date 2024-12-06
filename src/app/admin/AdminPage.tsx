@@ -5,7 +5,9 @@ import { useState } from "react";
 import CreateUserForm from "./CreateUserForm";
 import UserList from "./UserList";
 import VacationRequestList from "./VacationRequestList";
-import { Users, Calendar, Plus, Palmtree } from "lucide-react";
+import AdminDashboardStats from "./AdminDashboardStats";
+import AdminTabs from "./AdminTabs";
+import AddUserButton from "./AddUserButton";
 
 export interface Vacation {
   id: string;
@@ -49,44 +51,15 @@ export default function AdminPage({
       case "dashboard":
         return (
           <div className="space-y-6 max-w-5xl">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-slate-50 p-6 rounded-lg shadow-md border-2 border-blue-50">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-gray-700 font-semibold">Vartotojai</h3>
-                  <Users className="text-blue-500" size={20} />
-                </div>
-                <p className="text-3xl font-bold mt-2">{users.length}</p>
-              </div>
-
-              <div className="bg-slate-50 p-6 rounded-lg shadow-md border-2 border-blue-50">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-gray-700 font-semibold">
-                    Laukia patvirtinimo
-                  </h3>
-                  <Calendar className="text-orange-500" size={20} />
-                </div>
-                <p className="text-3xl font-bold mt-2">
-                  {
-                    initialVacations.filter((r) => r.status === "PENDING")
-                      .length
-                  }
-                </p>
-              </div>
-
-              <div className="bg-slate-50 p-6 rounded-lg shadow-md border-2 border-blue-50">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-gray-700 font-semibold">Atostogauja</h3>
-                  <Palmtree className="text-green-500" size={20} />
-                </div>
-                <p className="text-3xl font-bold mt-2">
-                  {
-                    activeVacations.filter((r) => r.status === "APPROVED")
-                      .length
-                  }
-                </p>
-              </div>
-            </div>
-
+            <AdminDashboardStats
+              usersCount={users.length}
+              pendingVacations={
+                initialVacations.filter((r) => r.status === "PENDING").length
+              }
+              activeVacations={
+                activeVacations.filter((r) => r.status === "APPROVED").length
+              }
+            />
             <UserList
               users={users}
               onUserDeleted={handleUserDeleted}
@@ -115,38 +88,8 @@ export default function AdminPage({
         </div>
 
         <div className="mb-6 flex justify-between items-center">
-          <div className="inline-flex rounded-lg shadow-sm border border-gray-100">
-            <button
-              onClick={() => setActiveTab("dashboard")}
-              className={`px-6 py-2 shadow-sm text-sm font-medium rounded-l-lg transition-colors ${
-                activeTab === "dashboard"
-                  ? "bg-lcoffe text-950"
-                  : "bg-white text-gray-700 hover:text-gray-950"
-              }`}
-            >
-              Dashboard
-            </button>
-            <button
-              onClick={() => setActiveTab("requests")}
-              className={`px-6 py-2 text-sm font-medium rounded-r-lg border-l transition-colors ${
-                activeTab === "requests"
-                  ? "bg-lcoffe text-950"
-                  : "bg-white text-gray-700 hover:text-950"
-              }`}
-            >
-              Užklausos
-            </button>
-          </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex group items-center space-x-2 px-4 py-2 shadow-sm bg-lcoffe text-gray-950 rounded-md hover:bg-dcoffe transition-colors"
-          >
-            <Plus
-              size={20}
-              className="transform text-black transition-transform group-hover:rotate-90"
-            />
-            <span>Pridėti vartotoją</span>
-          </button>
+          <AdminTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <AddUserButton onClick={() => setShowCreateModal(true)} />
         </div>
 
         {renderContent()}
