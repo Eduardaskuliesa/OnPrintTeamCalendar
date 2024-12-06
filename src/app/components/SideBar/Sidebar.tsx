@@ -50,11 +50,11 @@ const Sidebar = () => {
   const { data: session } = useSession();
 
   const handleLogout = async () => {
+    router.push("/login");
     try {
       await signOut({ redirect: false });
       toast.success("Successfully logged out!");
-
-      router.push("/login");
+  
     } catch (error: any) {
       console.log(error);
       toast.error("Error logging out");

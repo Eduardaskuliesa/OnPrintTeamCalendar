@@ -22,6 +22,7 @@ interface Event {
   backgroundColor: string;
   status: string;
 }
+
 interface CalendarToolbarProps {
   onAddVacation: () => void;
 }
@@ -39,8 +40,8 @@ const CalendarToolbar: React.FC<CalendarToolbarProps> = ({ onAddVacation }) => (
     >
       <Plus
         size={18}
-        className="transform  transition-transform group-hover:rotate-90 "
-      ></Plus>{" "}
+        className="transform transition-transform group-hover:rotate-90"
+      />
       Book Vacation
     </button>
   </div>
@@ -107,7 +108,6 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
           <FullCalendar
             plugins={[
               dayGridPlugin,
-              timeGridPlugin,
               multiMonthPlugin,
               interactionPlugin,
             ]}
@@ -117,7 +117,7 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay",
+              right: "multiMonthYear,dayGridMonth",
             }}
             height="auto"
             contentHeight="auto"
@@ -132,16 +132,11 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
             buttonText={{
               today: "Šiandien",
               month: "Mėnuo",
-              week: "Savaitė",
-              day: "Diena",
+
               year: "Metai",
             }}
             views={{
-              timeGrid: {
-                slotMinTime: "00:00:00",
-                slotMaxTime: "24:00:00",
-                slotDuration: "00:30:00",
-              },
+
               multiMonthYear: {
                 multiMonthMaxColumns: 3,
                 multiMonthMinWidth: 250,
@@ -163,13 +158,14 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
               if (arg.view.type === "multiMonthYear") {
                 return (
                   <div
-                    className="text-xs truncate rounded"
+                    className="text-xs truncate rounded w-full"
                     style={{
                       backgroundColor: arg.event.backgroundColor,
                       color: "#fff",
-                      width: "100%",
                       fontSize: "0.65rem",
                       lineHeight: 1,
+                      position: "relative",
+                      zIndex: 1
                     }}
                   >
                     {arg.event.title.split(" - ")[1] || arg.event.title}
@@ -178,16 +174,26 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
               }
               return (
                 <div
-                  className="text-xs truncate rounded w-full p-1"
+                  className="w-full py-1 px-2 truncate rounded flex items-center"
                   style={{
                     backgroundColor: arg.event.backgroundColor,
                     color: "#fff",
+                    minHeight: "24px",
+                    position: "relative",
+                    left: "0",
+                    right: "0",
+                    zIndex: 1,
+                    margin: "1px 0",
+                    visibility: "visible"
                   }}
                 >
-                  <span className="text-center">{arg.event.title}</span>
+                  <span className="text-sm font-medium">{arg.event.title}</span>
                 </div>
               );
             }}
+            eventDisplay="block"
+            eventOverlap={false}
+            displayEventEnd={true}
             events={events}
             eventClick={
               session?.user?.role === "ADMIN" ? handleEventClick : undefined
