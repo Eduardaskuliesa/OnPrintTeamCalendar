@@ -14,19 +14,19 @@ import UpdateUserForm from "./UpdateUserForm";
 interface UserListProps {
   users: User[];
   onUserDeleted: (deletedEmail: string) => void;
-  vacationRequests: any[];
+  onUserUpdated: (updatedUser: User) => void;
 }
 
 export default function UserList({
   users,
   onUserDeleted,
+  onUserUpdated,
 }: UserListProps) {
   const [deletingEmail, setDeletingEmail] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToUpdate, setUserToUpdate] = useState<User | null>(null);
-  const [usersList, setUsersList] = useState<User[]>(users);
 
   const handleDelete = (user: User) => {
     setUserToDelete(user);
@@ -39,11 +39,7 @@ export default function UserList({
   };
 
   const handleUserUpdated = (updatedUser: User) => {
-    setUsersList((prevUsers) =>
-      prevUsers.map((user) =>
-        user.email === updatedUser.email ? updatedUser : user
-      )
-    );
+    onUserUpdated(updatedUser);
     setShowUpdateModal(false);
     setUserToUpdate(null);
   };
@@ -84,34 +80,33 @@ export default function UserList({
         <div className="p-6">
           <h3 className="text-lg font-semibold mb-4">Mano darbuotojai</h3>
           <div className="space-y-3">
-            {usersList.map((user) => {
-              return (
-                <div
-                  key={user.email}
-                  className="flex items-center justify-between border-b border-slate-300 py-3 last:border-0"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: user.color }}
-                    >
-                      <span className="text-white font-medium">
-                        {user.name.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-950">{user.name}</p>
-                      <p className="text-sm text-gray-800">{user.email}</p>
-                    </div>
+            {users.map((user) => (
+              <div
+                key={user.email}
+                className="flex items-center justify-between border-b border-slate-300 py-3 last:border-0"
+              >
+                <div className="flex items-center space-x-4">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: user.color }}
+                  >
+                    <span className="text-white font-medium">
+                      {user.name.charAt(0)}
+                    </span>
                   </div>
-                  <UserActionButtons
-                    onEdit={() => handleUpdate(user)}
-                    onDelete={() => handleDelete(user)}
-                    isDeleting={deletingEmail === user.email}
-                  />
+                  <div>
+                    <p className="font-medium text-gray-950">{user.name}</p>
+                    <p className="text-sm text-gray-800">{user.email}</p>
+                  </div>
                 </div>
-              );
-            })}
+                <UserActionButtons
+                  onEdit={() => handleUpdate(user)}
+                  onDelete={() => handleDelete(user)}
+                  isDeleting={deletingEmail === user.email}
+                  isAdmin={user.role === "ADMIN"}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>

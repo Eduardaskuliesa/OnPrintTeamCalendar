@@ -9,7 +9,7 @@ interface VacationFormProps {
   onClose: () => void;
   onSuccess: () => void;
 }
-type ErrorType = "OVERLAP" | "GAP_CONFLICT" | "default";
+type ErrorType = "OVERLAP" | "GAP_CONFLICT" | "default" | "EXCEEDED_LIMIT";
 
 export interface FormData {
   startDate: string;
@@ -50,6 +50,7 @@ const VacationForm = ({ isOpen, onClose, onSuccess }: VacationFormProps) => {
         OVERLAP: "Šios dienos jau užimtos",
         GAP_CONFLICT: "Reikalingas tarpas atostogaujančiu",
         default: "Įvyko klaida. Bandykite dar kartą",
+        EXCEEDED_LIMIT: 'Per daug atostogų dienu MAX 14'
       };
 
       setError(

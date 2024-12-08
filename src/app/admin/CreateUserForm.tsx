@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { useState, useEffect, useRef } from "react";
 import { createUser } from "../lib/actions/users";
@@ -93,6 +94,7 @@ export default function CreateUserForm({
         email: formData.email,
         name: formData.name,
         color: formData.color,
+        gapDays: 7,
         role: "USER",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -106,7 +108,7 @@ export default function CreateUserForm({
         color: COLORS[0],
       });
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error("Šis elpaštas jau yra užimtas");
     } finally {
       setLoading(false);
     }

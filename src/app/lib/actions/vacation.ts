@@ -12,6 +12,13 @@ import { dynamoDb } from "@/app/lib/dynamodb";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { FormData } from "@/app/components/Calendar/VacationForm";
 
+function getTotalDays(startDate: Date, endDate: Date): number {
+  return (
+    Math.ceil(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    ) + 1
+  );
+}
 
 function isWeekend(date: Date): boolean {
   const day = date.getDay();
@@ -37,6 +44,17 @@ async function checkVacationConflicts(startDate: string, endDate: string) {
     })
   );
 
+  const totalDays = getTotalDays(new Date(startDate), new Date(endDate));
+  if (totalDays > 14) {
+    return {
+      hasConflict: true,
+      error: {
+        type: "EXCEEDED_LIMIT",
+        message: "Total vacation days cannot exceed 14 days",
+      },
+    };
+  }
+
   for (const vacation of existingVacations.Items || []) {
     const vacStart = new Date(vacation.startDate);
     const vacEnd = new Date(vacation.endDate);
@@ -51,17 +69,25 @@ async function checkVacationConflicts(startDate: string, endDate: string) {
       };
     }
 
-    const gapStart = new Date(vacEnd);
-    gapStart.setDate(gapStart.getDate() + 1);
-    const gapEnd = new Date(vacEnd);
-    gapEnd.setDate(gapEnd.getDate() + vacation.gapDays);
+    const gapStart = new Date(
+      new Date(vacEnd).setDate(new Date(vacEnd).getDate() + 1)
+    ).toISOString();
 
-    if (new Date(startDate) <= gapEnd && new Date(endDate) >= gapStart) {
+    const gapEnd = new Date(
+      new Date(vacEnd).setDate(
+        new Date(vacEnd).getDate() + Number(vacation.gapDays)
+      )
+    ).toISOString();
+
+    if (
+      new Date(startDate) <= new Date(gapEnd) &&
+      new Date(endDate) >= new Date(gapStart)
+    ) {
       return {
         hasConflict: true,
         error: {
           type: "GAP_CONFLICT",
-          dates: [{ start: gapStart.toISOString(), end: gapEnd.toISOString() }],
+          dates: [{ start: gapStart, end: gapEnd }],
         },
       };
     }
@@ -91,6 +117,7 @@ async function fetchVacationsData() {
       status: vacation.status,
       email: vacation.userEmail,
     };
+    console.log(vacation.gapDays);
 
     const gapEvent =
       vacation.gapDays > 0
@@ -104,7 +131,7 @@ async function fetchVacationsData() {
             ).toISOString(),
             end: new Date(
               new Date(vacation.endDate).setDate(
-                new Date(vacation.endDate).getDate() + vacation.gapDays
+                new Date(vacation.endDate).getDate() + Number(vacation.gapDays)
               )
             ).toISOString(),
             backgroundColor: "#808080",
@@ -131,7 +158,7 @@ export async function bookVacation(formData: FormData) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) throw new Error("Not authenticated");
-
+    console.log(session.user);
     const workingDays = getWorkingDays(
       new Date(formData.startDate),
       new Date(formData.endDate)
@@ -153,6 +180,7 @@ export async function bookVacation(formData: FormData) {
         conflictData: conflictCheck.error,
       };
     }
+    console.log("Gap:", session.user.gapDays);
 
     const vacation = {
       id: crypto.randomUUID(),
@@ -162,7 +190,7 @@ export async function bookVacation(formData: FormData) {
       startDate: formData.startDate,
       endDate: formData.endDate,
       status: "PENDING",
-      gapDays: workingDays > 2 ? 7 : 0,
+      gapDays: workingDays > 2 ? session.user.gapDays : 0,
       requiresApproval: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

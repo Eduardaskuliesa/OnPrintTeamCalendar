@@ -20,6 +20,7 @@ interface Event {
   end: string;
   backgroundColor: string;
   status: string;
+  gapDays?: number;
 }
 
 interface CalendarToolbarProps {
@@ -54,6 +55,8 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+
+  console.log(events);
 
   const refreshEvents = useCallback(async () => {
     const data = await getVacations();

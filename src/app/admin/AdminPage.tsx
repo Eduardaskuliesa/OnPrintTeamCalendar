@@ -27,9 +27,7 @@ export default function AdminPage({
   initialVacations: Vacation[];
   activeVacations: Vacation[];
 }) {
-  const [users, setUsers] = useState<User[]>(
-    initialUsers.filter((user) => user.role !== "ADMIN")
-  );
+  const [users, setUsers] = useState<User[]>(initialUsers);
   const [activeTab, setActiveTab] = useState<"dashboard" | "requests">(
     "dashboard"
   );
@@ -46,11 +44,19 @@ export default function AdminPage({
     );
   };
 
+  const handleUserUpdated = (updatedUser: User) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.email === updatedUser.email ? updatedUser : user
+      )
+    );
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
         return (
-          <div className="space-y-6 max-w-5xl">
+          <div className="max-w-5xl">
             <AdminDashboardStats
               usersCount={users.length}
               pendingVacations={
@@ -63,7 +69,7 @@ export default function AdminPage({
             <UserList
               users={users}
               onUserDeleted={handleUserDeleted}
-              vacationRequests={initialVacations}
+              onUserUpdated={handleUserUpdated}
             />
           </div>
         );
@@ -81,7 +87,7 @@ export default function AdminPage({
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="">
       <div className="py-4 max-w-5xl ml-[10%]">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>

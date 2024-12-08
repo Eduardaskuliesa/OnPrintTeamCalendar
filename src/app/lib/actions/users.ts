@@ -22,7 +22,8 @@ async function queryUsers() {
 
   const getAllUsers = new ScanCommand({
     TableName: dynamoName || "",
-    ProjectionExpression: "email, #name, #role, color, createdAt, updatedAt",
+    ProjectionExpression:
+      "email, #name, #role, color, createdAt, updatedAt, gapDays",
     ExpressionAttributeNames: {
       "#name": "name",
       "#role": "role",
@@ -79,6 +80,7 @@ export async function createUser(formData: FormData) {
     const password = formData.password;
     const name = formData.name;
     const color = formData.color;
+    const gapDays = 7;
     const role = "USER";
 
     if (!email || !password || !name) {
@@ -95,6 +97,7 @@ export async function createUser(formData: FormData) {
         password: hashedPassword,
         name,
         role,
+        gapDays,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -216,13 +219,14 @@ export async function updatePassword(
 
 export async function updateUser(
   email: string,
-  userData: { name?: string; color?: string }
+  userData: { name?: string; color?: string; gapDays?: number }
 ) {
   try {
     const session = await getServerSession(authOptions);
     if (session?.user?.role !== "ADMIN") {
       throw new Error("Unauthorized");
     }
+
     const updateExpressions = [];
     const expressionAttributeNames: Record<string, string> = {};
     const expressionAttributeValues: Record<string, any> = {
@@ -240,7 +244,12 @@ export async function updateUser(
       expressionAttributeValues[":color"] = userData.color;
     }
 
-    // Update user
+    if (userData.gapDays !== undefined) {
+      console.log("Adding gapDays to update expression:", userData.gapDays);
+      updateExpressions.push("gapDays = :gapDays");
+      expressionAttributeValues[":gapDays"] = userData.gapDays;
+    }
+
     await dynamoDb.send(
       new UpdateCommand({
         TableName: process.env.DYNAMODB_NAME!,
@@ -251,8 +260,10 @@ export async function updateUser(
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
         ConditionExpression: "attribute_exists(email)",
+        ReturnValues: "ALL_NEW",
       })
     );
+
     if (userData.name) {
       const { Items: vacations } = await dynamoDb.send(
         new QueryCommand({
@@ -264,8 +275,6 @@ export async function updateUser(
           },
         })
       );
-      console.log(vacations?.length)
-
       if (vacations?.length) {
         await Promise.all(
           vacations.map((vacation) => {
@@ -288,6 +297,7 @@ export async function updateUser(
                 Key: { id: vacation.id },
                 UpdateExpression: `SET ${updateExp.join(", ")}`,
                 ExpressionAttributeValues: expValues,
+                ReturnValues: "ALL_NEW",
               })
             );
           })
@@ -304,6 +314,7 @@ export async function updateUser(
       message: "User and related vacations updated successfully",
     };
   } catch (error: any) {
+    console.error("Update failed:", error);
     if (error.name === "ConditionalCheckFailedException") {
       return { success: false, error: "User not found" };
     }

@@ -13,7 +13,7 @@ export default function AdminDashboardStats({
   activeVacations,
 }: AdminDashboardStats) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 mb-6 md:grid-cols-3 gap-6">
       <div className="bg-slate-50 p-6 rounded-lg shadow-md border-2 border-blue-50">
         <div className="flex items-center justify-between">
           <h3 className="text-gray-700 font-semibold">Vartotojai</h3>
