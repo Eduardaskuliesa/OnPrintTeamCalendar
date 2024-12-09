@@ -8,6 +8,7 @@ import VacationRequestList from "./VacationRequestList";
 import AdminDashboardStats from "./AdminDashboardStats";
 import AdminTabs from "./AdminTabs";
 import AddUserButton from "./AddUserButton";
+import ActiveVacationsList from "./ActiveVacationsList";
 
 export interface Vacation {
   id: string;
@@ -28,9 +29,7 @@ export default function AdminPage({
   activeVacations: Vacation[];
 }) {
   const [users, setUsers] = useState<User[]>(initialUsers);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "requests">(
-    "dashboard"
-  );
+  const [activeTab, setActiveTab] = useState<"dashboard" | "pending" | "active" | "settings">("dashboard");
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleUserCreated = (newUser: User) => {
@@ -52,35 +51,47 @@ export default function AdminPage({
     );
   };
 
+  const pendingVacationsCount = initialVacations.filter(
+    (r) => r.status === "PENDING"
+  ).length;
+  
+  const activeVacationsCount = activeVacations.filter(
+    (r) => r.status === "APPROVED"
+  ).length;
+
+  const handleNavigate = (tab: "dashboard" | "pending" | "active" | "settings") => {
+    setActiveTab(tab);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
         return (
-          <div className="max-w-5xl">
-            <AdminDashboardStats
-              usersCount={users.length}
-              pendingVacations={
-                initialVacations.filter((r) => r.status === "PENDING").length
-              }
-              activeVacations={
-                activeVacations.filter((r) => r.status === "APPROVED").length
-              }
-            />
-            <UserList
-              users={users}
-              onUserDeleted={handleUserDeleted}
-              onUserUpdated={handleUserUpdated}
-            />
-          </div>
+          <UserList
+            users={users}
+            onUserDeleted={handleUserDeleted}
+            onUserUpdated={handleUserUpdated}
+          />
         );
-      case "requests":
+      case "pending":
         return (
-          <div className="max-w-5xl">
-            <VacationRequestList
-              initialRequests={initialVacations.filter(
-                (v) => v.status === "PENDING"
-              )}
-            />
+          <VacationRequestList
+            initialRequests={initialVacations.filter(
+              (v) => v.status === "PENDING"
+            )}
+          />
+        );
+      case "active":
+        return (
+          <ActiveVacationsList
+            vacations={activeVacations.filter((v) => v.status === "APPROVED")}
+          />
+        );
+      case "settings":
+        return (
+          <div className="bg-slate-50 rounded-lg shadow-md border border-blue-50 p-6">
+            <h3 className="text-lg font-semibold mb-4">Nustatymai</h3>
+            <p className="text-gray-600">...</p>
           </div>
         );
     }
@@ -89,16 +100,30 @@ export default function AdminPage({
   return (
     <div className="">
       <div className="py-4 max-w-5xl ml-[10%]">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
+          
+          <div className="flex items-center justify-between">
+            <AdminTabs
+              activeTab={activeTab}
+              onTabChange={handleNavigate}
+              pendingCount={pendingVacationsCount}
+              activeCount={activeVacationsCount}
+            />
+            <AddUserButton onClick={() => setShowCreateModal(true)} />
+          </div>
         </div>
 
-        <div className="mb-6 flex justify-between items-center">
-          <AdminTabs activeTab={activeTab} onTabChange={setActiveTab} />
-          <AddUserButton onClick={() => setShowCreateModal(true)} />
-        </div>
+        <AdminDashboardStats
+          usersCount={users.length}
+          pendingVacations={pendingVacationsCount}
+          activeVacations={activeVacationsCount}
+          onNavigate={handleNavigate}
+        />
 
-        {renderContent()}
+        <div className="max-w-5xl mt-6">
+          {renderContent()}
+        </div>
 
         {showCreateModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">

@@ -1,4 +1,4 @@
-import { Pencil, Trash2, Loader, ShieldCheck } from "lucide-react";
+import { Pencil, Trash2, Loader } from "lucide-react";
 
 interface UserActionButtonsProps {
   onEdit: () => void;
@@ -22,11 +22,7 @@ export function UserActionButtons({
       >
         <Pencil size={18} />
       </button>
-      {isAdmin ? (
-        <div className="p-2 text-indigo-600" title="Admin user">
-          <ShieldCheck size={18} />
-        </div>
-      ) : (
+      {!isAdmin && (
         <button
           onClick={onDelete}
           disabled={isDeleting}

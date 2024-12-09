@@ -47,9 +47,7 @@ const NavItem = ({ href, icon, text, isCollapsed }: NavItemProps) => {
 const Sidebar = () => {
   const { isCollapsed, setIsCollapsed } = useSidebar();
   const router = useRouter();
-  const { data: session } = useSession();
-
-  const handleLogout = async () => {
+   const handleLogout = async () => {
     router.push("/login");
     try {
       await signOut({ redirect: false });
@@ -60,6 +58,7 @@ const Sidebar = () => {
       toast.error("Error logging out");
     }
   };
+  const { data: session } = useSession();
 
   const navItems = [
     ...(session?.user?.role === "ADMIN"

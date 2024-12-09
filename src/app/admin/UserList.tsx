@@ -1,15 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
-
 import { User } from "@/app/types/api";
 import { deleteUser } from "../lib/actions/users";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { UserActionButtons } from "./UserActionButtons";
-import DeleteUserConfirmation, {
-  ConfirmationMessage,
-} from "../ui/DeleteUserConfirmation";
+import DeleteUserConfirmation, { ConfirmationMessage } from "../ui/DeleteUserConfirmation";
 import UpdateUserForm from "./UpdateUserForm";
+import { ShieldCheck, CalendarDays } from "lucide-react";
 
 interface UserListProps {
   users: User[];
@@ -83,9 +79,9 @@ export default function UserList({
             {users.map((user) => (
               <div
                 key={user.email}
-                className="flex items-center justify-between border-b border-slate-300 py-3 last:border-0"
+                className="flex items-center border-b border-slate-300 py-3 last:border-0"
               >
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4 w-[250px]">
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: user.color }}
@@ -95,16 +91,33 @@ export default function UserList({
                     </span>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-950">{user.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-gray-950">{user.name}</p>
+                      {user.role === "ADMIN" && (
+                        <ShieldCheck size={16} className="text-blue-500" />
+                      )}
+                    </div>
                     <p className="text-sm text-gray-800">{user.email}</p>
                   </div>
                 </div>
-                <UserActionButtons
-                  onEdit={() => handleUpdate(user)}
-                  onDelete={() => handleDelete(user)}
-                  isDeleting={deletingEmail === user.email}
-                  isAdmin={user.role === "ADMIN"}
-                />
+
+                <div className="flex-1 ">
+                  <div className="flex items-center text-gray-600">
+                    <CalendarDays size={16} className="text-orange-500 mr-1" />
+                    <span className="text-sm">
+                      <span className="font-semibold">20</span> d.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center">
+                  <UserActionButtons
+                    onEdit={() => handleUpdate(user)}
+                    onDelete={() => handleDelete(user)}
+                    isDeleting={deletingEmail === user.email}
+                    isAdmin={user.role === "ADMIN"}
+                  />
+                </div>
               </div>
             ))}
           </div>

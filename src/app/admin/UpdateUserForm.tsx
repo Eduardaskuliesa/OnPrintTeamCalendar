@@ -94,6 +94,7 @@ export default function UpdateUserForm({
       Number(formData.gapDays) !== user.gapDays;
 
     if (!hasChanges) {
+      onCancel()
       toast.info("Nepadarete jokių pakeitimų");
       return;
     }
@@ -191,9 +192,8 @@ export default function UpdateUserForm({
               </div>
               <X
                 size={18}
-                className={`transform transition-transform ${
-                  showColorPicker ? "rotate-0" : "rotate-45"
-                }`}
+                className={`transform transition-transform ${showColorPicker ? "rotate-0" : "rotate-45"
+                  }`}
               />
             </button>
 
@@ -205,11 +205,10 @@ export default function UpdateUserForm({
                       key={color}
                       type="button"
                       onClick={() => handleColorSelect(color)}
-                      className={`w-8 h-8 rounded-full border-2 transition-all ${
-                        formData.color === color
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${formData.color === color
                           ? "border-dcoffe scale-110"
                           : "border-gray-200 hover:border-gray-300 hover:scale-105"
-                      }`}
+                        }`}
                       style={{ backgroundColor: color }}
                     />
                   ))}
