@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { User } from "@/app/types/api";
 import { deleteUser } from "../lib/actions/users";
 import { toast } from "react-toastify";
