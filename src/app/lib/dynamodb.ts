@@ -10,3 +10,6 @@ const client = new DynamoDBClient({
 })
 
 export const dynamoDb = DynamoDBDocumentClient.from(client)
+
+export const dynamoName = process.env.DYNAMODB_NAME;
+export const settingsDynamoName = process.env.SETTINGS_DYNAMODB_TABLE_NAME

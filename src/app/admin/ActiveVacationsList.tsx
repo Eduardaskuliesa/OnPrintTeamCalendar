@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { Clock } from "lucide-react";
 
 interface Vacation {
@@ -6,6 +6,7 @@ interface Vacation {
   userName: string;
   startDate: string;
   userEmail: string;
+  userColor: string;
   endDate: string;
   status: "PENDING" | "APPROVED" | "REJECTED";
 }
@@ -14,11 +15,15 @@ interface ActiveVacationsListProps {
   vacations: Vacation[];
 }
 
-export default function ActiveVacationsList({ vacations }: ActiveVacationsListProps) {
+export default function ActiveVacationsList({
+  vacations,
+}: ActiveVacationsListProps) {
   return (
     <div className="bg-slate-50 rounded-lg shadow-md border border-blue-50">
       <div className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Atostogaujantys darbuotojai</h3>
+        <h3 className="text-lg font-semibold mb-4">
+          Atostogaujantys darbuotojai
+        </h3>
         <div className="space-y-3">
           {vacations.length === 0 ? (
             <p className="text-gray-600 text-center py-4">
@@ -42,11 +47,15 @@ export default function ActiveVacationsList({ vacations }: ActiveVacationsListPr
                       <span className="text-sm text-gray-600">
                         Nuo{" "}
                         <span className="font-semibold">
-                          {new Date(vacation.startDate).toLocaleDateString("lt-LT")}{" "}
+                          {new Date(vacation.startDate).toLocaleDateString(
+                            "lt-LT"
+                          )}{" "}
                         </span>
                         iki{" "}
                         <span className="font-semibold">
-                          {new Date(vacation.endDate).toLocaleDateString("lt-LT")}
+                          {new Date(vacation.endDate).toLocaleDateString(
+                            "lt-LT"
+                          )}
                         </span>
                       </span>
                       <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">

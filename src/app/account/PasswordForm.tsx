@@ -2,7 +2,7 @@
 "use client";
 import { useState } from "react";
 import { Eye, EyeOff, Save } from "lucide-react";
-import { updatePassword } from "../lib/actions/users";
+import { usersActions } from "../lib/actions/users";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 
@@ -51,7 +51,7 @@ export default function PasswordForm() {
     }
 
     try {
-      await updatePassword(
+      await usersActions.updatePassword(
         session?.user.email,
         passwordData.currentPassword,
         passwordData.newPassword

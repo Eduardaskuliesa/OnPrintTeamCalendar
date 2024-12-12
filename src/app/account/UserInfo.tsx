@@ -1,5 +1,6 @@
 "use client";
-import { useSession } from "next-auth/react";
+
+import { User } from "../types/api";
 
 export const UserSkeleton = () => {
   return (
@@ -13,26 +14,21 @@ export const UserSkeleton = () => {
   );
 };
 
-const UserInfo = () => {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return <UserSkeleton></UserSkeleton>;
-  }
-
+interface UserInfoProps {
+  userData: User;
+}
+const UserInfo = ({ userData }: UserInfoProps) => {
   return (
     <div className="flex items-center space-x-4 mb-8">
       <div
         className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white"
-        style={{ backgroundColor: session?.user?.color || "#000" }}
+        style={{ backgroundColor: userData.color || "#000" }}
       >
-        {session?.user?.name?.[0].toUpperCase()}
+        {userData.name[0].toUpperCase()}
       </div>
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {session?.user?.name}
-        </h1>
-        <p className="text-gray-600">{session?.user?.email}</p>
+        <h1 className="text-2xl font-bold text-gray-900">{userData.name}</h1>
+        <p className="text-gray-600">{userData.email}</p>
       </div>
     </div>
   );

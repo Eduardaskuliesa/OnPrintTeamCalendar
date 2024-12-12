@@ -1,6 +1,7 @@
 "use server";
 import {
   DeleteCommand,
+  GetCommand,
   PutCommand,
   QueryCommand,
   ScanCommand,
@@ -180,17 +181,23 @@ export async function bookVacation(formData: FormData) {
         conflictData: conflictCheck.error,
       };
     }
-    console.log("Gap:", session.user.gapDays);
+
+    const user = await dynamoDb.send(
+      new GetCommand({
+        TableName: process.env.DYNAMODB_NAME,
+        Key: { email: session.user.email },
+      })
+    );
 
     const vacation = {
       id: crypto.randomUUID(),
-      userEmail: session.user.email,
-      userName: session.user.name,
-      userColor: session.user.color,
+      userEmail: user?.Item?.email,
+      userName: user.Item?.name,
+      userColor: user.Item?.color,
       startDate: formData.startDate,
       endDate: formData.endDate,
       status: "PENDING",
-      gapDays: workingDays > 2 ? session.user.gapDays : 0,
+      gapDays: workingDays > 2 ? user.Item?.gapDays : 0,
       requiresApproval: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

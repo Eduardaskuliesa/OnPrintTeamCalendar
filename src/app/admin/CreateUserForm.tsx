@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { useState, useEffect, useRef } from "react";
-import { createUser } from "../lib/actions/users";
+import { usersActions } from "../lib/actions/users";
 import { toast } from "react-toastify";
 import { User } from "../types/api";
 import { X, Eye, EyeOff } from "lucide-react";
@@ -89,7 +89,7 @@ export default function CreateUserForm({
     e.preventDefault();
     try {
       setLoading(true);
-      await createUser(formData);
+      await usersActions.createUser(formData);
       const newUser = {
         email: formData.email,
         name: formData.name,

@@ -2,7 +2,7 @@
 
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { updateUser } from "../lib/actions/users";
+import { updateUser } from "../lib/actions/users/updateUser";
 import { toast } from "react-toastify";
 import { User } from "../types/api";
 import { X } from "lucide-react";

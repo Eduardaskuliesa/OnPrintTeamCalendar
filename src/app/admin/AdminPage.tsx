@@ -1,7 +1,6 @@
 "use client";
-
 import { User } from "@/app/types/api";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import CreateUserForm from "./CreateUserForm";
 import UserList from "./UserList";
 import VacationRequestList from "./VacationRequestList";
@@ -9,12 +8,15 @@ import AdminDashboardStats from "./AdminDashboardStats";
 import AdminTabs from "./AdminTabs";
 import AddUserButton from "./AddUserButton";
 import ActiveVacationsList from "./ActiveVacationsList";
+import GlobalSettingsLoader from "./GlobalSettingsLoader";
+const GlobalSettings = lazy(() => import("./GlobalSettings"));
 
 export interface Vacation {
   id: string;
   userName: string;
   userEmail: string;
   startDate: string;
+  userColor: string;
   endDate: string;
   status: "PENDING" | "APPROVED" | "REJECTED";
 }
@@ -29,8 +31,11 @@ export default function AdminPage({
   activeVacations: Vacation[];
 }) {
   const [users, setUsers] = useState<User[]>(initialUsers);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "pending" | "active" | "settings">("dashboard");
+  const [activeTab, setActiveTab] = useState<
+    "dashboard" | "pending" | "active" | "settings"
+  >("dashboard");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isSettingsLoading, setIsSettingsLoading] = useState(false);
 
   const handleUserCreated = (newUser: User) => {
     setUsers((prevUsers) => [...prevUsers, newUser]);
@@ -54,13 +59,18 @@ export default function AdminPage({
   const pendingVacationsCount = initialVacations.filter(
     (r) => r.status === "PENDING"
   ).length;
-  
+
   const activeVacationsCount = activeVacations.filter(
     (r) => r.status === "APPROVED"
   ).length;
 
-  const handleNavigate = (tab: "dashboard" | "pending" | "active" | "settings") => {
+  const handleNavigate = (
+    tab: "dashboard" | "pending" | "active" | "settings"
+  ) => {
     setActiveTab(tab);
+    if (tab === "settings") {
+      setIsSettingsLoading(true);
+    }
   };
 
   const renderContent = () => {
@@ -88,12 +98,7 @@ export default function AdminPage({
           />
         );
       case "settings":
-        return (
-          <div className="bg-slate-50 rounded-lg shadow-md border border-blue-50 p-6">
-            <h3 className="text-lg font-semibold mb-4">Nustatymai</h3>
-            <p className="text-gray-600">...</p>
-          </div>
-        );
+        return <GlobalSettings />;
     }
   };
 
@@ -101,8 +106,10 @@ export default function AdminPage({
     <div className="">
       <div className="py-4 max-w-5xl ml-[10%]">
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
-          
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">
+            Admin Dashboard
+          </h1>
+
           <div className="flex items-center justify-between">
             <AdminTabs
               activeTab={activeTab}
@@ -114,16 +121,16 @@ export default function AdminPage({
           </div>
         </div>
 
-        <AdminDashboardStats
-          usersCount={users.length}
-          pendingVacations={pendingVacationsCount}
-          activeVacations={activeVacationsCount}
-          onNavigate={handleNavigate}
-        />
+        {activeTab !== "settings" && (
+          <AdminDashboardStats
+            usersCount={users.length}
+            pendingVacations={pendingVacationsCount}
+            activeVacations={activeVacationsCount}
+            onNavigate={handleNavigate}
+          />
+        )}
 
-        <div className="max-w-5xl mt-6">
-          {renderContent()}
-        </div>
+        <div className="max-w-5xl mt-6">{renderContent()}</div>
 
         {showCreateModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">

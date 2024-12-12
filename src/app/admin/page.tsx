@@ -1,4 +1,4 @@
-import { getUsers } from "../lib/actions/users";
+import { usersActions } from "../lib/actions/users";
 import { User } from "../types/api";
 import AdminPage, { Vacation } from "./AdminPage";
 import { redirect } from "next/navigation";
@@ -14,7 +14,7 @@ export default async function AdminPageWrapper() {
   }
 
   try {
-    const { data: users } = await getUsers();
+    const { data: users } = await usersActions.getUsers();
     const pendingVacations = (await getAdminVacations()) as Vacation[];
     const activeVacations = pendingVacations.filter((v) => {
       const now = new Date().toISOString().split("T")[0];

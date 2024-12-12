@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { User } from "@/app/types/api";
-import { deleteUser } from "../lib/actions/users";
+import { usersActions } from "../lib/actions/users";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { UserActionButtons } from "./UserActionButtons";
@@ -46,7 +46,7 @@ export default function UserList({
       setDeletingEmail(userToDelete.email);
       setShowDeleteDialog(false);
       try {
-        await deleteUser(userToDelete.email);
+        await usersActions.deleteUser(userToDelete.email);
         toast.success("User deleted successfully");
         onUserDeleted(userToDelete.email);
       } catch (error: any) {

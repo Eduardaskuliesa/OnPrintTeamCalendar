@@ -12,6 +12,7 @@ interface Vacation {
   startDate: string;
   userEmail: string;
   endDate: string;
+  userColor: string;
   status: "PENDING" | "APPROVED" | "REJECTED";
 }
 
@@ -98,6 +99,7 @@ export default function VacationRequestList({
       setSelectedRequest(null);
     }
   };
+  console.log();
 
   return (
     <>
@@ -116,7 +118,9 @@ export default function VacationRequestList({
                   className="flex items-center justify-between border-b border-slate-300 py-3 last:border-0"
                 >
                   <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center">
+                    <div
+                      className={`w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center`}
+                    >
                       <span className="text-white font-medium">
                         {request.userName.charAt(0)}
                       </span>
