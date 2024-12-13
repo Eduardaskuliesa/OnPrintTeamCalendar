@@ -24,11 +24,10 @@ const SeasonalRulesCard = ({ data, onEdit }) => {
                 Seasonal Rules
               </CardTitle>
               <div
-                className={`flex items-center px-2 py-1 rounded-full ${
-                  data?.seasonalRules?.enabled
+                className={`flex items-center px-2 py-1 rounded-full ${data?.seasonalRules?.enabled
                     ? "bg-emerald-100 text-emerald-600"
                     : "bg-orange-100 text-orange-700"
-                }`}
+                  }`}
               >
                 {data?.seasonalRules?.enabled ? (
                   <BadgeCheck className="w-4 h-4 mr-1.5" />
@@ -53,10 +52,10 @@ const SeasonalRulesCard = ({ data, onEdit }) => {
         </div>
       </CardHeader>
       <CardContent className="px-4 pb-4 pt-2">
-        <div className="flex space-x-2">
+        <div className="grid grid-cols-2 gap-2">
           <HoverCard openDelay={300} closeDelay={100}>
             <HoverCardTrigger asChild>
-              <div className="flex-1 px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
+              <div className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
                 <div className="text-sm font-semibold text-gray-900">
                   Blackout Periods
                 </div>
@@ -66,7 +65,7 @@ const SeasonalRulesCard = ({ data, onEdit }) => {
               </div>
             </HoverCardTrigger>
             <HoverCardContent
-              align="start"
+            align="start"
               side="bottom"
               className="w-80 px-4 py-2 bg-white border border-blue-100 shadow-lg"
             >
@@ -83,7 +82,7 @@ const SeasonalRulesCard = ({ data, onEdit }) => {
 
           <HoverCard openDelay={300} closeDelay={100}>
             <HoverCardTrigger asChild>
-              <div className="flex-1 px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
+              <div className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
                 <div className="text-sm font-semibold text-gray-900">
                   Preferred Periods
                 </div>

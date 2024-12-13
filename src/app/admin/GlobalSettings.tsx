@@ -41,7 +41,7 @@ const GlobalSettings = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="px-4 py-2 max-w-[250px] bg-slate-50 border-2 border-blue-50 rounded-lg shadow-sm">
         <div className="flex justify-between items-center">
           <div>
