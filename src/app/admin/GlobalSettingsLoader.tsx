@@ -1,35 +1,51 @@
-export default function GlobalSettingsLoader() {
+import React from "react";
+
+const GlobalSettingsLoader = () => {
   return (
-    <div className="bg-slate-50 rounded-lg shadow-md border border-blue-50 animate-pulse">
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div className="h-6 w-40 bg-slate-200 rounded"></div>
+    <div className="space-y-4">
+      {/* Title Skeleton */}
+      <div className="px-4 py-2 max-w-[250px] bg-slate-50 border-2 border-blue-50 rounded-lg shadow-sm">
+        <div className="flex justify-between items-center">
+          <div className="h-6 bg-gray-300 w-32 rounded-lg"></div>
         </div>
-        <div className="space-y-6">
-          {[...Array(4)].map((_, index) => (
-            <div
-              key={index}
-              className="border-b border-slate-200 last:border-0 pb-4 last:pb-0"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-10 h-10 bg-slate-200 rounded-lg"></div>
-                <div className="h-5 w-32 bg-slate-200 rounded"></div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[...Array(3)].map((_, itemIndex) => (
-                  <div
-                    key={itemIndex}
-                    className="bg-white rounded-md p-3 border border-slate-200"
-                  >
-                    <div className="h-4 w-24 bg-slate-100 rounded mb-2"></div>
-                    <div className="h-5 w-32 bg-slate-200 rounded"></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+      </div>
+
+      {/* Booking Rules Card Skeleton */}
+      <div className="bg-white p-4 shadow-sm rounded-lg space-y-3 animate-pulse">
+        <div className="h-6 bg-gray-300 w-40 rounded-lg"></div>
+        <div className="h-4 bg-gray-200 w-48 rounded-lg"></div>
+        <div className="h-4 bg-gray-200 w-64 rounded-lg"></div>
+      </div>
+
+      {/* Grid Layout for GapRulesCard and OverlapRulesCard */}
+      <div className="grid grid-cols-2 gap-6">
+        <div className="bg-white p-4 shadow-sm rounded-lg space-y-3 animate-pulse">
+          <div className="h-6 bg-gray-300 w-40 rounded-lg"></div>
+          <div className="h-4 bg-gray-200 w-48 rounded-lg"></div>
+          <div className="h-4 bg-gray-200 w-64 rounded-lg"></div>
+        </div>
+        <div className="bg-white p-4 shadow-sm rounded-lg space-y-3 animate-pulse">
+          <div className="h-6 bg-gray-300 w-40 rounded-lg"></div>
+          <div className="h-4 bg-gray-200 w-48 rounded-lg"></div>
+          <div className="h-4 bg-gray-200 w-64 rounded-lg"></div>
+        </div>
+      </div>
+
+      {/* Grid Layout for SeasonalRulesCard and RestrictedDaysCard */}
+      <div className="grid grid-cols-2 gap-6">
+        <div className="bg-white p-4 shadow-sm rounded-lg space-y-3 animate-pulse">
+          <div className="h-6 bg-gray-300 w-40 rounded-lg"></div>
+          <div className="h-4 bg-gray-200 w-48 rounded-lg"></div>
+          <div className="h-4 bg-gray-200 w-64 rounded-lg"></div>
+        </div>
+        <div className="bg-white p-4 shadow-sm rounded-lg space-y-3 animate-pulse">
+          <div className="h-6 bg-gray-300 w-40 rounded-lg"></div>
+          <div className="h-4 bg-gray-200 w-48 rounded-lg"></div>
+          <div className="h-4 bg-gray-200 w-64 rounded-lg"></div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default GlobalSettingsLoader;

@@ -1,19 +1,5 @@
+"use client";
 import React, { useState } from "react";
-import { Save, RotateCcw, Download, Upload, AlertCircle } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import EditModal from "./components/globalSettings/EditModal";
 import { useGlobalSettings } from "../lib/actions/useGetSettings";
 import BookingRulesCard from "./components/globalSettings/BookingRulesCard";
