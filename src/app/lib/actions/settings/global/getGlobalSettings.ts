@@ -16,7 +16,7 @@ const getCachedGlobalSettings = unstable_cache(
     const result = await dynamoDb.send(
       new GetCommand({
         TableName: settingsDynamoName,
-        Key: { settingId: "GLOBAL_SETTINGS" },
+        Key: { settingId: "GLOBAL" },
       })
     );
 

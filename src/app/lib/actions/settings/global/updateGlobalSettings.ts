@@ -1,9 +1,9 @@
-"use server"
+"use server";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { settingsDynamoName } from "@/app/lib/dynamodb";
-import { GlobalSettings } from "@/app/types/bookSettings";
-import { GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { GlobalSettingsType } from "@/app/types/bookSettings";
+import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
 import { dynamoDb } from "@/app/lib/dynamodb";
@@ -17,7 +17,7 @@ async function checkAdminAuth() {
 }
 
 export async function updateSettingEnabled(
-  settingKey: keyof GlobalSettings,
+  settingKey: keyof GlobalSettingsType,
   enabled: boolean
 ) {
   const session = await getServerSession(authOptions);
@@ -33,10 +33,10 @@ export async function updateSettingEnabled(
         UpdateExpression: "SET #key.#enabled = :enabled",
         ExpressionAttributeNames: {
           "#key": settingKey,
-          "#enabled": "enabled"
+          "#enabled": "enabled",
         },
         ExpressionAttributeValues: {
-          ":enabled": enabled
+          ":enabled": enabled,
         },
         ReturnValues: "ALL_NEW",
       })
@@ -50,20 +50,23 @@ export async function updateSettingEnabled(
   }
 }
 // Update gap rules
-export async function updateGapRules(
-  gapRules: GlobalSettings['gapRules']
-) {
+export async function updateGapDays(days: number) {
   await checkAdminAuth();
 
   try {
     const updateResult = await dynamoDb.send(
       new UpdateCommand({
         TableName: settingsDynamoName,
-        Key: { settingId: "GLOBAL_SETTINGS" },
-        UpdateExpression: "SET settings.gapRules = :rules, updatedAt = :updatedAt",
+        Key: {
+          settingId: "GLOBAL",
+        },
+        UpdateExpression: "SET #gapRules.#days = :days",
+        ExpressionAttributeNames: {
+          "#gapRules": "gapRules",
+          "#days": "days",
+        },
         ExpressionAttributeValues: {
-          ":rules": gapRules,
-          ":updatedAt": new Date().toISOString(),
+          ":days": days,
         },
         ReturnValues: "ALL_NEW",
       })
@@ -72,26 +75,32 @@ export async function updateGapRules(
     revalidateTag("global-settings");
     return { success: true, data: updateResult.Attributes };
   } catch (error: any) {
-    console.error("Failed to update gap rules:", error);
+    console.error("Failed to update gap days:", {
+      days,
+      error: error.message,
+    });
     return { success: false, error: error.message };
   }
 }
 
-// Update booking rules
-export async function updateBookingRules(
-  bookingRules: GlobalSettings['bookingRules']
-) {
+export async function updateOverlapRules(poeple: number) {
   await checkAdminAuth();
 
   try {
     const updateResult = await dynamoDb.send(
       new UpdateCommand({
         TableName: settingsDynamoName,
-        Key: { settingId: "GLOBAL_SETTINGS" },
-        UpdateExpression: "SET settings.bookingRules = :rules, updatedAt = :updatedAt",
+        Key: {
+          settingId: "GLOBAL",
+        },
+        UpdateExpression:
+          "SET #overlapRules.#maxSimultaneousBookings = :maxSimultaneousBookings",
+        ExpressionAttributeNames: {
+          "#overlapRules": "overlapRules",
+          "#maxSimultaneousBookings": "maxSimultaneousBookings",
+        },
         ExpressionAttributeValues: {
-          ":rules": bookingRules,
-          ":updatedAt": new Date().toISOString(),
+          ":maxSimultaneousBookings": poeple,
         },
         ReturnValues: "ALL_NEW",
       })
@@ -100,26 +109,35 @@ export async function updateBookingRules(
     revalidateTag("global-settings");
     return { success: true, data: updateResult.Attributes };
   } catch (error: any) {
-    console.error("Failed to update booking rules:", error);
+    console.error("Failed to update gap days:", {
+      poeple,
+      error: error.message,
+    });
     return { success: false, error: error.message };
   }
 }
 
-// Update overlap rules
-export async function updateOverlapRules(
-  overlapRules: GlobalSettings['overlapRules']
-) {
+export async function updateBookingRules(bookingRules: {
+  maxDaysPerBooking: number;
+  maxDaysPerYear: number;
+  maxAdvanceBookingDays: number;
+  minDaysNotice: number;
+}) {
   await checkAdminAuth();
 
   try {
     const updateResult = await dynamoDb.send(
       new UpdateCommand({
         TableName: settingsDynamoName,
-        Key: { settingId: "GLOBAL_SETTINGS" },
-        UpdateExpression: "SET settings.overlapRules = :rules, updatedAt = :updatedAt",
+        Key: {
+          settingId: "GLOBAL",
+        },
+        UpdateExpression: "SET #bookingRules = :bookingRules",
+        ExpressionAttributeNames: {
+          "#bookingRules": "bookingRules",
+        },
         ExpressionAttributeValues: {
-          ":rules": overlapRules,
-          ":updatedAt": new Date().toISOString(),
+          ":bookingRules": bookingRules,
         },
         ReturnValues: "ALL_NEW",
       })
@@ -128,26 +146,44 @@ export async function updateOverlapRules(
     revalidateTag("global-settings");
     return { success: true, data: updateResult.Attributes };
   } catch (error: any) {
-    console.error("Failed to update overlap rules:", error);
+    console.error("Failed to update booking rules:", {
+      bookingRules,
+      error: error.message,
+    });
     return { success: false, error: error.message };
   }
 }
 
-// Update restricted days
-export async function updateRestrictedDays(
-  restrictedDays: GlobalSettings['restrictedDays']
-) {
+export async function updateSeasonalRules(seasonalRules: {
+  enabled: boolean;
+  blackoutPeriods: Array<{
+    start: string;
+    end: string;
+    reason: string;
+    name: string;
+  }>;
+  preferredPeriods: Array<{
+    start: string;
+    end: string;
+    reason: string;
+    name: string;
+  }>;
+}) {
   await checkAdminAuth();
 
   try {
     const updateResult = await dynamoDb.send(
       new UpdateCommand({
         TableName: settingsDynamoName,
-        Key: { settingId: "GLOBAL_SETTINGS" },
-        UpdateExpression: "SET settings.restrictedDays = :days, updatedAt = :updatedAt",
+        Key: {
+          settingId: "GLOBAL",
+        },
+        UpdateExpression: "SET #seasonalRules = :seasonalRules",
+        ExpressionAttributeNames: {
+          "#seasonalRules": "seasonalRules",
+        },
         ExpressionAttributeValues: {
-          ":days": restrictedDays,
-          ":updatedAt": new Date().toISOString(),
+          ":seasonalRules": seasonalRules,
         },
         ReturnValues: "ALL_NEW",
       })
@@ -156,26 +192,37 @@ export async function updateRestrictedDays(
     revalidateTag("global-settings");
     return { success: true, data: updateResult.Attributes };
   } catch (error: any) {
-    console.error("Failed to update restricted days:", error);
+    console.error("Failed to update seasonal rules:", {
+      seasonalRules,
+      error: error.message,
+    });
     return { success: false, error: error.message };
   }
 }
 
-// Update seasonal rules
-export async function updateSeasonalRules(
-  seasonalRules: GlobalSettings['seasonalRules']
-) {
+export async function updateRestrictedDays(restrictedDays: {
+  enabled: boolean;
+  holidays: string[];
+  weekends: {
+    restriction: "all" | "none" | "saturday-only" | "sunday-only";
+  };
+  customRestricted: string[];
+}) {
   await checkAdminAuth();
 
   try {
     const updateResult = await dynamoDb.send(
       new UpdateCommand({
         TableName: settingsDynamoName,
-        Key: { settingId: "GLOBAL_SETTINGS" },
-        UpdateExpression: "SET settings.seasonalRules = :rules, updatedAt = :updatedAt",
+        Key: {
+          settingId: "GLOBAL",
+        },
+        UpdateExpression: "SET #restrictedDays = :restrictedDays",
+        ExpressionAttributeNames: {
+          "#restrictedDays": "restrictedDays",
+        },
         ExpressionAttributeValues: {
-          ":rules": seasonalRules,
-          ":updatedAt": new Date().toISOString(),
+          ":restrictedDays": restrictedDays,
         },
         ReturnValues: "ALL_NEW",
       })
@@ -184,35 +231,10 @@ export async function updateSeasonalRules(
     revalidateTag("global-settings");
     return { success: true, data: updateResult.Attributes };
   } catch (error: any) {
-    console.error("Failed to update seasonal rules:", error);
-    return { success: false, error: error.message };
-  }
-}
-
-// Update minimum days notice
-export async function updateMinDaysNotice(
-  minDaysNotice: GlobalSettings['bookingRules']['minDaysNotice']
-) {
-  await checkAdminAuth();
-
-  try {
-    const updateResult = await dynamoDb.send(
-      new UpdateCommand({
-        TableName: settingsDynamoName,
-        Key: { settingId: "GLOBAL_SETTINGS" },
-        UpdateExpression: "SET settings.bookingRules.minDaysNotice = :notice, updatedAt = :updatedAt",
-        ExpressionAttributeValues: {
-          ":notice": minDaysNotice,
-          ":updatedAt": new Date().toISOString(),
-        },
-        ReturnValues: "ALL_NEW",
-      })
-    );
-
-    revalidateTag("global-settings");
-    return { success: true, data: updateResult.Attributes };
-  } catch (error: any) {
-    console.error("Failed to update minimum days notice:", error);
+    console.error("Failed to update restricted days:", {
+      restrictedDays,
+      error: error.message,
+    });
     return { success: false, error: error.message };
   }
 }

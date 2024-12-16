@@ -1,11 +1,9 @@
-"use server"
-/* eslint-disable @typescript-eslint/no-explicit-any */
+"use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
-import { dynamoName } from "../../dynamodb";
-import { dynamoDb } from "../../dynamodb";
+import { dynamoName, settingsDynamoName, dynamoDb } from "../../dynamodb";
 
 export async function deleteUser(email: string) {
   try {
@@ -14,15 +12,26 @@ export async function deleteUser(email: string) {
       throw new Error("Unauthorized");
     }
 
-    const command = new DeleteCommand({
+    const deleteUserCommand = new DeleteCommand({
       TableName: dynamoName,
       Key: { email },
       ConditionExpression: "attribute_exists(email)",
     });
 
-    await dynamoDb.send(command);
+    const deleteSettingsCommand = new DeleteCommand({
+      TableName: settingsDynamoName,
+      Key: { settingId: `USER_${email}` },
+    });
+
+    await Promise.all([
+      dynamoDb.send(deleteUserCommand),
+      dynamoDb.send(deleteSettingsCommand),
+    ]);
+
     revalidateTag("users");
-    return { message: "User deleted successfully" };
+    revalidateTag(`user-settings-${email}`);
+
+    return { message: "User and settings deleted successfully" };
   } catch (error: any) {
     if (error.name === "ConditionalCheckFailedException") {
       throw new Error("User not found");

@@ -3,7 +3,8 @@ export interface User {
   name: string;
   role: string;
   color: string;
-  gapDays: number;
+  useGlobal: boolean;
+  vacationDays: number;
   createdAt: string;
   updatedAt: string;
 }

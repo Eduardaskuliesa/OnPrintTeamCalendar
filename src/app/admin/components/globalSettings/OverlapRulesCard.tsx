@@ -1,19 +1,193 @@
-import React from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Users, Settings2, BadgeCheck, BadgeX } from "lucide-react";
+import { Users } from "lucide-react";
+import { toast } from "react-toastify";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { Input } from "@/components/ui/input";
+import {
+  useUpdateOverlapRules,
+  useUpdateSettingEnabled,
+} from "@/app/lib/actions/settings/global/hooks";
+import { GlobalSettingsType } from "@/app/types/bookSettings";
+import {
+  handleMutationResponse,
+  ErrorMessages,
+  handleNoChanges,
+} from "@/app/utils/errorHandling";
+import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
+import { useNumericInput } from "@/app/hooks/useNumericInput";
+import EditableControls from "./EditableControls";
+import StatusToggle from "./StatusTogle";
+import {
+  useUpdateUserOverlapRules,
+  useUpdateUserSettingEnabled,
+} from "@/app/lib/actions/settings/user/hooks";
 
 const overlapRulesExplanations = {
   maxSimultaneous:
     "Maximum number of employees that can be on vacation at the same time.",
 };
 
-const OverlapRulesCard = ({ data, onEdit }) => {
+interface OverlapRulesCardProps {
+  data: GlobalSettingsType;
+  selectedUserId: string;
+  isEditing: boolean;
+  onEdit: () => void;
+  onCancel: () => void;
+  onUnsavedChanges: (
+    hasChanges: boolean,
+    saveHandler?: () => Promise<void>,
+    cancelHandler?: () => void
+  ) => void;
+}
+
+const OverlapRulesCard = ({
+  data,
+  selectedUserId,
+  isEditing,
+  onEdit,
+  onCancel,
+  onUnsavedChanges,
+}: OverlapRulesCardProps) => {
+  const [localEnabled, setLocalEnabled] = useState(
+    data?.overlapRules?.enabled || false
+  );
+
+  const updateEnabled = useUpdateSettingEnabled();
+  const updateOverlapRules = useUpdateOverlapRules();
+  const updateUserEnabled = useUpdateUserSettingEnabled();
+  const updateUserOveralpRules = useUpdateUserOverlapRules();
+
+  const {
+    value: localMaxSimultaneous,
+    setValue: setLocalMaxSimultaneous,
+    parseValue: parseLocalMaxSimultaneous,
+  } = useNumericInput(data?.overlapRules?.maxSimultaneousBookings ?? 0);
+
+  useEffect(() => {
+    const initialValue = data?.overlapRules?.maxSimultaneousBookings ?? 0;
+    const hasChanges = parseLocalMaxSimultaneous() !== initialValue;
+
+    onUnsavedChanges(
+      hasChanges,
+      hasChanges ? handleSave : undefined,
+      hasChanges ? handleCancel : undefined
+    );
+  }, [localMaxSimultaneous, data?.overlapRules?.maxSimultaneousBookings]);
+
+  const handleToggleEnabled = async () => {
+    const newEnabledState = !localEnabled;
+    setLocalEnabled(newEnabledState);
+    if (selectedUserId === "global") {
+      updateEnabled.mutate(
+        { settingKey: "overlapRules", enabled: newEnabledState },
+        {
+          onSuccess: () => {
+            handleMutationResponse(true, ErrorMessages.UPDATE_STATUS);
+          },
+          onError: () => {
+            setLocalEnabled(!newEnabledState);
+            handleMutationResponse(false, ErrorMessages.UPDATE_STATUS);
+          },
+        }
+      );
+    } else {
+      updateUserEnabled.mutate(
+        {
+          settingKey: "overlapRules",
+          enabled: newEnabledState,
+          userId: selectedUserId,
+        },
+        {
+          onSuccess: () => {
+            handleMutationResponse(true, ErrorMessages.UPDATE_STATUS);
+          },
+          onError: () => {
+            setLocalEnabled(!newEnabledState);
+            handleMutationResponse(false, ErrorMessages.UPDATE_STATUS);
+          },
+        }
+      );
+    }
+  };
+
+  const handleSave = async () => {
+    const currentValue = parseLocalMaxSimultaneous();
+    const initialValue = data?.overlapRules?.maxSimultaneousBookings || 0;
+    toast.dismiss();
+    if (currentValue === initialValue) {
+      handleNoChanges(ErrorMessages.OVERLAP_RULES.NO_CHANGES);
+      onCancel();
+      return;
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      if (selectedUserId === "global") {
+        updateOverlapRules.mutate(currentValue, {
+          onSuccess: () => {
+            handleMutationResponse(true, ErrorMessages.OVERLAP_RULES, {
+              onSuccess: () => {
+                setLocalMaxSimultaneous(String(currentValue));
+                onCancel();
+                resolve();
+              },
+            });
+          },
+          onError: (error) => {
+            handleMutationResponse(false, ErrorMessages.OVERLAP_RULES, {
+              onError: () => {
+                setLocalMaxSimultaneous(String(initialValue));
+                console.error("Error updating overlap rules:", error);
+                reject(error);
+              },
+            });
+          },
+        });
+      } else {
+        updateUserOveralpRules.mutate(
+          {
+            userId: selectedUserId,
+            people: currentValue,
+          },
+          {
+            onSuccess: () => {
+              handleMutationResponse(true, ErrorMessages.OVERLAP_RULES, {
+                onSuccess: () => {
+                  setLocalMaxSimultaneous(String(currentValue));
+                  onCancel();
+                  resolve();
+                },
+              });
+            },
+            onError: (error) => {
+              handleMutationResponse(false, ErrorMessages.OVERLAP_RULES, {
+                onError: () => {
+                  setLocalMaxSimultaneous(String(initialValue));
+                  console.error("Error updating overlap rules:", error);
+                  reject(error);
+                },
+              });
+            },
+          }
+        );
+      }
+    });
+  };
+
+  const handleCancel = () => {
+    toast.dismiss();
+    const initialValue = data?.overlapRules?.maxSimultaneousBookings ?? 0;
+    setLocalMaxSimultaneous(String(initialValue));
+    onCancel();
+  };
+
+  useKeyboardShortcuts(isEditing, handleSave, handleCancel);
+
   return (
     <Card className="group bg-slate-50 border-2 border-blue-50 shadow-md">
       <CardHeader className="pb-2">
@@ -24,44 +198,45 @@ const OverlapRulesCard = ({ data, onEdit }) => {
               <CardTitle className="text-lg font-bold text-gray-800">
                 Overlap Rules
               </CardTitle>
-              <div
-                className={`flex items-center px-2 py-1 rounded-full ${
-                  data?.overlapRules?.enabled
-                    ? "bg-emerald-100 text-emerald-600"
-                    : "bg-orange-100 text-orange-700"
-                }`}
-              >
-                {data?.overlapRules?.enabled ? (
-                  <BadgeCheck className="w-4 h-4 mr-1.5" />
-                ) : (
-                  <BadgeX className="w-4 h-4 mr-1.5" />
-                )}
-                <span className="text-xs font-semibold">
-                  {data?.overlapRules?.enabled ? "Aktyvus" : "Neaktivus"}
-                </span>
-              </div>
+              <StatusToggle
+                enabled={localEnabled}
+                isPending={updateEnabled.isPending}
+                onToggle={handleToggleEnabled}
+              />
             </div>
           </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="opacity-0 text-sm group-hover:opacity-100 bg-lcoffe transition-all duration-300 hover:bg-dcoffe"
-            onClick={() => onEdit("overlapRules")}
-          >
-            <Settings2 className="w-2 h-2 mr-1" />
-            Configure
-          </Button>
+          <EditableControls
+            isEditing={isEditing}
+            isPending={updateOverlapRules.isPending}
+            onEdit={onEdit}
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
         </div>
       </CardHeader>
       <CardContent className="px-4 pb-4 pt-2">
         <HoverCard openDelay={200}>
           <HoverCardTrigger asChild>
-            <div className="py-2 px-4 rounded-lg  bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
+            <div className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
               <div className="text-sm font-semibold text-gray-900">
                 Maximum Simultaneous
               </div>
-              <div className="font-semibold text-db mt-1">
-                {data?.overlapRules?.maxSimultaneousBookings} people
+              <div className="font-semibold text-db mt-1 flex items-center">
+                {isEditing ? (
+                  <div className="flex items-center">
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={localMaxSimultaneous}
+                      onChange={(e) => setLocalMaxSimultaneous(e.target.value)}
+                      className="w-12 h-auto text-center p-1 mx-1 bg-white border border-gray-300"
+                    />
+                  </div>
+                ) : (
+                  parseLocalMaxSimultaneous()
+                )}
+                <span className="ml-1">people</span>
               </div>
             </div>
           </HoverCardTrigger>

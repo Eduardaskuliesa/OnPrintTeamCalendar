@@ -4,7 +4,9 @@ import { usersActions } from "../lib/actions/users";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { UserActionButtons } from "./UserActionButtons";
-import DeleteUserConfirmation, { ConfirmationMessage } from "../ui/DeleteUserConfirmation";
+import DeleteUserConfirmation, {
+  ConfirmationMessage,
+} from "../ui/DeleteUserConfirmation";
 import UpdateUserForm from "./UpdateUserForm";
 import { ShieldCheck, CalendarDays } from "lucide-react";
 
@@ -12,10 +14,12 @@ interface UserListProps {
   users: User[];
   onUserDeleted: (deletedEmail: string) => void;
   onUserUpdated: (updatedUser: User) => void;
+  onNavigate: (tab: string, user: User) => void;
 }
 
 export default function UserList({
   users,
+  onNavigate,
   onUserDeleted,
   onUserUpdated,
 }: UserListProps) {
@@ -24,6 +28,10 @@ export default function UserList({
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToUpdate, setUserToUpdate] = useState<User | null>(null);
+
+  const handleSettings = (user: User) => {
+    onNavigate("settings", user);
+  };
 
   const handleDelete = (user: User) => {
     setUserToDelete(user);
@@ -106,13 +114,14 @@ export default function UserList({
                   <div className="flex items-center text-gray-600">
                     <CalendarDays size={16} className="text-orange-500 mr-1" />
                     <span className="text-sm">
-                      <span className="font-semibold">20</span> d.
+                      <span className="font-semibold">{user.vacationDays}</span> d.
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center">
                   <UserActionButtons
+                    onSettings={() => handleSettings(user)}
                     onEdit={() => handleUpdate(user)}
                     onDelete={() => handleDelete(user)}
                     isDeleting={deletingEmail === user.email}

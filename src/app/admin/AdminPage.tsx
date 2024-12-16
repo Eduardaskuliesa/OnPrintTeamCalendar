@@ -1,6 +1,6 @@
 "use client";
 import { User } from "@/app/types/api";
-import { lazy, Suspense, useState } from "react";
+import { lazy, useState } from "react";
 import CreateUserForm from "./CreateUserForm";
 import UserList from "./UserList";
 import VacationRequestList from "./VacationRequestList";
@@ -8,7 +8,6 @@ import AdminDashboardStats from "./AdminDashboardStats";
 import AdminTabs from "./AdminTabs";
 import AddUserButton from "./AddUserButton";
 import ActiveVacationsList from "./ActiveVacationsList";
-import GlobalSettingsLoader from "./GlobalSettingsLoader";
 const GlobalSettings = lazy(() => import("./GlobalSettings"));
 
 export interface Vacation {
@@ -35,7 +34,7 @@ export default function AdminPage({
     "dashboard" | "pending" | "active" | "settings"
   >("dashboard");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [isSettingsLoading, setIsSettingsLoading] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const handleUserCreated = (newUser: User) => {
     setUsers((prevUsers) => [...prevUsers, newUser]);
@@ -64,20 +63,21 @@ export default function AdminPage({
     (r) => r.status === "APPROVED"
   ).length;
 
-  const handleNavigate = (
-    tab: "dashboard" | "pending" | "active" | "settings"
-  ) => {
-    setActiveTab(tab);
-    if (tab === "settings") {
-      setIsSettingsLoading(true);
+  const handleNavigate = (tab: string, user?: User) => {
+    if (activeTab === "settings") {
+      setSelectedUser(null);
+    }
+    setActiveTab(tab as "dashboard" | "pending" | "active" | "settings");
+    if (user) {
+      setSelectedUser(user);
     }
   };
-
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
         return (
           <UserList
+            onNavigate={handleNavigate}
             users={users}
             onUserDeleted={handleUserDeleted}
             onUserUpdated={handleUserUpdated}
@@ -98,7 +98,7 @@ export default function AdminPage({
           />
         );
       case "settings":
-        return <GlobalSettings />;
+        return <GlobalSettings users={users} selectedUser={selectedUser} />;
     }
   };
 

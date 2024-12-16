@@ -1,110 +1,170 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { GlobalSettings } from "@/app/types/bookSettings";
+import { GlobalSettingsType } from "@/app/types/bookSettings";
 import {
-    updateGapRules,
-    updateBookingRules,
-    updateOverlapRules,
-    updateRestrictedDays,
-    updateSeasonalRules,
-    updateSettingEnabled,
-    updateMinDaysNotice
-} from '../updateGlobalSettings';
+  updateBookingRules,
+  updateGapDays,
+  updateOverlapRules,
+  updateRestrictedDays,
+  updateSeasonalRules,
+  updateSettingEnabled,
+} from "../updateGlobalSettings";
 
 // Hook for quick enable/disable toggles
 export const useUpdateSettingEnabled = () => {
-    const queryClient = useQueryClient();
-  
-    return useMutation({
-      mutationFn: async ({ settingKey, enabled }: {
-        settingKey: keyof GlobalSettings;
-        enabled: boolean;
-      }) => {
-        const result = await updateSettingEnabled(settingKey, enabled);
-        if (!result.success) {
-          throw new Error(result.error || "Failed to update status");
-        }
-        return result;
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      settingKey,
+      enabled,
+    }: {
+      settingKey: keyof GlobalSettingsType;
+      enabled: boolean;
+    }) => {
+      const result = await updateSettingEnabled(settingKey, enabled);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to update status");
       }
-    });
-  };
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+    },
+  });
+};
 
 // Hook for gap rules updates
-export const useUpdateGapRules = () => {
-    const queryClient = useQueryClient();
+export const useUpdateGapDays = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (days: number) => {
+      const result = await updateGapDays(days);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to update gap days");
+      }
+      return result;
+    },
 
-    return useMutation({
-        mutationFn: (gapRules: GlobalSettings['gapRules']) =>
-            updateGapRules(gapRules),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
-        },
-    });
+    onSuccess: (result) => {
+      queryClient.setQueryData(
+        ["getGlobalSettings"],
+        (oldData: GlobalSettingsType) => ({
+          ...oldData,
+          data: result.data,
+        })
+      );
+      queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+    },
+  });
 };
 
-// Hook for booking rules updates
-export const useUpdateBookingRules = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (bookingRules: GlobalSettings['bookingRules']) =>
-            updateBookingRules(bookingRules),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
-        },
-    });
-};
-
-// Hook for overlap rules updates
 export const useUpdateOverlapRules = () => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: (overlapRules: GlobalSettings['overlapRules']) =>
-            updateOverlapRules(overlapRules),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
-        },
-    });
+  return useMutation({
+    mutationFn: async (people: number) => {
+      const result = await updateOverlapRules(people);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to update gap days");
+      }
+      return result;
+    },
+
+    onSuccess: (result) => {
+      queryClient.setQueryData(
+        ["getGlobalSettings"],
+        (oldData: GlobalSettingsType) => ({
+          ...oldData,
+          data: result.data,
+        })
+      );
+      queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+    },
+  });
 };
 
-// Hook for restricted days updates
-export const useUpdateRestrictedDays = () => {
-    const queryClient = useQueryClient();
+export const useUpdateBookingRules = () => {
+  const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: (restrictedDays: GlobalSettings['restrictedDays']) =>
-            updateRestrictedDays(restrictedDays),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
-        },
-    });
+  return useMutation({
+    mutationFn: async (bookingRules: {
+      enabled: boolean;
+      maxDaysPerBooking: number;
+      maxDaysPerYear: number;
+      maxAdvanceBookingDays: number;
+      minDaysNotice: number;
+    }) => {
+      const result = await updateBookingRules(bookingRules);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to update booking rules");
+      }
+      return result;
+    },
+
+    onSuccess: (result) => {
+      queryClient.setQueryData(
+        ["getGlobalSettings"],
+        (oldData: GlobalSettingsType) => ({
+          ...oldData,
+          data: result.data,
+        })
+      );
+      queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+    },
+  });
 };
 
-// Hook for seasonal rules updates
 export const useUpdateSeasonalRules = () => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: (seasonalRules: GlobalSettings['seasonalRules']) =>
-            updateSeasonalRules(seasonalRules),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
-        },
-    });
+  return useMutation({
+    mutationFn: async (seasonalRules: {
+      enabled: boolean;
+      blackoutPeriods: GlobalSettingsType["seasonalRules"]["blackoutPeriods"];
+      preferredPeriods: GlobalSettingsType["seasonalRules"]["preferredPeriods"];
+    }) => {
+      const result = await updateSeasonalRules(seasonalRules);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to update seasonal rules");
+      }
+      return result;
+    },
+
+    onSuccess: (result) => {
+      // Update the cached data optimistically
+      queryClient.setQueryData(
+        ["getGlobalSettings"],
+        (oldData: GlobalSettingsType) => ({
+          ...oldData,
+          data: result.data,
+        })
+      );
+      // Invalidate and refetch to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+    },
+  });
 };
 
-// Hook for minimum days notice updates
-export const useUpdateMinDaysNotice = () => {
-    const queryClient = useQueryClient();
+export const useUpdateRestrictedDays = () => {
+  const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: (minDaysNotice: GlobalSettings['bookingRules']['minDaysNotice']) =>
-            updateMinDaysNotice(minDaysNotice),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
-        },
-    });
+  return useMutation({
+    mutationFn: async (
+      restrictedDays: GlobalSettingsType["restrictedDays"]
+    ) => {
+      const result = await updateRestrictedDays(restrictedDays);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to update restricted days");
+      }
+      return result;
+    },
+
+    onSuccess: (result) => {
+      queryClient.setQueryData(["getGlobalSettings"], (oldData: any) => ({
+        ...oldData,
+        data: result.data,
+      }));
+      queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+    },
+  });
 };

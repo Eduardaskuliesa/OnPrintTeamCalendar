@@ -39,7 +39,7 @@ export default function RootLayout({
             autoClose={3000}
             theme="light"
             pauseOnHover={true}
-            limit={3}
+            limit={2}
             newestOnTop
           />
         </Providers>

@@ -94,8 +94,9 @@ export default function CreateUserForm({
         email: formData.email,
         name: formData.name,
         color: formData.color,
-        gapDays: 7,
         role: "USER",
+        useGlobal: true,
+        vacationDays: 20,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

@@ -1,5 +1,4 @@
 "use client";
-
 import { SessionProvider } from "next-auth/react";
 import { SidebarProvider } from "../context/SidebarContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

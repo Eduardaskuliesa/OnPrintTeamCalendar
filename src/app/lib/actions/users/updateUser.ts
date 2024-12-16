@@ -1,14 +1,20 @@
-"use server"
+"use server";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { dynamoDb } from "@/app/lib/dynamodb";
 import { UpdateCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 export async function updateUser(
   email: string,
-  userData: { name?: string; color?: string; gapDays?: number }
+  userData: {
+    name?: string;
+    color?: string;
+    gapDays?: number;
+    useGlobal?: boolean;
+    vacationDays?: number;
+  }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -39,13 +45,24 @@ export async function updateUser(
       expressionAttributeValues[":gapDays"] = userData.gapDays;
     }
 
-    await dynamoDb.send(
+    if (userData.useGlobal !== undefined) {
+      updateExpressions.push("useGlobal = :useGlobal");
+      expressionAttributeValues[":useGlobal"] = userData.useGlobal;
+    }
+
+    if (userData.vacationDays !== undefined) {
+      updateExpressions.push("vacationDays = :vacationDays");
+      expressionAttributeValues[":vacationDays"] = userData.vacationDays;
+    }
+
+    // Always update the updatedAt timestamp
+    updateExpressions.push("updatedAt = :updatedAt");
+
+    const result = await dynamoDb.send(
       new UpdateCommand({
         TableName: process.env.DYNAMODB_NAME!,
         Key: { email },
-        UpdateExpression: `SET ${updateExpressions.join(
-          ", "
-        )}, updatedAt = :updatedAt`,
+        UpdateExpression: `SET ${updateExpressions.join(", ")}`,
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
         ConditionExpression: "attribute_exists(email)",
@@ -53,7 +70,8 @@ export async function updateUser(
       })
     );
 
-    if (userData.name) {
+    // Update related vacations if name or color changed
+    if (userData.name || userData.color) {
       const { Items: vacations } = await dynamoDb.send(
         new QueryCommand({
           TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
@@ -64,6 +82,7 @@ export async function updateUser(
           },
         })
       );
+
       if (vacations?.length) {
         await Promise.all(
           vacations.map((vacation) => {
@@ -93,15 +112,15 @@ export async function updateUser(
         );
       }
     }
+
     revalidateTag(`user-${email}`);
     revalidateTag("users");
     revalidateTag("vacations");
-    revalidateTag("admin-vacations");
-    revalidatePath('/admin')
 
     return {
       success: true,
       message: "User and related vacations updated successfully",
+      user: result.Attributes,
     };
   } catch (error: any) {
     console.error("Update failed:", error);

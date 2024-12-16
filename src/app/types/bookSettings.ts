@@ -1,36 +1,40 @@
-export interface GlobalSettings {
+export interface GlobalSettingsType {
   gapRules: {
     enabled: boolean;
     days: number;
   };
   bookingRules: {
-    maxDaysPerBooking: number; // Maximum days per single vacation
-    maxDaysPerYear: number; // Maximum vacation days per year
-    maxAdvanceBookingDays: number; // How far in advance can book (e.g., 180 days)
-    minDaysNotice: {
-      enabled: boolean;
-      days: number;
-    }; // Minimum days before vacation can start
+    enabled: boolean;
+    maxDaysPerBooking: number;
+    maxDaysPerYear: number;
+    maxAdvanceBookingDays: number;
+    minDaysNotice: number;
   };
   overlapRules: {
     enabled: boolean;
-    maxSimultaneousBookings: number; // How many people can be on vacation at once
+    maxSimultaneousBookings: number;
   };
   restrictedDays: {
-    holidays: string[]; // Array of holiday dates that don't count as vacation
-    weekends: boolean; // Whether weekends count as vacation days
-    customRestricted: string[]; // Additional restricted dates
+    enabled: boolean;
+    holidays: string[];
+    weekends: {
+      restriction: "all" | "none" | "saturday-only" | "sunday-only";
+    };
+    customRestricted: string[];
   };
   seasonalRules: {
+    enabled: boolean;
     blackoutPeriods: Array<{
       start: string;
       end: string;
       reason: string;
+      name: string;
     }>;
     preferredPeriods: Array<{
       start: string;
       end: string;
       reason: string;
+      name: string;
     }>;
   };
 }
