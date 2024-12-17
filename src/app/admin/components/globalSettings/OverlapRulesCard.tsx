@@ -22,7 +22,7 @@ import {
 import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 import { useNumericInput } from "@/app/hooks/useNumericInput";
 import EditableControls from "./EditableControls";
-import StatusToggle from "./StatusTogle";
+import {StatusToggle} from "./StatusTogle";
 import {
   useUpdateUserOverlapRules,
   useUpdateUserSettingEnabled,

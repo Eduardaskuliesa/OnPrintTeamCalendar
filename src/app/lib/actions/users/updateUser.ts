@@ -130,3 +130,44 @@ export async function updateUser(
     return { success: false, error: error.message };
   }
 }
+
+export async function updateUserGlobalStatus(
+  email: string,
+  useGlobal: boolean
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+      throw new Error("Unauthorized");
+    }
+
+    const result = await dynamoDb.send(
+      new UpdateCommand({
+        TableName: process.env.DYNAMODB_NAME!,
+        Key: { email },
+        UpdateExpression: "SET useGlobal = :useGlobal, updatedAt = :updatedAt",
+        ExpressionAttributeValues: {
+          ":useGlobal": useGlobal,
+          ":updatedAt": new Date().toISOString(),
+        },
+        ConditionExpression: "attribute_exists(email)",
+        ReturnValues: "ALL_NEW",
+      })
+    );
+
+    revalidateTag(`user-${email}`);
+    revalidateTag("users");
+
+    return {
+      success: true,
+      message: "User global status updated successfully",
+      user: result.Attributes,
+    };
+  } catch (error: any) {
+    console.error("Update failed:", error);
+    if (error.name === "ConditionalCheckFailedException") {
+      return { success: false, error: "User not found" };
+    }
+    return { success: false, error: error.message };
+  }
+}

@@ -13,7 +13,7 @@ import {
   handleMutationResponse,
   ErrorMessages,
 } from "@/app/utils/errorHandling";
-import StatusToggle from "./StatusTogle";
+import {StatusToggle} from "./StatusTogle";
 import SeasonalRulesModal from "./SeasonalRulesModal";
 
 import { useUpdateUserSettingEnabled } from "@/app/lib/actions/settings/user/hooks";

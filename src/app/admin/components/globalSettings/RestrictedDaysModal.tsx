@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Trash2, Loader } from "lucide-react";

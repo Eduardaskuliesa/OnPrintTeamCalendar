@@ -23,16 +23,24 @@ import {
 } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusToggleUser } from "./components/globalSettings/StatusTogle";
 
 interface GlobalSettingsProps {
   users: User[];
   selectedUser?: User | null;
+  onUserUpdated: (updatedUser: User) => void;
 }
 
-const GlobalSettings = ({ users, selectedUser }: GlobalSettingsProps) => {
+const GlobalSettings = ({
+  users: initialUsers,
+  selectedUser,
+  onUserUpdated,
+}: GlobalSettingsProps) => {
   const [selectedUserId, setSelectedUserId] = useState<string>(
     selectedUser?.email || "global"
   );
+
+  const [users, setUsers] = useState(initialUsers);
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [unsavedChanges, setUnsavedChanges] = useState<{
     [key: string]: {
@@ -50,8 +58,6 @@ const GlobalSettings = ({ users, selectedUser }: GlobalSettingsProps) => {
   const currentData = selectedUserId === "global" ? globalData : userData;
   const isLoading =
     selectedUserId === "global" ? isGlobalLoading : isUserLoading;
-
-  console.log(currentData?.data?.settingId);
 
   const handleEdit = (section: string) => {
     if (editingSection && unsavedChanges[editingSection]?.hasChanges) {
@@ -143,20 +149,46 @@ const GlobalSettings = ({ users, selectedUser }: GlobalSettingsProps) => {
     setSelectedUserId(value);
   };
 
+  const handleUserUpdate = (updatedUser: User) => {
+    // Update local state
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.email === updatedUser.email ? updatedUser : user
+      )
+    );
+    // Update parent state
+    onUserUpdated(updatedUser);
+  };
   const currentUser = users.find((user) => user.email === selectedUserId);
   const isGlobalSettings = selectedUserId === "global";
 
   return (
     <div key={selectedUserId} className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <CardHeader className="flex flex-row bg-slate-50 border-2 border-blue-50 shadow-md items-center rounded-lg  justify-between space-y-0 pb-4">
           <div className="flex items-center space-x-4">
             <div className="space-y-1">
               <CardTitle>Atostogų Nustatymai</CardTitle>
               <div className="flex items-center space-x-2">
-                <Badge variant={!isGlobalSettings ? "secondary" : "default"}>
-                  {!isGlobalSettings ? "User Settings" : "Global Settings"}
+                <Badge
+                  variant={!isGlobalSettings ? "outline" : "default"}
+                  className={
+                    !isGlobalSettings
+                      ? `bg-white px-0 py-0 border-0`
+                      : "bg-neutral-700 text-white border-neutral-200"
+                  }
+                >
+                  {!isGlobalSettings ? (
+                    <StatusToggleUser
+                      onUserUpdated={handleUserUpdate}
+                      email={selectedUserId}
+                      users={users}
+                    ></StatusToggleUser>
+                  ) : (
+                    "Global Settings"
+                  )}
                 </Badge>
+
                 {currentUser && (
                   <Badge variant="outline" className="flex items-center gap-1">
                     <div
@@ -171,11 +203,11 @@ const GlobalSettings = ({ users, selectedUser }: GlobalSettingsProps) => {
           </div>
 
           <Select onValueChange={handleUserChange} value={selectedUserId}>
-            <SelectTrigger className="w-[280px]">
+            <SelectTrigger className="w-[280px] bg-white border-dcoffe focus:ring-1 focus:ring-vdcoffe border outline-none focus:outline-none ring-lcoffe">
               <SelectValue placeholder="Select user settings to manage" />
             </SelectTrigger>
             <SelectContent>
-              <SelectGroup>
+              <SelectGroup className="">
                 <SelectLabel>Global</SelectLabel>
                 <SelectItem value="global">Global Settings</SelectItem>
                 <SelectLabel className="mt-2">Users</SelectLabel>
@@ -186,7 +218,8 @@ const GlobalSettings = ({ users, selectedUser }: GlobalSettingsProps) => {
                         className="w-2 h-2 rounded-full"
                         style={{ backgroundColor: user.color }}
                       />
-                      {user.name}
+                      <span className="text-sm font-medium">{user.name}</span> -{" "}
+                      <span className="">{user.email}</span>
                     </div>
                   </SelectItem>
                 ))}

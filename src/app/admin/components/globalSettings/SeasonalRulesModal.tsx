@@ -198,7 +198,7 @@ const SeasonalRulesModal = ({
             min={today}
             value={period.start}
             onChange={(e) => setPeriod({ ...period, start: e.target.value })}
-            className="bg-white border-gray-200 text-gray-800"
+            className="bg-white border-gray-200  text-gray-800"
           />
         </div>
         <div>

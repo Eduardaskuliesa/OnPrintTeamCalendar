@@ -98,7 +98,9 @@ export default function AdminPage({
           />
         );
       case "settings":
-        return <GlobalSettings users={users} selectedUser={selectedUser} />;
+        return <GlobalSettings users={users} 
+        selectedUser={selectedUser} 
+        onUserUpdated={handleUserUpdated} />;
     }
   };
 

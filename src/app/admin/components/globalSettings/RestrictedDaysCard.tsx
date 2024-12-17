@@ -12,7 +12,7 @@ import {
   handleMutationResponse,
   ErrorMessages,
 } from "@/app/utils/errorHandling";
-import StatusToggle from "./StatusTogle";
+import {StatusToggle} from "./StatusTogle";
 import RestrictedDaysModal from "./RestrictedDaysModal";
 
 import { useUpdateSettingEnabled } from "@/app/lib/actions/settings/global/hooks";

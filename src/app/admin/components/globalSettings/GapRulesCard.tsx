@@ -18,7 +18,7 @@ import {
   ErrorMessages,
   handleNoChanges,
 } from "@/app/utils/errorHandling";
-import StatusToggle from "./StatusTogle";
+import {StatusToggle} from "./StatusTogle";
 import { useNumericInput } from "@/app/hooks/useNumericInput";
 import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 import EditableControls from "./EditableControls";
