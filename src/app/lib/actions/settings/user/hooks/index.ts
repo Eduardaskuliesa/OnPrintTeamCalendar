@@ -70,11 +70,18 @@ export const useUpdateUserSettingEnabled = () => {
 
 export const useUpdateUserGapDays = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async ({ userId, days }: { userId: string; days: number }) => {
-      const result = await updateUserGapDays(userId, days);
+    mutationFn: async ({
+      userId,
+      gapRules,
+    }: {
+      userId: string;
+      gapRules: GlobalSettingsType["gapRules"];
+    }) => {
+      const result = await updateUserGapDays(userId, gapRules);
       if (!result.success) {
-        throw new Error(result.error || "Failed to update gap days");
+        throw new Error(result.error || "Failed to update gap rules");
       }
       return result;
     },

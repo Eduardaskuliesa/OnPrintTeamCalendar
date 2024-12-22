@@ -1,28 +1,60 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { bookVacation } from "@/app/lib/actions/vacations/bookVacation";
 import { CalendarIcon, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { bookVacation } from "@/app/lib/actions/vacation";
 import { toast } from "react-toastify";
 
 interface VacationFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
 }
-type ErrorType = "OVERLAP" | "GAP_CONFLICT" | "default" | "EXCEEDED_LIMIT";
+type ErrorType =
+  | "OVERLAP"
+  | "GAP_CONFLICT"
+  | "EXCEEDED_LIMIT"
+  | "MAX_DAYS_PER_BOOKING"
+  | "ADVANCE_BOOKING"
+  | "MIN_NOTICE"
+  | "MAX_DAYS_PER_YEAR"
+  | "MAX_SIMULTANEOUS"
+  | "WEEKEND_RESTRICTION"
+  | "HOLIDAY_RESTRICTION"
+  | "CUSTOM_RESTRICTION"
+  | "BLACKOUT_PERIOD"
+  | "GAP_RULE"
+  | "default";
 
 export interface FormData {
   startDate: string;
   endDate: string;
 }
 
-const VacationForm = ({ isOpen, onClose, onSuccess }: VacationFormProps) => {
+const errorMessages: Record<ErrorType, string> = {
+  OVERLAP: "Šios dienos jau užimtos",
+  GAP_CONFLICT: "Reikalingas tarpas atostogaujančiu",
+  EXCEEDED_LIMIT: "Per daug atostogų dienu MAX 14",
+  MAX_DAYS_PER_BOOKING: "Viršytas maksimalus atostogų dienų skaičius",
+  ADVANCE_BOOKING: "Per anksti registruoti atostogas",
+  MIN_NOTICE: "Per vėlai registruoti atostogas",
+  MAX_DAYS_PER_YEAR: "Viršytas metinis atostogų limitas",
+  MAX_SIMULTANEOUS: "Per daug sutampančių atostogų",
+  WEEKEND_RESTRICTION: "Savaitgaliai negalimi",
+  HOLIDAY_RESTRICTION: "Šventinės dienos negalimos",
+  CUSTOM_RESTRICTION: "Pasirinktos dienos negalimos",
+  BLACKOUT_PERIOD: "Šiuo periodu atostogos negalimos",
+  GAP_RULE: "Reikalingas tarpas tarp atostogų",
+  default: "Įvyko klaida. Bandykite dar kartą",
+};
+
+const VacationForm = ({ isOpen, onClose }: VacationFormProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     startDate: "",
     endDate: "",
   });
+  const router = useRouter();
 
   const handleClose = () => {
     setFormData({ startDate: "", endDate: "" });
@@ -38,28 +70,24 @@ const VacationForm = ({ isOpen, onClose, onSuccess }: VacationFormProps) => {
 
     try {
       const result = await bookVacation(formData);
+      router.refresh();
 
       if (result.success) {
         toast.success("Atostogos sėkmingai užregistruotos");
         handleClose();
-        onSuccess();
+
         return;
       }
 
-      const errorMessages: Record<ErrorType, string> = {
-        OVERLAP: "Šios dienos jau užimtos",
-        GAP_CONFLICT: "Reikalingas tarpas atostogaujančiu",
-        default: "Įvyko klaida. Bandykite dar kartą",
-        EXCEEDED_LIMIT: 'Per daug atostogų dienu MAX 14'
-      };
-
       setError(
-        result.conflictData
-          ? errorMessages[result.conflictData.type as ErrorType]
-          : errorMessages.default
+        result.error ||
+          (result.conflictDetails
+            ? errorMessages[result.conflictDetails?.type as ErrorType]
+            : errorMessages.default)
       );
       toast.error("Nepavyko užregistruoti atostogų");
     } catch (err) {
+      console.log(err);
       setError("Įvyko nenumatyta klaida");
       toast.error("Sistemos klaida");
     } finally {

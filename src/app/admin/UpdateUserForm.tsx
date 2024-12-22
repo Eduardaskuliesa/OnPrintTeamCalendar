@@ -7,9 +7,8 @@ import { User } from "../types/api";
 import { X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { Label } from "@/components/ui/label";
-
-import { Switch } from "@/components/ui/switch";
 import { useNumericInput } from "../hooks/useNumericInput";
+import SettingsToggle from "./SettingsToggleUpdateForm";
 
 const COLORS = [
   "#7986cb", // Blue
@@ -162,16 +161,11 @@ export default function UpdateUserForm({
           <div className="flex items-center gap-2 py-2">
             <Label
               htmlFor="useGlobal"
-              className="text-sm font-medium leading-none"
+              className="text-md font-medium leading-none"
             >
-              Naudoti Globalius Nustatymus
+              Nauduoti -
             </Label>
-            <Switch
-              id="useGlobal"
-              checked={useGlobal}
-              onCheckedChange={setUseGlobal}
-              className="data-[state=checked]:bg-dcoffe"
-            />
+            <SettingsToggle enabled={useGlobal} onToggle={setUseGlobal} />
           </div>
 
           <div className="relative">

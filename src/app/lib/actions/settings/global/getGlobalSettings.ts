@@ -21,34 +21,7 @@ const getCachedGlobalSettings = unstable_cache(
     );
 
     if (!result.Item) {
-      return {
-        gapRules: {
-          enabled: true,
-          days: 7,
-        },
-        bookingRules: {
-          maxDaysPerBooking: 14,
-          maxDaysPerYear: 20,
-          maxAdvanceBookingDays: 180,
-          minDaysNotice: {
-            enabled: true,
-            days: 14,
-          },
-        },
-        overlapRules: {
-          enabled: true,
-          maxSimultaneousBookings: 2,
-        },
-        restrictedDays: {
-          holidays: [],
-          weekends: false,
-          customRestricted: [],
-        },
-        seasonalRules: {
-          blackoutPeriods: [],
-          preferredPeriods: [],
-        },
-      };
+      throw new Error("Global settings not found in database");
     }
 
     return result.Item;
@@ -64,6 +37,14 @@ export async function getGlobalSettings() {
   const session = await getServerSession(authOptions);
   if (!session) throw new Error("Unauthorized");
 
-  const result = await getCachedGlobalSettings();
-  return { data: result };
+  try {
+    const result = await getCachedGlobalSettings();
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error("Failed to fetch global settings:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to fetch global settings",
+    };
+  }
 }

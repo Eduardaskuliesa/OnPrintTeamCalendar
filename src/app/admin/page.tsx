@@ -15,16 +15,12 @@ export default async function AdminPageWrapper() {
 
   try {
     const { data: users } = await usersActions.getUsers();
-    const pendingVacations = (await getAdminVacations()) as Vacation[];
-    const activeVacations = pendingVacations.filter((v) => {
-      const now = new Date().toISOString().split("T")[0];
-      return v.status === "APPROVED" && v.startDate <= now && v.endDate >= now;
-    });
+    const initialVacations = (await getAdminVacations()) as Vacation[];
+
     return (
       <AdminPage
         initialUsers={users as User[]}
-        initialVacations={pendingVacations}
-        activeVacations={activeVacations}
+        initialVacations={initialVacations}
       />
     );
   } catch (error) {

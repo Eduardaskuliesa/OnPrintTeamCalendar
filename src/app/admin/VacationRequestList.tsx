@@ -1,10 +1,10 @@
 "use client";
-
 import { Clock, RefreshCcw } from "lucide-react";
 import { useState } from "react";
-import { updateVacationStatus, deleteVacation } from "../lib/actions/vacation";
+import { updateVacationStatus} from "../lib/actions/vacation";
 import { toast } from "react-toastify";
 import DeleteConfirmation from "../ui/DeleteConfirmation";
+import { vacationsAction } from "../lib/actions/vacations";
 
 interface Vacation {
   id: string;
@@ -28,6 +28,8 @@ export default function VacationRequestList({
   const [selectedRequest, setSelectedRequest] = useState<Vacation | null>(null);
   const [deleteMessage, setDeleteMessage] = useState<string | JSX.Element>("");
 
+  console.log(requests);
+
   const handleStatusUpdate = async (
     id: string,
     status: "APPROVED" | "REJECTED",
@@ -44,7 +46,7 @@ export default function VacationRequestList({
       if (status === "APPROVED") {
         result = await updateVacationStatus(id, status);
       } else {
-        result = await deleteVacation(id);
+        result = await vacationsAction.deleteVacation(id);
       }
 
       if (result.success) {
@@ -90,6 +92,7 @@ export default function VacationRequestList({
 
   const handleDeleteConfirm = async () => {
     if (selectedRequest) {
+      console.log(selectedRequest.id);
       await handleStatusUpdate(
         selectedRequest.id,
         "REJECTED",

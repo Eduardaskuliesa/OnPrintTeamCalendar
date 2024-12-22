@@ -50,8 +50,15 @@ export async function updateSettingEnabled(
   }
 }
 // Update gap rules
-export async function updateGapDays(days: number) {
-  await checkAdminAuth();
+export async function updateGapRules(gapRules: {
+  days: number;
+  bypassGapRules?: boolean;
+  canIgnoreGapsof?: string[];
+}) {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
 
   try {
     const updateResult = await dynamoDb.send(
@@ -60,13 +67,12 @@ export async function updateGapDays(days: number) {
         Key: {
           settingId: "GLOBAL",
         },
-        UpdateExpression: "SET #gapRules.#days = :days",
+        UpdateExpression: "SET #gapRules = :gapRules",
         ExpressionAttributeNames: {
           "#gapRules": "gapRules",
-          "#days": "days",
         },
         ExpressionAttributeValues: {
-          ":days": days,
+          ":gapRules": gapRules,
         },
         ReturnValues: "ALL_NEW",
       })
@@ -75,8 +81,8 @@ export async function updateGapDays(days: number) {
     revalidateTag("global-settings");
     return { success: true, data: updateResult.Attributes };
   } catch (error: any) {
-    console.error("Failed to update gap days:", {
-      days,
+    console.error("Failed to update gap rules:", {
+      gapRules,
       error: error.message,
     });
     return { success: false, error: error.message };

@@ -51,21 +51,25 @@ export const StatusToggle: React.FC<StatusToggleProps> = ({
   );
 };
 
-interface StatusToggleUserProps {
-  email: string;
-  users: User[];
-  size?: "sm" | "md" | "lg";
+type StatusToggleUserProps = {
   onUserUpdated: (updatedUser: User) => void;
-}
+  size?: "sm" | "md" | "lg";
+} & (
+  | { email: string; users: User[]; user?: never }
+  | { user: User; email?: never; users?: never }
+);
 
-export const StatusToggleUser: React.FC<StatusToggleUserProps> = ({
-  email,
-  users,
-  onUserUpdated,
-  size = "sm",
-}) => {
+export const StatusToggleUser: React.FC<StatusToggleUserProps> = (props) => {
+  const { onUserUpdated, size = "sm" } = props;
+
+  // Determine the current user based on props
+  const currentUser =
+    props.user ||
+    (props.email && props.users
+      ? props.users.find((u) => u.email === props.email)
+      : undefined);
+
   const [isPending, setIsPending] = useState(false);
-  const currentUser = users.find((user) => user.email === email);
   const [isGlobalState, setIsGlobalState] = useState(
     currentUser?.useGlobal ?? false
   );
@@ -86,7 +90,7 @@ export const StatusToggleUser: React.FC<StatusToggleUserProps> = ({
     setIsGlobalState(newState); // Update UI immediately
 
     try {
-      const result = await updateUserGlobalStatus(email, newState);
+      const result = await updateUserGlobalStatus(currentUser.email, newState);
       if (result.success && result.user) {
         const updatedUser = {
           ...currentUser,

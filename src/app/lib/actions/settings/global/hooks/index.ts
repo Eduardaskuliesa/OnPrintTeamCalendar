@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import {
   updateBookingRules,
-  updateGapDays,
+  updateGapRules,
   updateOverlapRules,
   updateRestrictedDays,
   updateSeasonalRules,
@@ -38,7 +38,7 @@ export const useUpdateGapDays = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (days: number) => {
-      const result = await updateGapDays(days);
+      const result = await updateGapRules({days: days});
       if (!result.success) {
         throw new Error(result.error || "Failed to update gap days");
       }

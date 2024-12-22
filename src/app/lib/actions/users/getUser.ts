@@ -14,7 +14,7 @@ async function fetchUserFromDb(email: string) {
       TableName: dynamoName,
       Key: { email },
       ProjectionExpression:
-        "email, #name, #role, color, gapDays, createdAt, updatedAt, useGlobalSettings",
+        "email, #name, #role, color, createdAt, updatedAt, useGlobal",
       ExpressionAttributeNames: {
         "#name": "name",
         "#role": "role",

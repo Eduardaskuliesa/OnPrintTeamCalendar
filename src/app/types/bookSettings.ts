@@ -2,6 +2,8 @@ export interface GlobalSettingsType {
   gapRules: {
     enabled: boolean;
     days: number;
+    bypassGapRules: boolean | null;
+    canIgnoreGapsof: string[] | null;
   };
   bookingRules: {
     enabled: boolean;

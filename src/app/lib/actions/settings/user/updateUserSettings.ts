@@ -113,7 +113,7 @@ export async function updateUserBookingRules(
 
 export async function updateUserGapDays(
   userId: string,
-  days: GlobalSettingsType["gapRules"]["days"]
+  gapRules: GlobalSettingsType["gapRules"]
 ) {
   await checkAuth();
 
@@ -124,15 +124,18 @@ export async function updateUserGapDays(
         Key: {
           settingId: `USER_${userId}`,
         },
-        UpdateExpression:
-          "SET #gapRules.#days = :days, #updatedAt = :updatedAt",
+        UpdateExpression: "SET #gapRules = :gapRules, #updatedAt = :updatedAt",
         ExpressionAttributeNames: {
           "#gapRules": "gapRules",
-          "#days": "days",
           "#updatedAt": "updatedAt",
         },
         ExpressionAttributeValues: {
-          ":days": days,
+          ":gapRules": {
+            enabled: gapRules.enabled,
+            days: gapRules.days,
+            bypassGapRules: gapRules.bypassGapRules ?? null,
+            canIgnoreGapsof: gapRules.canIgnoreGapsof ?? null,
+          },
           ":updatedAt": new Date().toISOString(),
         },
         ReturnValues: "ALL_NEW",
@@ -142,8 +145,8 @@ export async function updateUserGapDays(
     revalidateTag(`user-settings-${userId}`);
     return { success: true, data: updateResult.Attributes };
   } catch (error: any) {
-    console.error("Failed to update gap days:", {
-      days,
+    console.error("Failed to update gap rules:", {
+      gapRules,
       error: error.message,
     });
     return { success: false, error: error.message };

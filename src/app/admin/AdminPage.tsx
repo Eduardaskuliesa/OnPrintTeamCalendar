@@ -23,11 +23,9 @@ export interface Vacation {
 export default function AdminPage({
   initialUsers,
   initialVacations,
-  activeVacations,
 }: {
   initialUsers: User[];
   initialVacations: Vacation[];
-  activeVacations: Vacation[];
 }) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [activeTab, setActiveTab] = useState<
@@ -59,7 +57,7 @@ export default function AdminPage({
     (r) => r.status === "PENDING"
   ).length;
 
-  const activeVacationsCount = activeVacations.filter(
+  const activeVacationsCount = initialVacations.filter(
     (r) => r.status === "APPROVED"
   ).length;
 
@@ -94,13 +92,17 @@ export default function AdminPage({
       case "active":
         return (
           <ActiveVacationsList
-            vacations={activeVacations.filter((v) => v.status === "APPROVED")}
+            vacations={initialVacations.filter((v) => v.status === "APPROVED")}
           />
         );
       case "settings":
-        return <GlobalSettings users={users} 
-        selectedUser={selectedUser} 
-        onUserUpdated={handleUserUpdated} />;
+        return (
+          <GlobalSettings
+            users={users}
+            selectedUser={selectedUser}
+            onUserUpdated={handleUserUpdated}
+          />
+        );
     }
   };
 

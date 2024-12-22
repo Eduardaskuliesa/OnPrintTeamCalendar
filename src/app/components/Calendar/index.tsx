@@ -1,17 +1,19 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import CalendarSkeleton from "./CalendarSkeleton";
 import VacationForm from "./VacationForm";
-import { deleteVacation, getVacations } from "@/app/lib/actions/vacation";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
 import { Plus } from "lucide-react";
+import { User } from "@/app/types/api";
+import { GlobalSettingsType } from "@/app/types/bookSettings";
+import { vacationsAction } from "@/app/lib/actions/vacations";
 
 interface Event {
   id: string;
@@ -29,6 +31,10 @@ interface CalendarToolbarProps {
 
 interface CalendarProps {
   initialVacations: Event[];
+  user: User;
+  isGlobalSettings: boolean;
+  settings: GlobalSettingsType;
+  initialFetchTimestamp: string;
 }
 
 const CalendarToolbar: React.FC<CalendarToolbarProps> = ({ onAddVacation }) => (
@@ -56,13 +62,6 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  console.log(events);
-
-  const refreshEvents = useCallback(async () => {
-    const data = await getVacations();
-    setEvents(data);
-  }, []);
-
   const handleEventClick = (info: any) => {
     if (
       session?.user?.role !== "ADMIN" ||
@@ -78,17 +77,16 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
 
     setLoading(true);
     try {
-      const result = await deleteVacation(selectedEvent.id);
+      const result = await vacationsAction.deleteVacation(selectedEvent.id);
       if (result.success) {
         setEvents((prev) =>
           prev.filter(
-            (event) =>
-              event.id !== result.deletedId &&
-              event.id !== `gap-${result.deletedId}`
+            (event) => event.id !== result.id && event.id !== `gap-${result.id}`
           )
         );
         toast.success("Atostogos ištrintos");
       } else {
+        console.log(result.message);
         toast.error(result.error || "Nepavyko ištrinti atostogų");
       }
     } catch (error) {
@@ -130,7 +128,6 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
             buttonText={{
               today: "Šiandien",
               month: "Mėnuo",
-
               year: "Metai",
             }}
             views={{
@@ -215,7 +212,6 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
       <VacationForm
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onSuccess={refreshEvents}
       />
     </div>
   );

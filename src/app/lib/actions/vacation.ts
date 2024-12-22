@@ -239,7 +239,7 @@ export async function deleteVacation(id: string) {
     revalidateTag("vacations");
     revalidateTag("admin-vacations");
     revalidatePath("/");
-    return { success: true, deletedId: id };
+    return { success: true, id };
   } catch (error) {
     return {
       success: false,

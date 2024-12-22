@@ -252,6 +252,7 @@ const GlobalSettings = ({
           <div className="grid grid-cols-2 gap-6">
             <GapRulesCard
               data={currentData?.data as GlobalSettingsType}
+              users={initialUsers as User[]}
               isEditing={editingSection === "gapRules"}
               onEdit={() => handleEdit("gapRules")}
               onCancel={() => handleCancelEdit("gapRules")}
