@@ -6,6 +6,7 @@ import { User } from "@/app/types/api";
 
 interface StatusToggleProps {
   enabled: boolean;
+  isGlobalSettings: boolean;
   isPending: boolean;
   onToggle: () => void;
   size?: "sm" | "md" | "lg";
@@ -14,6 +15,7 @@ interface StatusToggleProps {
 export const StatusToggle: React.FC<StatusToggleProps> = ({
   enabled,
   isPending,
+  isGlobalSettings,
   onToggle,
   size = "sm",
 }) => {
@@ -28,9 +30,11 @@ export const StatusToggle: React.FC<StatusToggleProps> = ({
   return (
     <button
       onClick={onToggle}
-      disabled={isPending}
-      className={`flex items-center px-2 py-1 rounded-full transition-colors cursor-pointer ${
-        isPending ? "opacity-70 cursor-not-allowed" : "hover:bg-opacity-80"
+      disabled={isPending || isGlobalSettings}
+      className={`flex items-center px-2 py-1 rounded-full transition-colors ${
+        isPending || isGlobalSettings
+          ? "opacity-50 cursor-not-allowed pointer-events-none"
+          : "hover:bg-opacity-80 cursor-pointer"
       } ${
         enabled
           ? "bg-emerald-100 text-emerald-600"
@@ -119,7 +123,7 @@ export const StatusToggleUser: React.FC<StatusToggleUserProps> = (props) => {
   return (
     <button
       onClick={handleToggle}
-      disabled={isPending}
+      disabled={isPending || isGlobalState}
       className={`flex items-center px-2 py-1 rounded-full transition-all duration-200 cursor-pointer ${
         isPending ? "opacity-70 cursor-not-allowed" : "hover:bg-opacity-80"
       } ${

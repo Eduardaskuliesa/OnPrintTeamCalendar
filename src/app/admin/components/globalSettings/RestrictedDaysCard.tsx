@@ -12,11 +12,16 @@ import {
   handleMutationResponse,
   ErrorMessages,
 } from "@/app/utils/errorHandling";
-import {StatusToggle} from "./StatusTogle";
+import { StatusToggle } from "./StatusTogle";
 import RestrictedDaysModal from "./RestrictedDaysModal";
 
 import { useUpdateSettingEnabled } from "@/app/lib/actions/settings/global/hooks";
-import { useUpdateUserSettingEnabled } from "@/app/lib/actions/settings/user/hooks";
+import {
+  useUpdateUserGlobalSettingsPreference,
+  useUpdateUserSettingEnabled,
+} from "@/app/lib/actions/settings/user/hooks";
+import { toast } from "react-toastify";
+import SettingsSourceIndicator from "./SettingsSourceIndicator";
 
 const restrictedDaysExplanations = {
   holidays:
@@ -26,7 +31,8 @@ const restrictedDaysExplanations = {
 };
 
 interface RestrictedDaysCardProps {
-  data: GlobalSettingsType;
+  userData: GlobalSettingsType;
+  globalData: GlobalSettingsType;
   selectedUserId: string;
   isEditing: boolean;
   onEdit: () => void;
@@ -56,19 +62,24 @@ const getWeekendText = (
 };
 
 const RestrictedDaysCard = ({
-  data,
+  userData,
+  globalData,
   selectedUserId,
   isEditing,
   onEdit,
   onCancel,
   onUnsavedChanges,
 }: RestrictedDaysCardProps) => {
+  const isGlobalSettings = userData?.useGlobalSettings?.restrictedDays;
+  const currentData = isGlobalSettings ? globalData : userData;
   const [localEnabled, setLocalEnabled] = useState(
-    data?.restrictedDays?.enabled || false
+    currentData?.restrictedDays?.enabled || false
   );
 
   const updateEnabled = useUpdateSettingEnabled();
   const updateUserEnabled = useUpdateUserSettingEnabled();
+  const updateGlobalSettingsPreference =
+    useUpdateUserGlobalSettingsPreference();
 
   const handleToggleEnabled = async () => {
     const newEnabledState = !localEnabled;
@@ -107,6 +118,38 @@ const RestrictedDaysCard = ({
     }
   };
 
+  React.useEffect(() => {
+    setLocalEnabled(currentData?.restrictedDays?.enabled || false);
+  }, [currentData]);
+
+  const handleSettingsSourceToggle = async () => {
+    if (isEditing) {
+      toast.warn(
+        "Please save or cancel your changes before switching settings source"
+      );
+      return;
+    }
+
+    const newGlobalState = !userData?.useGlobalSettings?.restrictedDays;
+
+    try {
+      await updateGlobalSettingsPreference.mutateAsync({
+        userId: selectedUserId,
+        settingKey: "restrictedDays",
+        useGlobal: newGlobalState,
+      });
+
+      toast.success(
+        newGlobalState
+          ? "Switched to global settings"
+          : "Switched to user settings"
+      );
+    } catch (error) {
+      toast.error("Failed to update settings source");
+      console.error("Error updating settings source:", error);
+    }
+  };
+
   return (
     <>
       <Card className="group bg-slate-50 border-2 border-blue-50 shadow-md">
@@ -119,25 +162,31 @@ const RestrictedDaysCard = ({
                   Restricted Days
                 </CardTitle>
                 <StatusToggle
+                  isGlobalSettings={isGlobalSettings}
                   enabled={localEnabled}
-                  isPending={
-                    selectedUserId === "global"
-                      ? updateEnabled.isPending
-                      : updateUserEnabled.isPending
-                  }
+                  isPending={updateEnabled.isPending}
                   onToggle={handleToggleEnabled}
                 />
+                {selectedUserId !== "global" && (
+                  <SettingsSourceIndicator
+                    isPending={updateGlobalSettingsPreference.isPending}
+                    onToggle={handleSettingsSourceToggle}
+                    isGlobalSettings={isGlobalSettings}
+                  />
+                )}
               </div>
             </div>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="opacity-0 text-sm group-hover:opacity-100 bg-lcoffe transition-all duration-300 hover:bg-dcoffe"
-              onClick={() => onEdit()}
-            >
-              <Settings2 className="w-4 h-4 mr-1" />
-              Configure
-            </Button>
+            {!isGlobalSettings && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="opacity-0 text-sm group-hover:opacity-100 bg-lcoffe transition-all duration-300 hover:bg-dcoffe"
+                onClick={() => onEdit()}
+              >
+                <Settings2 className="w-4 h-4 mr-1" />
+                Configure
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent className="px-4 pb-4 pt-2">
@@ -149,7 +198,7 @@ const RestrictedDaysCard = ({
                     Holidays
                   </div>
                   <div className="text-lg font-bold text-db mt-1">
-                    {data?.restrictedDays?.holidays?.length || 0} days
+                    {currentData?.restrictedDays?.holidays?.length || 0} days
                   </div>
                 </div>
               </HoverCardTrigger>
@@ -176,7 +225,8 @@ const RestrictedDaysCard = ({
                     Custom Restricted
                   </div>
                   <div className="text-lg font-bold text-db mt-1">
-                    {data?.restrictedDays?.customRestricted?.length || 0} days
+                    {currentData?.restrictedDays?.customRestricted?.length || 0}{" "}
+                    days
                   </div>
                 </div>
               </HoverCardTrigger>
@@ -205,7 +255,7 @@ const RestrictedDaysCard = ({
                 </div>
                 <div className="font-semibold text-db mt-1">
                   {getWeekendText(
-                    data?.restrictedDays?.weekends?.restriction || "none"
+                    currentData?.restrictedDays?.weekends?.restriction || "none"
                   )}
                 </div>
               </div>
@@ -235,11 +285,12 @@ const RestrictedDaysCard = ({
           onClose={onCancel}
           initialData={{
             enabled: localEnabled,
-            holidays: data?.restrictedDays?.holidays || [],
-            weekends: data?.restrictedDays?.weekends || {
+            holidays: currentData?.restrictedDays?.holidays || [],
+            weekends: currentData?.restrictedDays?.weekends || {
               restriction: "none",
             },
-            customRestricted: data?.restrictedDays?.customRestricted || [],
+            customRestricted:
+              currentData?.restrictedDays?.customRestricted || [],
           }}
           onUnsavedChanges={onUnsavedChanges}
         />

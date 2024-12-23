@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { StatusToggleUser } from "./components/globalSettings/StatusTogle";
 
 interface GlobalSettingsProps {
   users: User[];
@@ -34,13 +33,11 @@ interface GlobalSettingsProps {
 const GlobalSettings = ({
   users: initialUsers,
   selectedUser,
-  onUserUpdated,
 }: GlobalSettingsProps) => {
   const [selectedUserId, setSelectedUserId] = useState<string>(
     selectedUser?.email || "global"
   );
 
-  const [users, setUsers] = useState(initialUsers);
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [unsavedChanges, setUnsavedChanges] = useState<{
     [key: string]: {
@@ -50,6 +47,7 @@ const GlobalSettings = ({
     };
   }>({});
 
+  const users = initialUsers;
   const { data: globalData, isLoading: isGlobalLoading } = useGlobalSettings();
   const { data: userData, isLoading: isUserLoading } = useUserSettings(
     selectedUserId !== "global" ? selectedUserId : null
@@ -149,16 +147,6 @@ const GlobalSettings = ({
     setSelectedUserId(value);
   };
 
-  const handleUserUpdate = (updatedUser: User) => {
-    // Update local state
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.email === updatedUser.email ? updatedUser : user
-      )
-    );
-    // Update parent state
-    onUserUpdated(updatedUser);
-  };
   const currentUser = users.find((user) => user.email === selectedUserId);
   const isGlobalSettings = selectedUserId === "global";
 
@@ -169,7 +157,7 @@ const GlobalSettings = ({
           <div className="flex items-center space-x-4">
             <div className="space-y-1">
               <CardTitle>Atostogų Nustatymai</CardTitle>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center">
                 <Badge
                   variant={!isGlobalSettings ? "outline" : "default"}
                   className={
@@ -178,19 +166,14 @@ const GlobalSettings = ({
                       : "bg-neutral-700 text-white border-neutral-200"
                   }
                 >
-                  {!isGlobalSettings ? (
-                    <StatusToggleUser
-                      onUserUpdated={handleUserUpdate}
-                      email={selectedUserId}
-                      users={users}
-                    ></StatusToggleUser>
-                  ) : (
-                    "Global Settings"
-                  )}
+                  {selectedUserId === "global" && "Global Settings"}
                 </Badge>
 
                 {currentUser && (
-                  <Badge variant="outline" className="flex items-center gap-1">
+                  <Badge
+                    variant="outline"
+                    className="flex items-center gap-1 bg-white"
+                  >
                     <div
                       className="w-2 h-2 rounded-full"
                       style={{ backgroundColor: currentUser.color }}
@@ -204,7 +187,27 @@ const GlobalSettings = ({
 
           <Select onValueChange={handleUserChange} value={selectedUserId}>
             <SelectTrigger className="w-[280px] bg-white border-dcoffe focus:ring-1 focus:ring-vdcoffe border outline-none focus:outline-none ring-lcoffe">
-              <SelectValue placeholder="Select user settings to manage" />
+              {selectedUserId ? (
+                // When an option is selected, show minimal info
+                selectedUserId === "global" ? (
+                  <span className="text-sm font-medium">Global Settings</span>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{
+                        backgroundColor: users.find(
+                          (u) => u.email === selectedUserId
+                        )?.color,
+                      }}
+                    />
+                    <span className="text-sm">{selectedUserId}</span>
+                  </div>
+                )
+              ) : (
+                // When no option is selected, show placeholder
+                <SelectValue placeholder="Select user settings to manage" />
+              )}
             </SelectTrigger>
             <SelectContent>
               <SelectGroup className="">
@@ -234,7 +237,8 @@ const GlobalSettings = ({
       ) : (
         <>
           <BookingRulesCard
-            data={currentData?.data as GlobalSettingsType}
+            globalData={globalData?.data as GlobalSettingsType}
+            userData={currentData?.data as GlobalSettingsType}
             selectedUserId={selectedUserId}
             isEditing={editingSection === "bookingRules"}
             onEdit={() => handleEdit("bookingRules")}
@@ -251,7 +255,8 @@ const GlobalSettings = ({
 
           <div className="grid grid-cols-2 gap-6">
             <GapRulesCard
-              data={currentData?.data as GlobalSettingsType}
+              globalData={globalData?.data as GlobalSettingsType}
+              userData={currentData?.data as GlobalSettingsType}
               users={initialUsers as User[]}
               isEditing={editingSection === "gapRules"}
               onEdit={() => handleEdit("gapRules")}
@@ -268,7 +273,8 @@ const GlobalSettings = ({
             />
             <OverlapRulesCard
               selectedUserId={selectedUserId}
-              data={currentData?.data as GlobalSettingsType}
+              globalData={globalData?.data as GlobalSettingsType}
+              userData={currentData?.data as GlobalSettingsType}
               isEditing={editingSection === "overlapRules"}
               onEdit={() => handleEdit("overlapRules")}
               onCancel={() => handleCancelEdit("overlapRules")}
@@ -286,7 +292,8 @@ const GlobalSettings = ({
           <div className="grid grid-cols-2 gap-6">
             <SeasonalRulesCard
               selectedUserId={selectedUserId}
-              data={currentData?.data as GlobalSettingsType}
+              globalData={globalData?.data as GlobalSettingsType}
+              userData={currentData?.data as GlobalSettingsType}
               isEditing={editingSection === "seasonalRules"}
               onEdit={() => handleEdit("seasonalRules")}
               onCancel={() => handleCancelEdit("seasonalRules")}
@@ -301,7 +308,8 @@ const GlobalSettings = ({
             />
             <RestrictedDaysCard
               selectedUserId={selectedUserId}
-              data={currentData?.data as GlobalSettingsType}
+              globalData={globalData?.data as GlobalSettingsType}
+              userData={currentData?.data as GlobalSettingsType}
               isEditing={editingSection === "restrictedDaysRules"}
               onEdit={() => handleEdit("restrictedDaysRules")}
               onCancel={() => handleCancelEdit("restrictedDaysRules")}

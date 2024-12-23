@@ -9,6 +9,7 @@ import {
   updateUserRestrictedDays,
   updateUserSeasonalRules,
   updateUserGapDays,
+  updateUserGlobalSettingsPreference,
 } from "../updateUserSettings";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 
@@ -211,5 +212,38 @@ export const useUserSettings = (userId: string | null) => {
       return getUserSettings(userId);
     },
     enabled: !!userId,
+  });
+};
+
+export const useUpdateUserGlobalSettingsPreference = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      settingKey,
+      useGlobal,
+    }: {
+      userId: string;
+      settingKey: keyof GlobalSettingsType;
+      useGlobal: boolean;
+    }) => {
+      const result = await updateUserGlobalSettingsPreference(
+        userId,
+        settingKey,
+        useGlobal
+      );
+      if (!result.success) {
+        throw new Error(
+          result.error || "Failed to update global settings preference"
+        );
+      }
+      return result;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["getUserSettings", variables.userId],
+      });
+    },
   });
 };

@@ -29,6 +29,13 @@ export async function createUserSettings(
         Item: {
           settingId: `USER_${userId}`,
           ...settings,
+          useGlobalSettings: {
+            gapRules: false,
+            bookingRules: false,
+            overlapRules: false,
+            restrictedDays: false,
+            seasonalRules: false,
+          },
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
@@ -264,6 +271,40 @@ export async function updateUserRestrictedDays(
       restrictedDays,
       error: error.message,
     });
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateUserGlobalSettingsPreference(
+  userId: string,
+  settingKey: keyof GlobalSettingsType,
+  useGlobal: boolean
+) {
+  await checkAuth();
+
+  try {
+    const updateResult = await dynamoDb.send(
+      new UpdateCommand({
+        TableName: settingsDynamoName,
+        Key: { settingId: `USER_${userId}` },
+        UpdateExpression:
+          "SET useGlobalSettings.#key = :useGlobal, #updatedAt = :updatedAt",
+        ExpressionAttributeNames: {
+          "#key": settingKey,
+          "#updatedAt": "updatedAt",
+        },
+        ExpressionAttributeValues: {
+          ":useGlobal": useGlobal,
+          ":updatedAt": new Date().toISOString(),
+        },
+        ReturnValues: "ALL_NEW",
+      })
+    );
+
+    revalidateTag(`user-settings-${userId}`);
+    return { success: true, data: updateResult.Attributes };
+  } catch (error: any) {
+    console.error("Failed to update user global settings preference:", error);
     return { success: false, error: error.message };
   }
 }

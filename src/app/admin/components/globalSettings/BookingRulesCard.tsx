@@ -18,15 +18,17 @@ import {
   ErrorMessages,
   handleNoChanges,
 } from "@/app/utils/errorHandling";
-import {StatusToggle} from "./StatusTogle";
+import { StatusToggle } from "./StatusTogle";
 import { useNumericInput } from "@/app/hooks/useNumericInput";
 import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 import EditableControls from "./EditableControls";
 import { toast } from "react-toastify";
 import {
   useUpdateUserBookingRules,
+  useUpdateUserGlobalSettingsPreference,
   useUpdateUserSettingEnabled,
 } from "@/app/lib/actions/settings/user/hooks";
+import SettingsSourceIndicator from "./SettingsSourceIndicator";
 
 const bookingRulesConfig = {
   options: [
@@ -59,7 +61,8 @@ const bookingRulesConfig = {
 };
 
 interface BookingRulesCardProps {
-  data: GlobalSettingsType;
+  globalData: GlobalSettingsType;
+  userData: GlobalSettingsType;
   isEditing: boolean;
   onEdit: () => void;
   onCancel: () => void;
@@ -72,54 +75,61 @@ interface BookingRulesCardProps {
 }
 
 const BookingRulesCard = ({
-  data,
+  userData,
+  globalData,
   selectedUserId,
   isEditing,
   onEdit,
   onCancel,
   onUnsavedChanges,
 }: BookingRulesCardProps) => {
+  const isGlobalSettings = userData?.useGlobalSettings?.bookingRules;
+  const currentData = isGlobalSettings ? globalData : userData;
+
   const [localEnabled, setLocalEnabled] = useState(
-    data?.bookingRules?.enabled || false
+    currentData?.bookingRules?.enabled || false
   );
 
   const updateEnabled = useUpdateSettingEnabled();
   const updateUserEnabled = useUpdateUserSettingEnabled();
   const updateUserBookingRules = useUpdateUserBookingRules();
   const updateBookingRules = useUpdateBookingRules();
+  const updateGlobalSettingsPreference =
+    useUpdateUserGlobalSettingsPreference();
 
   const {
     value: maxDaysPerBookingValue,
     setValue: setMaxDaysPerBookingValue,
     parseValue: parseMaxDaysPerBooking,
-  } = useNumericInput(data?.bookingRules?.maxDaysPerBooking ?? 0);
+  } = useNumericInput(currentData?.bookingRules?.maxDaysPerBooking ?? 0);
 
   const {
     value: maxDaysPerYearValue,
     setValue: setMaxDaysPerYearValue,
     parseValue: parseMaxDaysPerYear,
-  } = useNumericInput(data?.bookingRules?.maxDaysPerYear ?? 0);
+  } = useNumericInput(currentData?.bookingRules?.maxDaysPerYear ?? 0);
 
   const {
     value: maxAdvanceBookingDaysValue,
     setValue: setMaxAdvanceBookingDaysValue,
     parseValue: parseMaxAdvanceBookingDays,
-  } = useNumericInput(data?.bookingRules?.maxAdvanceBookingDays ?? 0);
+  } = useNumericInput(currentData?.bookingRules?.maxAdvanceBookingDays ?? 0);
 
   const {
     value: minDaysNoticeValue,
     setValue: setMinDaysNoticeValue,
     parseValue: parseMinDaysNotice,
-  } = useNumericInput(data?.bookingRules?.minDaysNotice ?? 0);
+  } = useNumericInput(currentData?.bookingRules?.minDaysNotice ?? 0);
 
   useEffect(() => {
     const hasChanges =
       parseMaxDaysPerBooking() !==
-        (data?.bookingRules?.maxDaysPerBooking ?? 0) ||
-      parseMaxDaysPerYear() !== (data?.bookingRules?.maxDaysPerYear ?? 0) ||
+        (currentData?.bookingRules?.maxDaysPerBooking ?? 0) ||
+      parseMaxDaysPerYear() !==
+        (currentData?.bookingRules?.maxDaysPerYear ?? 0) ||
       parseMaxAdvanceBookingDays() !==
-        (data?.bookingRules?.maxAdvanceBookingDays ?? 0) ||
-      parseMinDaysNotice() !== (data?.bookingRules?.minDaysNotice ?? 0);
+        (currentData?.bookingRules?.maxAdvanceBookingDays ?? 0) ||
+      parseMinDaysNotice() !== (currentData?.bookingRules?.minDaysNotice ?? 0);
 
     onUnsavedChanges(
       hasChanges,
@@ -131,8 +141,24 @@ const BookingRulesCard = ({
     maxDaysPerYearValue,
     maxAdvanceBookingDaysValue,
     minDaysNoticeValue,
-    data?.bookingRules,
+    currentData?.bookingRules,
   ]);
+
+  useEffect(() => {
+    setLocalEnabled(currentData?.bookingRules?.enabled || false);
+    setMaxDaysPerBookingValue(
+      String(currentData?.bookingRules?.maxDaysPerBooking ?? 0)
+    );
+    setMaxDaysPerYearValue(
+      String(currentData?.bookingRules?.maxDaysPerYear ?? 0)
+    );
+    setMaxAdvanceBookingDaysValue(
+      String(currentData?.bookingRules?.maxAdvanceBookingDays ?? 0)
+    );
+    setMinDaysNoticeValue(
+      String(currentData?.bookingRules?.minDaysNotice ?? 0)
+    );
+  }, [currentData, isGlobalSettings]);
 
   const handleToggleEnabled = async () => {
     const newEnabledState = !localEnabled;
@@ -182,11 +208,13 @@ const BookingRulesCard = ({
 
     const hasChanges =
       newValues.maxDaysPerBooking !==
-        (data?.bookingRules?.maxDaysPerBooking ?? 0) ||
-      newValues.maxDaysPerYear !== (data?.bookingRules?.maxDaysPerYear ?? 0) ||
+        (currentData?.bookingRules?.maxDaysPerBooking ?? 0) ||
+      newValues.maxDaysPerYear !==
+        (currentData?.bookingRules?.maxDaysPerYear ?? 0) ||
       newValues.maxAdvanceBookingDays !==
-        (data?.bookingRules?.maxAdvanceBookingDays ?? 0) ||
-      newValues.minDaysNotice !== (data?.bookingRules?.minDaysNotice ?? 0);
+        (currentData?.bookingRules?.maxAdvanceBookingDays ?? 0) ||
+      newValues.minDaysNotice !==
+        (currentData?.bookingRules?.minDaysNotice ?? 0);
 
     toast.dismiss();
     if (!hasChanges) {
@@ -210,16 +238,16 @@ const BookingRulesCard = ({
             handleMutationResponse(false, ErrorMessages.BOOKING_RULES, {
               onError: () => {
                 setMaxDaysPerBookingValue(
-                  String(data?.bookingRules?.maxDaysPerBooking ?? 0)
+                  String(currentData?.bookingRules?.maxDaysPerBooking ?? 0)
                 );
                 setMaxDaysPerYearValue(
-                  String(data?.bookingRules?.maxDaysPerYear ?? 0)
+                  String(currentData?.bookingRules?.maxDaysPerYear ?? 0)
                 );
                 setMaxAdvanceBookingDaysValue(
-                  String(data?.bookingRules?.maxAdvanceBookingDays ?? 0)
+                  String(currentData?.bookingRules?.maxAdvanceBookingDays ?? 0)
                 );
                 setMinDaysNoticeValue(
-                  String(data?.bookingRules?.minDaysNotice ?? 0)
+                  String(currentData?.bookingRules?.minDaysNotice ?? 0)
                 );
                 console.error("Error updating booking rules:", error);
                 reject(error);
@@ -246,16 +274,18 @@ const BookingRulesCard = ({
               handleMutationResponse(false, ErrorMessages.BOOKING_RULES, {
                 onError: () => {
                   setMaxDaysPerBookingValue(
-                    String(data?.bookingRules?.maxDaysPerBooking ?? 0)
+                    String(currentData?.bookingRules?.maxDaysPerBooking ?? 0)
                   );
                   setMaxDaysPerYearValue(
-                    String(data?.bookingRules?.maxDaysPerYear ?? 0)
+                    String(currentData?.bookingRules?.maxDaysPerYear ?? 0)
                   );
                   setMaxAdvanceBookingDaysValue(
-                    String(data?.bookingRules?.maxAdvanceBookingDays ?? 0)
+                    String(
+                      currentData?.bookingRules?.maxAdvanceBookingDays ?? 0
+                    )
                   );
                   setMinDaysNoticeValue(
-                    String(data?.bookingRules?.minDaysNotice ?? 0)
+                    String(currentData?.bookingRules?.minDaysNotice ?? 0)
                   );
                   console.error("Error updating booking rules:", error);
                   reject(error);
@@ -271,14 +301,47 @@ const BookingRulesCard = ({
   const handleCancel = () => {
     toast.dismiss();
     setMaxDaysPerBookingValue(
-      String(data?.bookingRules?.maxDaysPerBooking ?? 0)
+      String(currentData?.bookingRules?.maxDaysPerBooking ?? 0)
     );
-    setMaxDaysPerYearValue(String(data?.bookingRules?.maxDaysPerYear ?? 0));
+    setMaxDaysPerYearValue(
+      String(currentData?.bookingRules?.maxDaysPerYear ?? 0)
+    );
     setMaxAdvanceBookingDaysValue(
-      String(data?.bookingRules?.maxAdvanceBookingDays ?? 0)
+      String(currentData?.bookingRules?.maxAdvanceBookingDays ?? 0)
     );
-    setMinDaysNoticeValue(String(data?.bookingRules?.minDaysNotice ?? 0));
+    setMinDaysNoticeValue(
+      String(currentData?.bookingRules?.minDaysNotice ?? 0)
+    );
     onCancel();
+  };
+
+  const handleSettingsSourceToggle = async () => {
+    if (isEditing) {
+      toast.warn(
+        "Please save or cancel your changes before switching settings source"
+      );
+      return;
+    }
+
+    const newGlobalState = !userData?.useGlobalSettings?.bookingRules;
+
+    try {
+      // Only update the useGlobalSettings flag
+      await updateGlobalSettingsPreference.mutateAsync({
+        userId: selectedUserId,
+        settingKey: "bookingRules",
+        useGlobal: newGlobalState,
+      });
+
+      toast.success(
+        newGlobalState
+          ? "Switched to global settings"
+          : "Switched to user settings"
+      );
+    } catch (error) {
+      toast.error("Failed to update settings source");
+      console.error("Error updating settings source:", error);
+    }
   };
 
   useKeyboardShortcuts(isEditing, handleSave, handleCancel);
@@ -333,19 +396,29 @@ const BookingRulesCard = ({
                 Booking Rules
               </CardTitle>
               <StatusToggle
+                isGlobalSettings={isGlobalSettings}
                 enabled={localEnabled}
                 isPending={updateEnabled.isPending}
                 onToggle={handleToggleEnabled}
               />
+              {selectedUserId !== "global" && (
+                <SettingsSourceIndicator
+                  isPending={updateGlobalSettingsPreference.isPending}
+                  onToggle={handleSettingsSourceToggle}
+                  isGlobalSettings={isGlobalSettings}
+                />
+              )}
             </div>
           </div>
-          <EditableControls
-            isEditing={isEditing}
-            isPending={updateBookingRules.isPending}
-            onEdit={onEdit}
-            onSave={handleSave}
-            onCancel={handleCancel}
-          />
+          {!isGlobalSettings && (
+            <EditableControls
+              isEditing={isEditing}
+              isPending={updateBookingRules.isPending}
+              onEdit={onEdit}
+              onSave={handleSave}
+              onCancel={handleCancel}
+            />
+          )}
         </div>
       </CardHeader>
       <CardContent className="px-4 pb-4 pt-2 grid grid-cols-2 gap-2">

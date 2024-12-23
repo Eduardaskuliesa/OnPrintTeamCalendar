@@ -22,11 +22,13 @@ import {
 import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 import { useNumericInput } from "@/app/hooks/useNumericInput";
 import EditableControls from "./EditableControls";
-import {StatusToggle} from "./StatusTogle";
+import { StatusToggle } from "./StatusTogle";
 import {
+  useUpdateUserGlobalSettingsPreference,
   useUpdateUserOverlapRules,
   useUpdateUserSettingEnabled,
 } from "@/app/lib/actions/settings/user/hooks";
+import SettingsSourceIndicator from "./SettingsSourceIndicator";
 
 const overlapRulesExplanations = {
   maxSimultaneous:
@@ -34,9 +36,11 @@ const overlapRulesExplanations = {
 };
 
 interface OverlapRulesCardProps {
-  data: GlobalSettingsType;
+  userData: GlobalSettingsType;
+  globalData: GlobalSettingsType;
   selectedUserId: string;
   isEditing: boolean;
+
   onEdit: () => void;
   onCancel: () => void;
   onUnsavedChanges: (
@@ -47,30 +51,37 @@ interface OverlapRulesCardProps {
 }
 
 const OverlapRulesCard = ({
-  data,
   selectedUserId,
+  userData,
+  globalData,
   isEditing,
   onEdit,
   onCancel,
   onUnsavedChanges,
 }: OverlapRulesCardProps) => {
+  const isGlobalSettings = userData?.useGlobalSettings?.overlapRules;
+  const currentData = isGlobalSettings ? globalData : userData;
+
   const [localEnabled, setLocalEnabled] = useState(
-    data?.overlapRules?.enabled || false
+    currentData?.overlapRules?.enabled || false
   );
 
   const updateEnabled = useUpdateSettingEnabled();
   const updateOverlapRules = useUpdateOverlapRules();
   const updateUserEnabled = useUpdateUserSettingEnabled();
   const updateUserOveralpRules = useUpdateUserOverlapRules();
+  const updateGlobalSettingsPreference =
+    useUpdateUserGlobalSettingsPreference();
 
   const {
     value: localMaxSimultaneous,
     setValue: setLocalMaxSimultaneous,
     parseValue: parseLocalMaxSimultaneous,
-  } = useNumericInput(data?.overlapRules?.maxSimultaneousBookings ?? 0);
+  } = useNumericInput(currentData?.overlapRules?.maxSimultaneousBookings ?? 0);
 
   useEffect(() => {
-    const initialValue = data?.overlapRules?.maxSimultaneousBookings ?? 0;
+    const initialValue =
+      currentData?.overlapRules?.maxSimultaneousBookings ?? 0;
     const hasChanges = parseLocalMaxSimultaneous() !== initialValue;
 
     onUnsavedChanges(
@@ -78,7 +89,17 @@ const OverlapRulesCard = ({
       hasChanges ? handleSave : undefined,
       hasChanges ? handleCancel : undefined
     );
-  }, [localMaxSimultaneous, data?.overlapRules?.maxSimultaneousBookings]);
+  }, [
+    localMaxSimultaneous,
+    currentData?.overlapRules?.maxSimultaneousBookings,
+  ]);
+
+  React.useEffect(() => {
+    setLocalEnabled(currentData?.overlapRules?.enabled || false);
+    setLocalMaxSimultaneous(
+      String(currentData?.overlapRules?.maxSimultaneousBookings ?? 0)
+    );
+  }, [currentData]);
 
   const handleToggleEnabled = async () => {
     const newEnabledState = !localEnabled;
@@ -118,7 +139,8 @@ const OverlapRulesCard = ({
 
   const handleSave = async () => {
     const currentValue = parseLocalMaxSimultaneous();
-    const initialValue = data?.overlapRules?.maxSimultaneousBookings || 0;
+    const initialValue =
+      currentData?.overlapRules?.maxSimultaneousBookings || 0;
     toast.dismiss();
     if (currentValue === initialValue) {
       handleNoChanges(ErrorMessages.OVERLAP_RULES.NO_CHANGES);
@@ -181,9 +203,39 @@ const OverlapRulesCard = ({
 
   const handleCancel = () => {
     toast.dismiss();
-    const initialValue = data?.overlapRules?.maxSimultaneousBookings ?? 0;
+    const initialValue =
+      currentData?.overlapRules?.maxSimultaneousBookings ?? 0;
     setLocalMaxSimultaneous(String(initialValue));
     onCancel();
+  };
+
+  const handleSettingsSourceToggle = async () => {
+    if (isEditing) {
+      toast.warn(
+        "Please save or cancel your changes before switching settings source"
+      );
+      return;
+    }
+
+    const newGlobalState = !userData?.useGlobalSettings?.overlapRules;
+
+    try {
+      // Only update the useGlobalSettings flag
+      await updateGlobalSettingsPreference.mutateAsync({
+        userId: selectedUserId,
+        settingKey: "overlapRules",
+        useGlobal: newGlobalState,
+      });
+
+      toast.success(
+        newGlobalState
+          ? "Switched to global settings"
+          : "Switched to user settings"
+      );
+    } catch (error) {
+      toast.error("Failed to update settings source");
+      console.error("Error updating settings source:", error);
+    }
   };
 
   useKeyboardShortcuts(isEditing, handleSave, handleCancel);
@@ -199,19 +251,29 @@ const OverlapRulesCard = ({
                 Overlap Rules
               </CardTitle>
               <StatusToggle
+                isGlobalSettings={isGlobalSettings}
                 enabled={localEnabled}
                 isPending={updateEnabled.isPending}
                 onToggle={handleToggleEnabled}
               />
+              {selectedUserId !== "global" && (
+                <SettingsSourceIndicator
+                  isPending={updateGlobalSettingsPreference.isPending}
+                  onToggle={handleSettingsSourceToggle}
+                  isGlobalSettings={isGlobalSettings}
+                />
+              )}
             </div>
           </div>
-          <EditableControls
-            isEditing={isEditing}
-            isPending={updateOverlapRules.isPending}
-            onEdit={onEdit}
-            onSave={handleSave}
-            onCancel={handleCancel}
-          />
+          {!isGlobalSettings && (
+            <EditableControls
+              isEditing={isEditing}
+              isPending={updateOverlapRules.isPending}
+              onEdit={onEdit}
+              onSave={handleSave}
+              onCancel={handleCancel}
+            />
+          )}
         </div>
       </CardHeader>
       <CardContent className="px-4 pb-4 pt-2">

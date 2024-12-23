@@ -13,10 +13,15 @@ import {
   handleMutationResponse,
   ErrorMessages,
 } from "@/app/utils/errorHandling";
-import {StatusToggle} from "./StatusTogle";
+import { StatusToggle } from "./StatusTogle";
 import SeasonalRulesModal from "./SeasonalRulesModal";
 
-import { useUpdateUserSettingEnabled } from "@/app/lib/actions/settings/user/hooks";
+import {
+  useUpdateUserGlobalSettingsPreference,
+  useUpdateUserSettingEnabled,
+} from "@/app/lib/actions/settings/user/hooks";
+import { toast } from "react-toastify";
+import SettingsSourceIndicator from "./SettingsSourceIndicator";
 
 const seasonalRulesExplanations = {
   blackoutPeriods: "Time periods when vacations cannot be booked.",
@@ -24,7 +29,8 @@ const seasonalRulesExplanations = {
 };
 
 interface SeasonalRulesCardProps {
-  data: GlobalSettingsType;
+  userData: GlobalSettingsType;
+  globalData: GlobalSettingsType;
   selectedUserId: string;
   isEditing: boolean;
   onEdit: () => void;
@@ -37,19 +43,28 @@ interface SeasonalRulesCardProps {
 }
 
 const SeasonalRulesCard = ({
-  data,
+  userData,
+  globalData,
   selectedUserId,
   isEditing,
   onEdit,
   onCancel,
   onUnsavedChanges,
 }: SeasonalRulesCardProps) => {
+  const isGlobalSettings = userData?.useGlobalSettings?.seasonalRules;
+  const currentData = isGlobalSettings ? globalData : userData;
   const [localEnabled, setLocalEnabled] = useState(
-    data?.seasonalRules?.enabled || false
+    currentData?.seasonalRules?.enabled || false
   );
 
   const updateEnabled = useUpdateSettingEnabled();
   const updateUserEnabled = useUpdateUserSettingEnabled();
+  const updateGlobalSettingsPreference =
+    useUpdateUserGlobalSettingsPreference();
+
+  React.useEffect(() => {
+    setLocalEnabled(currentData?.seasonalRules?.enabled || false);
+  }, [currentData]);
 
   const handleToggleEnabled = async () => {
     const newEnabledState = !localEnabled;
@@ -88,6 +103,34 @@ const SeasonalRulesCard = ({
     }
   };
 
+  const handleSettingsSourceToggle = async () => {
+    if (isEditing) {
+      toast.warn(
+        "Please save or cancel your changes before switching settings source"
+      );
+      return;
+    }
+
+    const newGlobalState = !userData?.useGlobalSettings?.seasonalRules;
+
+    try {
+      await updateGlobalSettingsPreference.mutateAsync({
+        userId: selectedUserId,
+        settingKey: "seasonalRules",
+        useGlobal: newGlobalState,
+      });
+
+      toast.success(
+        newGlobalState
+          ? "Switched to global settings"
+          : "Switched to user settings"
+      );
+    } catch (error) {
+      toast.error("Failed to update settings source");
+      console.error("Error updating settings source:", error);
+    }
+  };
+
   return (
     <>
       <Card className="group bg-slate-50 border-2 border-blue-50 shadow-md">
@@ -100,25 +143,31 @@ const SeasonalRulesCard = ({
                   Seasonal Rules
                 </CardTitle>
                 <StatusToggle
+                  isGlobalSettings={isGlobalSettings}
                   enabled={localEnabled}
-                  isPending={
-                    selectedUserId === "global"
-                      ? updateEnabled.isPending
-                      : updateUserEnabled.isPending
-                  }
+                  isPending={updateEnabled.isPending}
                   onToggle={handleToggleEnabled}
                 />
+                {selectedUserId !== "global" && (
+                  <SettingsSourceIndicator
+                    isPending={updateGlobalSettingsPreference.isPending}
+                    onToggle={handleSettingsSourceToggle}
+                    isGlobalSettings={isGlobalSettings}
+                  />
+                )}
               </div>
             </div>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="opacity-0 text-sm group-hover:opacity-100 bg-lcoffe transition-all duration-300 hover:bg-dcoffe"
-              onClick={() => onEdit()}
-            >
-              <Settings2 className="w-4 h-4 mr-1" />
-              Configure
-            </Button>
+            {!isGlobalSettings && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="opacity-0 text-sm group-hover:opacity-100 bg-lcoffe transition-all duration-300 hover:bg-dcoffe"
+                onClick={() => onEdit()}
+              >
+                <Settings2 className="w-4 h-4 mr-1" />
+                Configure
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent className="px-4 pb-4 pt-2">
@@ -130,7 +179,8 @@ const SeasonalRulesCard = ({
                     Blackout Periods
                   </div>
                   <div className="text-lg font-bold text-db mt-1">
-                    {data?.seasonalRules?.blackoutPeriods?.length || 0} periods
+                    {currentData?.seasonalRules?.blackoutPeriods?.length || 0}{" "}
+                    periods
                   </div>
                 </div>
               </HoverCardTrigger>
@@ -157,7 +207,8 @@ const SeasonalRulesCard = ({
                     Preferred Periods
                   </div>
                   <div className="font-semibold text-db mt-1">
-                    {data?.seasonalRules?.preferredPeriods?.length || 0} periods
+                    {currentData?.seasonalRules?.preferredPeriods?.length || 0}{" "}
+                    periods
                   </div>
                 </div>
               </HoverCardTrigger>
@@ -187,8 +238,9 @@ const SeasonalRulesCard = ({
           onClose={onCancel}
           initialData={{
             enabled: localEnabled,
-            blackoutPeriods: data?.seasonalRules?.blackoutPeriods || [],
-            preferredPeriods: data?.seasonalRules?.preferredPeriods || [],
+            blackoutPeriods: currentData?.seasonalRules?.blackoutPeriods || [],
+            preferredPeriods:
+              currentData?.seasonalRules?.preferredPeriods || [],
           }}
           onUnsavedChanges={onUnsavedChanges}
         />

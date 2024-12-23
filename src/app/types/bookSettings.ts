@@ -39,4 +39,11 @@ export interface GlobalSettingsType {
       name: string;
     }>;
   };
+  useGlobalSettings: {
+    gapRules: boolean;
+    bookingRules: boolean;
+    overlapRules: boolean;
+    restrictedDays: boolean;
+    seasonalRules: boolean;
+  };
 }

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Clock, Settings2 } from "lucide-react";
@@ -19,13 +20,17 @@ import {
 } from "@/app/utils/errorHandling";
 import { StatusToggle } from "./StatusTogle";
 import { Button } from "@/components/ui/button";
-import { useUpdateUserSettingEnabled } from "@/app/lib/actions/settings/user/hooks";
+import {
+  useUpdateUserGlobalSettingsPreference,
+  useUpdateUserSettingEnabled,
+} from "@/app/lib/actions/settings/user/hooks";
 import { User } from "@/app/types/api";
 import GapRulesModal from "./GapRulesModal";
 import EditableControls from "./EditableControls";
 import { useNumericInput } from "@/app/hooks/useNumericInput";
 import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 import { toast } from "react-toastify";
+import SettingsSourceIndicator from "./SettingsSourceIndicator";
 
 const gapRulesExplanations = {
   minimumGap:
@@ -33,7 +38,8 @@ const gapRulesExplanations = {
 };
 
 interface GapRulesCardProps {
-  data: GlobalSettingsType;
+  userData: GlobalSettingsType;
+  globalData: GlobalSettingsType;
   selectedUserId: string;
   isEditing: boolean;
   onEdit: () => void;
@@ -47,7 +53,8 @@ interface GapRulesCardProps {
 }
 
 const GapRulesCard = ({
-  data,
+  userData,
+  globalData,
   users,
   isEditing,
   onEdit,
@@ -55,21 +62,26 @@ const GapRulesCard = ({
   onCancel,
   onUnsavedChanges,
 }: GapRulesCardProps) => {
+  const isGlobalSettings = userData?.useGlobalSettings?.gapRules;
+  const currentData = isGlobalSettings ? globalData : userData;
+
   const [localEnabled, setLocalEnabled] = useState(
-    data?.gapRules?.enabled || false
+    currentData?.gapRules?.enabled || false
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const updateGapRules = useUpdateGapDays();
   const updateEnabled = useUpdateSettingEnabled();
   const updateUserEnabled = useUpdateUserSettingEnabled();
+  const updateGlobalSettingsPreference =
+    useUpdateUserGlobalSettingsPreference();
 
   // Only used for global settings
   const {
     value: localDays,
     setValue: setLocalDays,
     parseValue: parseLocalDays,
-  } = useNumericInput(data?.gapRules?.days ?? 0);
+  } = useNumericInput(currentData?.gapRules?.days ?? 0);
 
   const handleToggleEnabled = async () => {
     const newEnabledState = !localEnabled;
@@ -110,7 +122,7 @@ const GapRulesCard = ({
 
   const handleGlobalSave = async () => {
     const currentValue = parseLocalDays();
-    const initialValue = data?.gapRules?.days || 0;
+    const initialValue = currentData?.gapRules?.days || 0;
     toast.dismiss();
 
     if (currentValue === initialValue) {
@@ -145,17 +157,15 @@ const GapRulesCard = ({
 
   const handleGlobalCancel = () => {
     toast.dismiss();
-    const initialValue = data?.gapRules?.days ?? 0;
+    const initialValue = currentData?.gapRules?.days ?? 0;
     setLocalDays(String(initialValue));
     onCancel();
   };
 
-  useKeyboardShortcuts(isEditing, handleGlobalSave, handleGlobalCancel);
-
   // Only track changes for global settings
   React.useEffect(() => {
     if (selectedUserId === "global") {
-      const initialValue = data?.gapRules?.days ?? 0;
+      const initialValue = currentData?.gapRules?.days ?? 0;
       const hasChanges = parseLocalDays() !== initialValue;
 
       onUnsavedChanges(
@@ -164,7 +174,42 @@ const GapRulesCard = ({
         hasChanges ? handleGlobalCancel : undefined
       );
     }
-  }, [localDays, data?.gapRules?.days, selectedUserId]);
+  }, [localDays, currentData?.gapRules?.days, selectedUserId]);
+
+  React.useEffect(() => {
+    setLocalEnabled(currentData?.gapRules?.enabled || false);
+  }, [currentData]);
+
+  const handleSettingsSourceToggle = async () => {
+    if (isEditing) {
+      toast.warn(
+        "Please save or cancel your changes before switching settings source"
+      );
+      return;
+    }
+
+    const newGlobalState = !userData?.useGlobalSettings?.gapRules;
+
+    try {
+      // Only update the useGlobalSettings flag
+      await updateGlobalSettingsPreference.mutateAsync({
+        userId: selectedUserId,
+        settingKey: "gapRules",
+        useGlobal: newGlobalState,
+      });
+
+      toast.success(
+        newGlobalState
+          ? "Switched to global settings"
+          : "Switched to user settings"
+      );
+    } catch (error) {
+      toast.error("Failed to update settings source");
+      console.error("Error updating settings source:", error);
+    }
+  };
+
+  useKeyboardShortcuts(isEditing, handleGlobalSave, handleGlobalCancel);
 
   return (
     <>
@@ -178,36 +223,41 @@ const GapRulesCard = ({
                   Gap Rules
                 </CardTitle>
                 <StatusToggle
+                  isGlobalSettings={isGlobalSettings}
                   enabled={localEnabled}
-                  isPending={
-                    selectedUserId === "global"
-                      ? updateEnabled.isPending
-                      : updateUserEnabled.isPending
-                  }
+                  isPending={updateEnabled.isPending}
                   onToggle={handleToggleEnabled}
                 />
+                {selectedUserId !== "global" && (
+                  <SettingsSourceIndicator
+                    isPending={updateGlobalSettingsPreference.isPending}
+                    onToggle={handleSettingsSourceToggle}
+                    isGlobalSettings={isGlobalSettings}
+                  />
+                )}
               </div>
             </div>
             <div className="flex gap-2">
-              {selectedUserId === "global" ? (
-                <EditableControls
-                  isEditing={isEditing}
-                  isPending={updateGapRules.isPending}
-                  onEdit={onEdit}
-                  onSave={handleGlobalSave}
-                  onCancel={handleGlobalCancel}
-                />
-              ) : (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="opacity-0 text-sm group-hover:opacity-100 bg-lcoffe transition-all duration-300 hover:bg-dcoffe"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  <Settings2 className="w-4 h-4 mr-1" />
-                  Configure
-                </Button>
-              )}
+              {!isGlobalSettings &&
+                (selectedUserId === "global" ? (
+                  <EditableControls
+                    isEditing={isEditing}
+                    isPending={updateGapRules.isPending}
+                    onEdit={onEdit}
+                    onSave={handleGlobalSave}
+                    onCancel={handleGlobalCancel}
+                  />
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="opacity-0 text-sm group-hover:opacity-100 bg-lcoffe transition-all duration-300 hover:bg-dcoffe"
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    <Settings2 className="w-4 h-4 mr-1" />
+                    Configure
+                  </Button>
+                ))}
             </div>
           </div>
         </CardHeader>
@@ -232,7 +282,7 @@ const GapRulesCard = ({
                         />
                       </div>
                     ) : (
-                      data.gapRules.days
+                      currentData.gapRules.days
                     )}
                     <span className="ml-1">days</span>
                   </div>
@@ -261,12 +311,12 @@ const GapRulesCard = ({
                     <div className="text-sm font-semibold text-gray-900">
                       Ignoring User
                     </div>
-                    <div>{data.gapRules.bypassGapRules}</div>
+                    <div>{currentData.gapRules.bypassGapRules}</div>
                     <div className="font-semibold text-db mt-1">
-                      {data.gapRules.bypassGapRules
+                      {currentData.gapRules.bypassGapRules
                         ? "All"
                         : `${
-                            data?.gapRules?.canIgnoreGapsof?.length || 0
+                            currentData?.gapRules?.canIgnoreGapsof?.length || 0
                           } persons`}
                     </div>
                   </div>
@@ -297,9 +347,9 @@ const GapRulesCard = ({
           users={users}
           initialData={{
             enabled: localEnabled,
-            days: data.gapRules.days,
-            bypassGapRules: data.gapRules.bypassGapRules || false,
-            canIgnoreGapsof: data.gapRules.canIgnoreGapsof || [],
+            days: currentData.gapRules.days,
+            bypassGapRules: currentData.gapRules.bypassGapRules || false,
+            canIgnoreGapsof: currentData.gapRules.canIgnoreGapsof || [],
           }}
           onUnsavedChanges={onUnsavedChanges}
         />
