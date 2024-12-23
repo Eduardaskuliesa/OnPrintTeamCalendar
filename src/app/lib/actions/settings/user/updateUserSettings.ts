@@ -162,7 +162,7 @@ export async function updateUserGapDays(
 
 export async function updateUserOverlapRules(
   userId: string,
-  poeple: GlobalSettingsType["overlapRules"]["maxSimultaneousBookings"]
+  overlapRules: GlobalSettingsType["overlapRules"]
 ) {
   await checkAuth();
 
@@ -174,14 +174,19 @@ export async function updateUserOverlapRules(
           settingId: `USER_${userId}`,
         },
         UpdateExpression:
-          "SET #overlapRules.#maxSimultaneousBookings = :maxSimultaneousBookings, #updatedAt = :updatedAt",
+          "SET #overlapRules = :overlapRules, #updatedAt = :updatedAt",
         ExpressionAttributeNames: {
           "#overlapRules": "overlapRules",
-          "#maxSimultaneousBookings": "maxSimultaneousBookings",
           "#updatedAt": "updatedAt",
         },
         ExpressionAttributeValues: {
-          ":maxSimultaneousBookings": poeple,
+          ":overlapRules": {
+            enabled: overlapRules.enabled,
+            maxSimultaneousBookings: overlapRules.maxSimultaneousBookings,
+            bypassOverlapRules: overlapRules.bypassOverlapRules ?? null,
+            canIgnoreOverlapRulesOf:
+              overlapRules.canIgnoreOverlapRulesOf ?? null,
+          },
           ":updatedAt": new Date().toISOString(),
         },
         ReturnValues: "ALL_NEW",
@@ -191,8 +196,8 @@ export async function updateUserOverlapRules(
     revalidateTag(`user-settings-${userId}`);
     return { success: true, data: updateResult.Attributes };
   } catch (error: any) {
-    console.error("Failed to update gap days:", {
-      poeple,
+    console.error("Failed to update overlap rules:", {
+      overlapRules,
       error: error.message,
     });
     return { success: false, error: error.message };

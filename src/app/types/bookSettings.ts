@@ -15,6 +15,8 @@ export interface GlobalSettingsType {
   overlapRules: {
     enabled: boolean;
     maxSimultaneousBookings: number;
+    bypassOverlapRules: boolean | null;
+    canIgnoreOverlapRulesOf: string[] | null;
   };
   restrictedDays: {
     enabled: boolean;

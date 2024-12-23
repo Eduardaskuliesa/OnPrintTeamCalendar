@@ -76,7 +76,6 @@ const GapRulesCard = ({
   const updateGlobalSettingsPreference =
     useUpdateUserGlobalSettingsPreference();
 
-  // Only used for global settings
   const {
     value: localDays,
     setValue: setLocalDays,

@@ -70,7 +70,6 @@ export async function updateUser(
       })
     );
 
-    // Update related vacations if name or color changed
     if (userData.name || userData.color) {
       const { Items: vacations } = await dynamoDb.send(
         new QueryCommand({

@@ -188,7 +188,6 @@ const GlobalSettings = ({
           <Select onValueChange={handleUserChange} value={selectedUserId}>
             <SelectTrigger className="w-[280px] bg-white border-dcoffe focus:ring-1 focus:ring-vdcoffe border outline-none focus:outline-none ring-lcoffe">
               {selectedUserId ? (
-                // When an option is selected, show minimal info
                 selectedUserId === "global" ? (
                   <span className="text-sm font-medium">Global Settings</span>
                 ) : (
@@ -205,7 +204,6 @@ const GlobalSettings = ({
                   </div>
                 )
               ) : (
-                // When no option is selected, show placeholder
                 <SelectValue placeholder="Select user settings to manage" />
               )}
             </SelectTrigger>
@@ -272,6 +270,7 @@ const GlobalSettings = ({
               }
             />
             <OverlapRulesCard
+              users={initialUsers as User[]}
               selectedUserId={selectedUserId}
               globalData={globalData?.data as GlobalSettingsType}
               userData={currentData?.data as GlobalSettingsType}

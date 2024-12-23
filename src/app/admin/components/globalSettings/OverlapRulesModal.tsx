@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+// OverlapRulesModal.tsx
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
@@ -9,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader } from "lucide-react";
-import { useUpdateUserGapDays } from "@/app/lib/actions/settings/user/hooks";
+import { useUpdateUserOverlapRules } from "@/app/lib/actions/settings/user/hooks";
 import {
   handleMutationResponse,
   ErrorMessages,
@@ -18,18 +19,18 @@ import {
 import { User } from "@/app/types/api";
 import { useNumericInput } from "@/app/hooks/useNumericInput";
 
-interface GapRulesData {
+interface OverlapRulesData {
   enabled: boolean;
-  days: number;
-  bypassGapRules: boolean;
-  canIgnoreGapsof: string[];
+  maxSimultaneousBookings: number;
+  bypassOverlapRules: boolean;
+  canIgnoreOverlapRulesOf: string[];
 }
 
-interface GapRulesModalProps {
+interface OverlapRulesModalProps {
   selectedUserId: string;
   isOpen: boolean;
   onClose: () => void;
-  initialData: GapRulesData;
+  initialData: OverlapRulesData;
   users: User[];
   onUnsavedChanges: (
     hasChanges: boolean,
@@ -38,82 +39,95 @@ interface GapRulesModalProps {
   ) => void;
 }
 
-const GapRulesModal = ({
+const OverlapRulesModal = ({
   isOpen,
   onClose,
   selectedUserId,
   initialData,
   users,
   onUnsavedChanges,
-}: GapRulesModalProps) => {
-  const [gapRules, setGapRules] = useState<GapRulesData>({
+}: OverlapRulesModalProps) => {
+  const [overlapRules, setOverlapRules] = useState<OverlapRulesData>({
     enabled: initialData.enabled,
-    days: initialData.days,
-    bypassGapRules: initialData.bypassGapRules,
-    canIgnoreGapsof: initialData.canIgnoreGapsof,
+    maxSimultaneousBookings: initialData.maxSimultaneousBookings,
+    bypassOverlapRules: initialData.bypassOverlapRules,
+    canIgnoreOverlapRulesOf: initialData.canIgnoreOverlapRulesOf,
   });
 
   const {
-    value: localDays,
-    setValue: setLocalDays,
-    parseValue: parseLocalDays,
-  } = useNumericInput(initialData.days);
+    value: localMaxSimultaneous,
+    setValue: setLocalMaxSimultaneous,
+    parseValue: parseLocalMaxSimultaneous,
+  } = useNumericInput(initialData.maxSimultaneousBookings);
 
-  const updateGapUserRules = useUpdateUserGapDays();
+  const updateOverlapUserRules = useUpdateUserOverlapRules();
 
   const handleSave = useCallback(async () => {
-    const currentDays = parseLocalDays();
+    const currentMaxSimultaneous = parseLocalMaxSimultaneous();
     const hasChanges =
-      currentDays !== initialData.days ||
-      gapRules.bypassGapRules !== initialData.bypassGapRules ||
-      JSON.stringify(gapRules.canIgnoreGapsof) !==
-        JSON.stringify(initialData.canIgnoreGapsof);
+      currentMaxSimultaneous !== initialData.maxSimultaneousBookings ||
+      overlapRules.bypassOverlapRules !== initialData.bypassOverlapRules ||
+      JSON.stringify(overlapRules.canIgnoreOverlapRulesOf) !==
+        JSON.stringify(initialData.canIgnoreOverlapRulesOf);
 
     if (!hasChanges) {
-      handleNoChanges(ErrorMessages.GAP_RULES.NO_CHANGES);
+      handleNoChanges(ErrorMessages.OVERLAP_RULES.NO_CHANGES);
       onClose();
       return;
     }
 
     try {
-      await updateGapUserRules.mutateAsync({
+      await updateOverlapUserRules.mutateAsync({
         userId: selectedUserId,
-        gapRules: {
-          enabled: gapRules.enabled,
-          days: currentDays,
-          bypassGapRules: gapRules.bypassGapRules,
-          canIgnoreGapsof: gapRules.canIgnoreGapsof,
+        overlapRules: {
+          enabled: overlapRules.enabled,
+          maxSimultaneousBookings: currentMaxSimultaneous,
+          bypassOverlapRules: overlapRules.bypassOverlapRules,
+          canIgnoreOverlapRulesOf: overlapRules.canIgnoreOverlapRulesOf,
         },
       });
 
-      handleMutationResponse(true, ErrorMessages.GAP_RULES);
+      handleMutationResponse(true, ErrorMessages.OVERLAP_RULES);
       onClose();
     } catch (error) {
-      handleMutationResponse(false, ErrorMessages.GAP_RULES);
-      console.error("Failed to update gap rules:", error);
+      handleMutationResponse(false, ErrorMessages.OVERLAP_RULES);
+      console.error("Failed to update overlap rules:", error);
     }
   }, [
-    gapRules,
+    overlapRules,
     initialData,
     onClose,
     selectedUserId,
-    updateGapUserRules,
-    parseLocalDays,
+    updateOverlapUserRules,
+    parseLocalMaxSimultaneous,
   ]);
 
   const handleCancel = useCallback(() => {
-    setLocalDays(String(initialData.days));
-    setGapRules(initialData);
+    setOverlapRules(initialData);
+    setLocalMaxSimultaneous(String(initialData.maxSimultaneousBookings));
     onClose();
-  }, [initialData, onClose, setLocalDays]);
+  }, [initialData, onClose, setLocalMaxSimultaneous]);
+
+  const handleUserSelect = (userId: string) => {
+    const updatedIgnoreList = overlapRules.canIgnoreOverlapRulesOf.includes(
+      userId
+    )
+      ? overlapRules.canIgnoreOverlapRulesOf.filter((id) => id !== userId)
+      : [...overlapRules.canIgnoreOverlapRulesOf, userId];
+
+    setOverlapRules((prev) => ({
+      ...prev,
+      canIgnoreOverlapRulesOf: updatedIgnoreList,
+    }));
+  };
 
   useEffect(() => {
-    const currentDays = parseLocalDays();
+    const currentMaxSimultaneous = parseLocalMaxSimultaneous();
     const hasChanges =
-      currentDays !== initialData.days ||
-      gapRules.bypassGapRules !== initialData.bypassGapRules ||
-      JSON.stringify(gapRules.canIgnoreGapsof) !==
-        JSON.stringify(initialData.canIgnoreGapsof);
+      currentMaxSimultaneous !== initialData.maxSimultaneousBookings ||
+      overlapRules.bypassOverlapRules !== initialData.bypassOverlapRules ||
+      JSON.stringify(overlapRules.canIgnoreOverlapRulesOf) !==
+        JSON.stringify(initialData.canIgnoreOverlapRulesOf);
 
     onUnsavedChanges(
       hasChanges,
@@ -122,23 +136,12 @@ const GapRulesModal = ({
     );
   }, []);
 
-  const handleUserSelect = (userId: string) => {
-    const updatedIgnoreList = gapRules.canIgnoreGapsof.includes(userId)
-      ? gapRules.canIgnoreGapsof.filter((id) => id !== userId)
-      : [...gapRules.canIgnoreGapsof, userId];
-
-    setGapRules((prev) => ({
-      ...prev,
-      canIgnoreGapsof: updatedIgnoreList,
-    }));
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] bg-white text-gray-800">
         <DialogHeader className="border-b border-gray-300 pb-2">
           <DialogTitle className="text-xl font-bold text-black">
-            Configure Gap Rules
+            Configure Overlap Rules
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-6 overflow-y-auto custom-scrollbar">
@@ -146,41 +149,42 @@ const GapRulesModal = ({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-sm font-medium text-gray-800">
-                  Minimum Gap Days
+                  Maximum Simultaneous Bookings
                 </label>
                 <Input
+                  type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  value={localDays}
-                  onChange={(e) => setLocalDays(e.target.value)}
+                  value={localMaxSimultaneous}
+                  onChange={(e) => setLocalMaxSimultaneous(e.target.value)}
                   className="bg-white border-gray-200 text-gray-800"
                 />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-800">
-                  Bypass Gap Rules
+                  Bypass Overlap Rules
                 </label>
                 <div className="mt-2">
                   <input
                     type="checkbox"
-                    checked={gapRules.bypassGapRules}
+                    checked={overlapRules.bypassOverlapRules}
                     onChange={(e) =>
-                      setGapRules((prev) => ({
+                      setOverlapRules((prev) => ({
                         ...prev,
-                        bypassGapRules: e.target.checked,
+                        bypassOverlapRules: e.target.checked,
                       }))
                     }
                     className="mr-2"
                   />
                   <span className="text-sm text-gray-600">
-                    Allow bypassing all gap rules
+                    Allow bypassing all overlap rules
                   </span>
                 </div>
               </div>
             </div>
 
-            {!gapRules.bypassGapRules && (
-              <div className="space-y-2 ">
+            {!overlapRules.bypassOverlapRules && (
+              <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-800">
                   Users That Can Be Ignored
                 </label>
@@ -194,7 +198,7 @@ const GapRulesModal = ({
                       >
                         <input
                           type="checkbox"
-                          checked={gapRules.canIgnoreGapsof.includes(
+                          checked={overlapRules.canIgnoreOverlapRulesOf.includes(
                             user.email
                           )}
                           onChange={() => handleUserSelect(user.email)}
@@ -222,10 +226,10 @@ const GapRulesModal = ({
           </Button>
           <Button
             onClick={handleSave}
-            disabled={updateGapUserRules.isPending}
+            disabled={updateOverlapUserRules.isPending}
             className="bg-lcoffe hover:bg-dcoffe text-gray-950"
           >
-            {updateGapUserRules.isPending ? (
+            {updateOverlapUserRules.isPending ? (
               <p className="flex items-center">
                 <Loader className="animate-spin mr-1" />
                 Saving
@@ -240,4 +244,4 @@ const GapRulesModal = ({
   );
 };
 
-export default GapRulesModal;
+export default OverlapRulesModal;

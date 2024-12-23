@@ -36,7 +36,7 @@ export default function RootLayout({
           <LayoutWrapper>{children}</LayoutWrapper>
           <ToastContainer
             position="top-center"
-            autoClose={3000}
+            autoClose={1500}
             theme="light"
             pauseOnHover={true}
             limit={2}

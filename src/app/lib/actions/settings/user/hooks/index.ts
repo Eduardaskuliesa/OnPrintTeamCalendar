@@ -100,12 +100,12 @@ export const useUpdateUserOverlapRules = () => {
   return useMutation({
     mutationFn: async ({
       userId,
-      people,
+      overlapRules,
     }: {
       userId: string;
-      people: number;
+      overlapRules: GlobalSettingsType["overlapRules"];
     }) => {
-      const result = await updateUserOverlapRules(userId, people);
+      const result = await updateUserOverlapRules(userId, overlapRules);
       if (!result.success) {
         throw new Error(result.error || "Failed to update overlap rules");
       }

@@ -255,7 +255,7 @@ const SeasonalRulesModal = ({
       <h3 className="font-semibold text-gray-800 sticky top-0 bg-white py-2 z-10">
         {title}
       </h3>
-      <div className="pr-2 space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar">
+      <div className="pr-2 space-y-2 max-h-[170px] overflow-y-auto custom-scrollbar">
         {periods.map((period, index) => (
           <div
             key={index}
@@ -289,7 +289,7 @@ const SeasonalRulesModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] bg-white text-gray-800">
+      <DialogContent className="max-w-2xl max-h-[96vh] bg-white text-gray-800 overflow-auto custom-scrollbar">
         <DialogHeader className="border-b border-gray-300 pb-2">
           <DialogTitle className="text-xl font-bold text-black">
             Configure Seasonal Rules
