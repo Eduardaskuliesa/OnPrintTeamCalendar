@@ -3,51 +3,91 @@ import { GlobalSettingsType } from "@/app/types/bookSettings";
 function getTotalDays(
   startDate: Date,
   endDate: Date,
-  holidays: string[] = []
 ): number {
   let total =
     Math.ceil(
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
     ) + 1;
 
-  // Subtract holidays that fall within the date range
-  for (const holiday of holidays) {
-    const holidayDate = new Date(holiday);
-    if (startDate <= holidayDate && endDate >= holidayDate) {
-      total--;
-    }
-  }
-
   return total;
+}
+
+function isWeekend(date: Date): boolean {
+  const day = date.getDay();
+  return day === 0 || day === 6;
+}
+
+function getWorkingDays(startDate: Date, endDate: Date, holidays: string[] = []): number {
+  let days = 0;
+  const current = new Date(startDate);
+
+  while (current <= endDate) {
+    if (!isWeekend(current)) {
+      // Check if the current day is not a holiday
+      const isHoliday = holidays.some(holiday => {
+        const holidayDate = new Date(holiday);
+        return holidayDate.getTime() === current.getTime();
+      });
+      
+      if (!isHoliday) {
+        days++;
+      }
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  return days;
 }
 
 export async function checkVacationConflicts(
   startDate: string,
   endDate: string,
   settings: GlobalSettingsType,
-  existingVacations: any[]
+  existingVacations: any[],
+  userEmail: string,
 ) {
+  // Filter vacations to only include those belonging to the current user
+  const userVacations = existingVacations.filter(vacation => vacation.userEmail === userEmail);
+
   const startDateObj = new Date(startDate);
   const endDateObj = new Date(endDate);
-  const totalDays = getTotalDays(
+  const totalDays = getTotalDays(startDateObj, endDateObj);
+  
+  const workingDays = getWorkingDays(
     startDateObj,
     endDateObj,
     settings.restrictedDays.holidays
   );
 
-  console.log(settings);
-
   if (settings.bookingRules.enabled) {
-    // Max days per booking - only check if greater than 0
+    // Check total number of bookings this year
+    if (settings.bookingRules.maxDaysPerYear > 0) {
+      const currentYear = new Date().getFullYear();
+      const bookingsThisYear = userVacations.filter(vacation => {
+        const vacationYear = new Date(vacation.startDate).getFullYear();
+        return vacationYear === currentYear;
+      }).length;
+
+      if (bookingsThisYear >= settings.bookingRules.maxDaysPerYear) {
+        return {
+          hasConflict: true,
+          error: {
+            type: "MAX_BOOKINGS_PER_YEAR",
+            message: `Cannot exceed ${settings.bookingRules.maxDaysPerYear} vacation bookings per year (Current: ${bookingsThisYear})`,
+          },
+        };
+      }
+    }
+
+    // Max days per booking - only check if greater than 0 and now uses working days
     if (
       settings.bookingRules.maxDaysPerBooking > 0 &&
-      totalDays > settings.bookingRules.maxDaysPerBooking
+      workingDays > settings.bookingRules.maxDaysPerBooking
     ) {
       return {
         hasConflict: true,
         error: {
           type: "MAX_DAYS_PER_BOOKING",
-          message: `Vacation cannot exceed ${settings.bookingRules.maxDaysPerBooking} days`,
+          message: `Vacation cannot exceed ${settings.bookingRules.maxDaysPerBooking} working days`,
         },
       };
     }
@@ -85,16 +125,22 @@ export async function checkVacationConflicts(
     }
 
     if (settings.bookingRules.maxDaysPerYear > 0) {
-      // Using user.totalYearlyVacationDays instead of calculating from existingVacations
+      // Calculate working days for each existing vacation
+      const existingWorkingDays = userVacations.reduce((total, vacation) => {
+        const vacStart = new Date(vacation.startDate);
+        const vacEnd = new Date(vacation.endDate);
+        return total + getWorkingDays(vacStart, vacEnd, settings.restrictedDays.holidays);
+      }, 0);
 
-      const totalYearDays = settings.bookingRules.maxDaysPerYear + totalDays;
+      // Add the new vacation's working days
+      const totalWorkingDays = existingWorkingDays + workingDays;
 
-      if (totalYearDays > settings.bookingRules.maxDaysPerYear) {
+      if (totalWorkingDays > settings.bookingRules.maxDaysPerYear) {
         return {
           hasConflict: true,
           error: {
             type: "MAX_DAYS_PER_YEAR",
-            message: `Cannot exceed ${settings.bookingRules.maxDaysPerYear} vacation days per year`,
+            message: `Cannot exceed ${settings.bookingRules.maxDaysPerYear} working days per year (Current: ${existingWorkingDays}, Requested: ${workingDays})`,
           },
         };
       }
@@ -104,7 +150,7 @@ export async function checkVacationConflicts(
   // Overlap Rules
   if (settings.overlapRules.enabled) {
     // Only check for overlaps if enabled is true
-    const overlappingVacations = existingVacations.filter((vacation) => {
+    const overlappingVacations = userVacations.filter((vacation) => {
       const vacStart = new Date(vacation.startDate);
       const vacEnd = new Date(vacation.endDate);
       return startDateObj <= vacEnd && endDateObj >= vacStart;
@@ -113,8 +159,7 @@ export async function checkVacationConflicts(
     // If maxSimultaneousBookings > 0, check if we exceed the limit
     if (
       settings.overlapRules.maxSimultaneousBookings > 0 &&
-      overlappingVacations.length >=
-        settings.overlapRules.maxSimultaneousBookings
+      overlappingVacations.length >= settings.overlapRules.maxSimultaneousBookings
     ) {
       return {
         hasConflict: true,
@@ -129,9 +174,10 @@ export async function checkVacationConflicts(
       };
     }
   }
+
   // Restricted Days
   if (settings.restrictedDays.enabled) {
-    // Weekend restrictions (unchanged)
+    // Weekend restrictions
     const current = new Date(startDateObj);
     while (current <= endDateObj) {
       const day = current.getDay();
@@ -151,20 +197,6 @@ export async function checkVacationConflicts(
         };
       }
       current.setDate(current.getDate() + 1);
-    }
-
-    // Holiday restrictions
-    for (const holiday of settings.restrictedDays.holidays) {
-      const holidayDate = new Date(holiday);
-      if (startDateObj <= holidayDate && endDateObj >= holidayDate) {
-        return {
-          hasConflict: true,
-          error: {
-            type: "HOLIDAY_RESTRICTION",
-            message: "Selected dates include restricted holiday",
-          },
-        };
-      }
     }
 
     // Custom restricted days
@@ -203,7 +235,7 @@ export async function checkVacationConflicts(
 
   // Gap Rules
   if (settings.gapRules.enabled) {
-    for (const vacation of existingVacations) {
+    for (const vacation of userVacations) {
       // Only check if this vacation has gap days stored
       if (vacation.gapDays > 0) {
         const vacEnd = new Date(vacation.endDate);

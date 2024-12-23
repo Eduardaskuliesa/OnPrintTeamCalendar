@@ -50,12 +50,14 @@ export async function bookVacation(formData: FormData) {
 
     const vacations = await vacationsAction.getAdminVacations();
     console.log("vacations:", vacations);
+    const userEmail = session.user.email
 
     const conflictCheck = await checkVacationConflicts(
       formData.startDate,
       formData.endDate,
       settings.data as GlobalSettingsType,
-      vacations
+      vacations,
+      userEmail
     );
     if (conflictCheck.hasConflict) {
       return {
