@@ -1,16 +1,6 @@
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 
-function getTotalDays(
-  startDate: Date,
-  endDate: Date,
-): number {
-  let total =
-    Math.ceil(
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-    ) + 1;
 
-  return total;
-}
 
 function isWeekend(date: Date): boolean {
   const day = date.getDay();
@@ -50,7 +40,7 @@ export async function checkVacationConflicts(
 
   const startDateObj = new Date(startDate);
   const endDateObj = new Date(endDate);
-  const totalDays = getTotalDays(startDateObj, endDateObj);
+  
   
   const workingDays = getWorkingDays(
     startDateObj,
