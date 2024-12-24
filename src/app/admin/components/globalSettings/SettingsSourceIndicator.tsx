@@ -46,16 +46,11 @@ const SettingsSourceIndicator = ({
       <HoverCardContent
         align="start"
         side="bottom"
-        className="w-80 px-4 py-2 bg-white border border-slate-200 shadow-lg"
+        className="w-auto px-2 py-1 bg-white border border-slate-200 shadow-lg"
       >
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-gray-700">
+          <p className="text-[0.8rem] font-semibold text-gray-700">
             {isGlobalSettings ? "Bendri nustatymai" : "Vartotojo nustatymai"}
-          </p>
-          <p className="text-sm text-gray-600">
-            {isGlobalSettings
-              ? "Šie nustatymai yra paveldėti iš bendrųjų nustatymų. Spustelėkite, kad naudotumėte konkrečius vartotojo nustatymus."
-              : "Tai yra konkretūs vartotojo nustatymai. Spustelėkite, kad naudotumėte bendrus nustatymus."}
           </p>
         </div>
       </HoverCardContent>

@@ -5,22 +5,24 @@ import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
 import { dynamoName, settingsDynamoName, dynamoDb } from "../../dynamodb";
 
-export async function deleteUser(email: string) {
+export async function deleteUser(userId: string) {
   try {
     const session = await getServerSession(authOptions);
     if (session?.user?.role !== "ADMIN") {
       throw new Error("Unauthorized");
     }
 
+    console.log(userId);
+
     const deleteUserCommand = new DeleteCommand({
       TableName: dynamoName,
-      Key: { email },
+      Key: { userId },
       ConditionExpression: "attribute_exists(email)",
     });
 
     const deleteSettingsCommand = new DeleteCommand({
       TableName: settingsDynamoName,
-      Key: { settingId: `USER_${email}` },
+      Key: { settingId: `USER_${userId}` },
     });
 
     await Promise.all([
@@ -29,7 +31,7 @@ export async function deleteUser(email: string) {
     ]);
 
     revalidateTag("users");
-    revalidateTag(`user-settings-${email}`);
+    revalidateTag(`user-settings-${userId}`);
 
     return { message: "User and settings deleted successfully" };
   } catch (error: any) {

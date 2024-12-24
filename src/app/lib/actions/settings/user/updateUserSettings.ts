@@ -86,7 +86,12 @@ export async function updateUserSettingEnabled(
 
 export async function updateUserBookingRules(
   userId: string,
-  bookingRules: GlobalSettingsType["bookingRules"]
+  bookingRules: {
+    maxDaysPerBooking: GlobalSettingsType["bookingRules"]["maxDaysPerBooking"];
+    maxDaysPerYear: GlobalSettingsType["bookingRules"]["maxDaysPerYear"];
+    maxAdvanceBookingDays: GlobalSettingsType["bookingRules"]["maxAdvanceBookingDays"];
+    minDaysNotice: GlobalSettingsType["bookingRules"]["minDaysNotice"];
+  }
 ) {
   await checkAuth();
 
@@ -95,14 +100,26 @@ export async function updateUserBookingRules(
       new UpdateCommand({
         TableName: settingsDynamoName,
         Key: { settingId: `USER_${userId}` },
-        UpdateExpression:
-          "SET #bookingRules = :bookingRules, #updatedAt = :updatedAt",
+        UpdateExpression: `
+          SET #bookingRules.#maxDaysPerBooking = :maxDaysPerBooking,
+              #bookingRules.#maxDaysPerYear = :maxDaysPerYear,
+              #bookingRules.#maxAdvanceBookingDays = :maxAdvanceBookingDays,
+              #bookingRules.#minDaysNotice = :minDaysNotice,
+              #updatedAt = :updatedAt
+        `,
         ExpressionAttributeNames: {
           "#bookingRules": "bookingRules",
+          "#maxDaysPerBooking": "maxDaysPerBooking",
+          "#maxDaysPerYear": "maxDaysPerYear",
+          "#maxAdvanceBookingDays": "maxAdvanceBookingDays",
+          "#minDaysNotice": "minDaysNotice",
           "#updatedAt": "updatedAt",
         },
         ExpressionAttributeValues: {
-          ":bookingRules": bookingRules,
+          ":maxDaysPerBooking": bookingRules.maxDaysPerBooking,
+          ":maxDaysPerYear": bookingRules.maxDaysPerYear,
+          ":maxAdvanceBookingDays": bookingRules.maxAdvanceBookingDays,
+          ":minDaysNotice": bookingRules.minDaysNotice,
           ":updatedAt": new Date().toISOString(),
         },
         ReturnValues: "ALL_NEW",
@@ -110,10 +127,13 @@ export async function updateUserBookingRules(
     );
 
     revalidateTag(`user-settings-${userId}`);
-
     return { success: true, data: updateResult.Attributes };
   } catch (error: any) {
-    console.error("Failed to update user booking rules:", error);
+    console.error("Failed to update user booking rules:", {
+      userId,
+      bookingRules,
+      error: error.message,
+    });
     return { success: false, error: error.message };
   }
 }
@@ -140,6 +160,7 @@ export async function updateUserGapDays(
           ":gapRules": {
             enabled: gapRules.enabled,
             days: gapRules.days,
+            dayType: gapRules.dayType || "working",
             bypassGapRules: gapRules.bypassGapRules ?? null,
             canIgnoreGapsof: gapRules.canIgnoreGapsof ?? null,
           },

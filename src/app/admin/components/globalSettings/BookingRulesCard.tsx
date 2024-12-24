@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Calendar } from "lucide-react";
+import { Briefcase, Calendar } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -29,6 +29,13 @@ import {
   useUpdateUserSettingEnabled,
 } from "@/app/lib/actions/settings/user/hooks";
 import SettingsSourceIndicator from "./SettingsSourceIndicator";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const bookingRulesConfig = {
   options: [
@@ -90,6 +97,17 @@ const BookingRulesCard = ({
     currentData?.bookingRules?.enabled || false
   );
 
+  const [dayTypes, setDayTypes] = useState({
+    maxDaysPerBooking:
+      currentData?.bookingRules?.maxDaysPerBooking?.dayType || "working",
+    maxDaysPerYear:
+      currentData?.bookingRules?.maxDaysPerYear?.dayType || "working",
+    maxAdvanceBookingDays:
+      currentData?.bookingRules?.maxAdvanceBookingDays?.dayType || "working",
+    minDaysNotice:
+      currentData?.bookingRules?.minDaysNotice?.dayType || "working",
+  });
+
   const updateEnabled = useUpdateSettingEnabled();
   const updateUserEnabled = useUpdateUserSettingEnabled();
   const updateUserBookingRules = useUpdateUserBookingRules();
@@ -101,35 +119,56 @@ const BookingRulesCard = ({
     value: maxDaysPerBookingValue,
     setValue: setMaxDaysPerBookingValue,
     parseValue: parseMaxDaysPerBooking,
-  } = useNumericInput(currentData?.bookingRules?.maxDaysPerBooking ?? 0);
+  } = useNumericInput(currentData?.bookingRules?.maxDaysPerBooking?.days ?? 0);
 
   const {
     value: maxDaysPerYearValue,
     setValue: setMaxDaysPerYearValue,
     parseValue: parseMaxDaysPerYear,
-  } = useNumericInput(currentData?.bookingRules?.maxDaysPerYear ?? 0);
+  } = useNumericInput(currentData?.bookingRules?.maxDaysPerYear?.days ?? 0);
 
   const {
     value: maxAdvanceBookingDaysValue,
     setValue: setMaxAdvanceBookingDaysValue,
     parseValue: parseMaxAdvanceBookingDays,
-  } = useNumericInput(currentData?.bookingRules?.maxAdvanceBookingDays ?? 0);
+  } = useNumericInput(
+    currentData?.bookingRules?.maxAdvanceBookingDays?.days ?? 0
+  );
 
   const {
     value: minDaysNoticeValue,
     setValue: setMinDaysNoticeValue,
     parseValue: parseMinDaysNotice,
-  } = useNumericInput(currentData?.bookingRules?.minDaysNotice ?? 0);
+  } = useNumericInput(currentData?.bookingRules?.minDaysNotice?.days ?? 0);
+
+  const toggleDayType = (key: string) => {
+    if (!isEditing) return;
+
+    setDayTypes((prev) => ({
+      ...prev,
+      [key]:
+        prev[key as keyof typeof prev] === "working" ? "calendar" : "working",
+    }));
+  };
 
   useEffect(() => {
     const hasChanges =
       parseMaxDaysPerBooking() !==
-        (currentData?.bookingRules?.maxDaysPerBooking ?? 0) ||
+        (currentData?.bookingRules?.maxDaysPerBooking?.days ?? 0) ||
       parseMaxDaysPerYear() !==
-        (currentData?.bookingRules?.maxDaysPerYear ?? 0) ||
+        (currentData?.bookingRules?.maxDaysPerYear?.days ?? 0) ||
       parseMaxAdvanceBookingDays() !==
-        (currentData?.bookingRules?.maxAdvanceBookingDays ?? 0) ||
-      parseMinDaysNotice() !== (currentData?.bookingRules?.minDaysNotice ?? 0);
+        (currentData?.bookingRules?.maxAdvanceBookingDays?.days ?? 0) ||
+      parseMinDaysNotice() !==
+        (currentData?.bookingRules?.minDaysNotice?.days ?? 0) ||
+      dayTypes.maxDaysPerBooking !==
+        currentData?.bookingRules?.maxDaysPerBooking?.dayType ||
+      dayTypes.maxDaysPerYear !==
+        currentData?.bookingRules?.maxDaysPerYear?.dayType ||
+      dayTypes.maxAdvanceBookingDays !==
+        currentData?.bookingRules?.maxAdvanceBookingDays?.dayType ||
+      dayTypes.minDaysNotice !==
+        currentData?.bookingRules?.minDaysNotice?.dayType;
 
     onUnsavedChanges(
       hasChanges,
@@ -141,23 +180,34 @@ const BookingRulesCard = ({
     maxDaysPerYearValue,
     maxAdvanceBookingDaysValue,
     minDaysNoticeValue,
+    dayTypes,
     currentData?.bookingRules,
   ]);
 
   useEffect(() => {
     setLocalEnabled(currentData?.bookingRules?.enabled || false);
     setMaxDaysPerBookingValue(
-      String(currentData?.bookingRules?.maxDaysPerBooking ?? 0)
+      String(currentData?.bookingRules?.maxDaysPerBooking?.days ?? 0)
     );
     setMaxDaysPerYearValue(
-      String(currentData?.bookingRules?.maxDaysPerYear ?? 0)
+      String(currentData?.bookingRules?.maxDaysPerYear?.days ?? 0)
     );
     setMaxAdvanceBookingDaysValue(
-      String(currentData?.bookingRules?.maxAdvanceBookingDays ?? 0)
+      String(currentData?.bookingRules?.maxAdvanceBookingDays?.days ?? 0)
     );
     setMinDaysNoticeValue(
-      String(currentData?.bookingRules?.minDaysNotice ?? 0)
+      String(currentData?.bookingRules?.minDaysNotice?.days ?? 0)
     );
+    setDayTypes({
+      maxDaysPerBooking:
+        currentData?.bookingRules?.maxDaysPerBooking?.dayType || "working",
+      maxDaysPerYear:
+        currentData?.bookingRules?.maxDaysPerYear?.dayType || "working",
+      maxAdvanceBookingDays:
+        currentData?.bookingRules?.maxAdvanceBookingDays?.dayType || "working",
+      minDaysNotice:
+        currentData?.bookingRules?.minDaysNotice?.dayType || "working",
+    });
   }, [currentData, isGlobalSettings]);
 
   const handleToggleEnabled = async () => {
@@ -199,22 +249,41 @@ const BookingRulesCard = ({
 
   const handleSave = async () => {
     const newValues = {
-      enabled: localEnabled,
-      maxDaysPerBooking: parseMaxDaysPerBooking(),
-      maxDaysPerYear: parseMaxDaysPerYear(),
-      maxAdvanceBookingDays: parseMaxAdvanceBookingDays(),
-      minDaysNotice: parseMinDaysNotice(),
+      maxDaysPerBooking: {
+        days: parseMaxDaysPerBooking(),
+        dayType: dayTypes.maxDaysPerBooking,
+      },
+      maxDaysPerYear: {
+        days: parseMaxDaysPerYear(),
+        dayType: dayTypes.maxDaysPerYear,
+      },
+      maxAdvanceBookingDays: {
+        days: parseMaxAdvanceBookingDays(),
+        dayType: dayTypes.maxAdvanceBookingDays,
+      },
+      minDaysNotice: {
+        days: parseMinDaysNotice(),
+        dayType: dayTypes.minDaysNotice,
+      },
     };
 
     const hasChanges =
-      newValues.maxDaysPerBooking !==
-        (currentData?.bookingRules?.maxDaysPerBooking ?? 0) ||
-      newValues.maxDaysPerYear !==
-        (currentData?.bookingRules?.maxDaysPerYear ?? 0) ||
-      newValues.maxAdvanceBookingDays !==
-        (currentData?.bookingRules?.maxAdvanceBookingDays ?? 0) ||
-      newValues.minDaysNotice !==
-        (currentData?.bookingRules?.minDaysNotice ?? 0);
+      parseMaxDaysPerBooking() !==
+        (currentData?.bookingRules?.maxDaysPerBooking?.days ?? 0) ||
+      parseMaxDaysPerYear() !==
+        (currentData?.bookingRules?.maxDaysPerYear?.days ?? 0) ||
+      parseMaxAdvanceBookingDays() !==
+        (currentData?.bookingRules?.maxAdvanceBookingDays?.days ?? 0) ||
+      parseMinDaysNotice() !==
+        (currentData?.bookingRules?.minDaysNotice?.days ?? 0) ||
+      dayTypes.maxDaysPerBooking !==
+        currentData?.bookingRules?.maxDaysPerBooking?.dayType ||
+      dayTypes.maxDaysPerYear !==
+        currentData?.bookingRules?.maxDaysPerYear?.dayType ||
+      dayTypes.maxAdvanceBookingDays !==
+        currentData?.bookingRules?.maxAdvanceBookingDays?.dayType ||
+      dayTypes.minDaysNotice !==
+        currentData?.bookingRules?.minDaysNotice?.dayType;
 
     toast.dismiss();
     if (!hasChanges) {
@@ -238,17 +307,35 @@ const BookingRulesCard = ({
             handleMutationResponse(false, ErrorMessages.BOOKING_RULES, {
               onError: () => {
                 setMaxDaysPerBookingValue(
-                  String(currentData?.bookingRules?.maxDaysPerBooking ?? 0)
+                  String(
+                    currentData?.bookingRules?.maxDaysPerBooking?.days ?? 0
+                  )
                 );
                 setMaxDaysPerYearValue(
-                  String(currentData?.bookingRules?.maxDaysPerYear ?? 0)
+                  String(currentData?.bookingRules?.maxDaysPerYear?.days ?? 0)
                 );
                 setMaxAdvanceBookingDaysValue(
-                  String(currentData?.bookingRules?.maxAdvanceBookingDays ?? 0)
+                  String(
+                    currentData?.bookingRules?.maxAdvanceBookingDays?.days ?? 0
+                  )
                 );
                 setMinDaysNoticeValue(
-                  String(currentData?.bookingRules?.minDaysNotice ?? 0)
+                  String(currentData?.bookingRules?.minDaysNotice?.days ?? 0)
                 );
+                setDayTypes({
+                  maxDaysPerBooking:
+                    currentData?.bookingRules?.maxDaysPerBooking?.dayType ||
+                    "working",
+                  maxDaysPerYear:
+                    currentData?.bookingRules?.maxDaysPerYear?.dayType ||
+                    "working",
+                  maxAdvanceBookingDays:
+                    currentData?.bookingRules?.maxAdvanceBookingDays?.dayType ||
+                    "working",
+                  minDaysNotice:
+                    currentData?.bookingRules?.minDaysNotice?.dayType ||
+                    "working",
+                });
                 console.error("Error updating booking rules:", error);
                 reject(error);
               },
@@ -274,19 +361,36 @@ const BookingRulesCard = ({
               handleMutationResponse(false, ErrorMessages.BOOKING_RULES, {
                 onError: () => {
                   setMaxDaysPerBookingValue(
-                    String(currentData?.bookingRules?.maxDaysPerBooking ?? 0)
+                    String(
+                      currentData?.bookingRules?.maxDaysPerBooking?.days ?? 0
+                    )
                   );
                   setMaxDaysPerYearValue(
-                    String(currentData?.bookingRules?.maxDaysPerYear ?? 0)
+                    String(currentData?.bookingRules?.maxDaysPerYear?.days ?? 0)
                   );
                   setMaxAdvanceBookingDaysValue(
                     String(
-                      currentData?.bookingRules?.maxAdvanceBookingDays ?? 0
+                      currentData?.bookingRules?.maxAdvanceBookingDays?.days ??
+                        0
                     )
                   );
                   setMinDaysNoticeValue(
-                    String(currentData?.bookingRules?.minDaysNotice ?? 0)
+                    String(currentData?.bookingRules?.minDaysNotice?.days ?? 0)
                   );
+                  setDayTypes({
+                    maxDaysPerBooking:
+                      currentData?.bookingRules?.maxDaysPerBooking?.dayType ||
+                      "working",
+                    maxDaysPerYear:
+                      currentData?.bookingRules?.maxDaysPerYear?.dayType ||
+                      "working",
+                    maxAdvanceBookingDays:
+                      currentData?.bookingRules?.maxAdvanceBookingDays
+                        ?.dayType || "working",
+                    minDaysNotice:
+                      currentData?.bookingRules?.minDaysNotice?.dayType ||
+                      "working",
+                  });
                   console.error("Error updating booking rules:", error);
                   reject(error);
                 },
@@ -301,20 +405,29 @@ const BookingRulesCard = ({
   const handleCancel = () => {
     toast.dismiss();
     setMaxDaysPerBookingValue(
-      String(currentData?.bookingRules?.maxDaysPerBooking ?? 0)
+      String(currentData?.bookingRules?.maxDaysPerBooking?.days ?? 0)
     );
     setMaxDaysPerYearValue(
-      String(currentData?.bookingRules?.maxDaysPerYear ?? 0)
+      String(currentData?.bookingRules?.maxDaysPerYear?.days ?? 0)
     );
     setMaxAdvanceBookingDaysValue(
-      String(currentData?.bookingRules?.maxAdvanceBookingDays ?? 0)
+      String(currentData?.bookingRules?.maxAdvanceBookingDays?.days ?? 0)
     );
     setMinDaysNoticeValue(
-      String(currentData?.bookingRules?.minDaysNotice ?? 0)
+      String(currentData?.bookingRules?.minDaysNotice?.days ?? 0)
     );
+    setDayTypes({
+      maxDaysPerBooking:
+        currentData?.bookingRules?.maxDaysPerBooking?.dayType || "working",
+      maxDaysPerYear:
+        currentData?.bookingRules?.maxDaysPerYear?.dayType || "working",
+      maxAdvanceBookingDays:
+        currentData?.bookingRules?.maxAdvanceBookingDays?.dayType || "working",
+      minDaysNotice:
+        currentData?.bookingRules?.minDaysNotice?.dayType || "working",
+    });
     onCancel();
   };
-
   const handleSettingsSourceToggle = async () => {
     if (isEditing) {
       toast.warn(
@@ -326,7 +439,6 @@ const BookingRulesCard = ({
     const newGlobalState = !userData?.useGlobalSettings?.bookingRules;
 
     try {
-      // Only update the useGlobalSettings flag
       await updateGlobalSettingsPreference.mutateAsync({
         userId: selectedUserId,
         settingKey: "bookingRules",
@@ -354,6 +466,8 @@ const BookingRulesCard = ({
           onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
             setMaxDaysPerBookingValue(e.target.value),
           parseValue: parseMaxDaysPerBooking,
+          dayType: dayTypes.maxDaysPerBooking,
+          onToggleDayType: () => toggleDayType(key),
         };
       case "maxDaysPerYear":
         return {
@@ -361,6 +475,8 @@ const BookingRulesCard = ({
           onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
             setMaxDaysPerYearValue(e.target.value),
           parseValue: parseMaxDaysPerYear,
+          dayType: dayTypes.maxDaysPerYear,
+          onToggleDayType: () => toggleDayType(key),
         };
       case "maxAdvanceBookingDays":
         return {
@@ -368,6 +484,8 @@ const BookingRulesCard = ({
           onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
             setMaxAdvanceBookingDaysValue(e.target.value),
           parseValue: parseMaxAdvanceBookingDays,
+          dayType: dayTypes.maxAdvanceBookingDays,
+          onToggleDayType: () => toggleDayType(key),
         };
       case "minDaysNotice":
         return {
@@ -375,12 +493,16 @@ const BookingRulesCard = ({
           onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
             setMinDaysNoticeValue(e.target.value),
           parseValue: parseMinDaysNotice,
+          dayType: dayTypes.minDaysNotice,
+          onToggleDayType: () => toggleDayType(key),
         };
       default:
         return {
           value: "",
           onChange: () => {},
           parseValue: () => 0,
+          dayType: "working",
+          onToggleDayType: () => {},
         };
     }
   };
@@ -428,8 +550,47 @@ const BookingRulesCard = ({
             <HoverCard key={option.key} openDelay={200}>
               <HoverCardTrigger asChild>
                 <div className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
-                  <div className="text-sm font-semibold text-gray-900">
-                    {option.label}
+                  <div className="text-sm font-semibold text-gray-900 flex items-center gap-4">
+                    <span>{option.label}</span>
+                    {isEditing ? (
+                      <TooltipProvider>
+                        <Tooltip delayDuration={100}>
+                          <TooltipTrigger asChild>
+                            <div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="ml-2 p-0 h-auto cursor-pointer"
+                                onClick={inputProps.onToggleDayType}
+                              >
+                                {inputProps.dayType === "working" ? (
+                                  <Briefcase
+                                    size={16}
+                                    className="text-orange-700"
+                                  />
+                                ) : (
+                                  <Calendar
+                                    size={16}
+                                    className="text-blue-700"
+                                  />
+                                )}
+                              </Button>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-white border border-blue-100 text-db text-sm p-1">
+                            <p>Toggle between w.d. / c.d.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <div>
+                        {inputProps.dayType === "working" ? (
+                          <Briefcase size={16} className="text-orange-700 " />
+                        ) : (
+                          <Calendar size={16} className="text-blue-700" />
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="font-semibold text-db mt-1 flex items-center">
                     {isEditing ? (
@@ -442,11 +603,22 @@ const BookingRulesCard = ({
                           onChange={inputProps.onChange}
                           className="w-12 h-auto text-center p-1 mx-1 bg-white border border-gray-300"
                         />
+                        <span className="ml-1">
+                          {inputProps.dayType === "working"
+                            ? "working days"
+                            : "calendar days"}
+                        </span>
                       </div>
                     ) : (
-                      inputProps.parseValue()
+                      <div className="flex items-center gap-1">
+                        <span>{inputProps.parseValue()}</span>
+                        <span className="">
+                          {inputProps.dayType === "working"
+                            ? "working days"
+                            : "calendar days"}
+                        </span>
+                      </div>
                     )}
-                    <span className="ml-1">{option.suffix}</span>
                   </div>
                 </div>
               </HoverCardTrigger>
@@ -457,11 +629,21 @@ const BookingRulesCard = ({
               >
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-gray-700">
-                    {option.label}:
+                    {inputProps.dayType === "working"
+                      ? "Working Days"
+                      : "Calendar Days"}
+                    :
                   </p>
                   <p className="text-sm text-gray-600 leading-relaxed">
                     {option.explanation}
                   </p>
+                  {!isEditing && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      {inputProps.dayType === "working"
+                        ? "Days are counted based on working day settings (excluding weekends and holidays)"
+                        : "All calendar days are counted, including weekends and holidays"}
+                    </p>
+                  )}
                 </div>
               </HoverCardContent>
             </HoverCard>

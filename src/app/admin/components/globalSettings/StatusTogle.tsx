@@ -33,7 +33,7 @@ export const StatusToggle: React.FC<StatusToggleProps> = ({
       disabled={isPending || isGlobalSettings}
       className={`flex items-center px-2 py-1 rounded-full transition-colors ${
         isPending || isGlobalSettings
-          ? "opacity-50 cursor-not-allowed pointer-events-none"
+          ? "opacity-50 cursor-not-allowed pointer-events-none disabled:opacity-70"
           : "hover:bg-opacity-80 cursor-pointer"
       } ${
         enabled

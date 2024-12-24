@@ -2,15 +2,28 @@ export interface GlobalSettingsType {
   gapRules: {
     enabled: boolean;
     days: number;
+    dayType: "working" | "calendar";
     bypassGapRules: boolean | null;
     canIgnoreGapsof: string[] | null;
   };
   bookingRules: {
     enabled: boolean;
-    maxDaysPerBooking: number;
-    maxDaysPerYear: number;
-    maxAdvanceBookingDays: number;
-    minDaysNotice: number;
+    maxDaysPerBooking: {
+      days: number;
+      dayType: "working" | "calendar";
+    };
+    maxDaysPerYear: {
+      days: number;
+      dayType: "working" | "calendar";
+    };
+    maxAdvanceBookingDays: {
+      days: number;
+      dayType: "working" | "calendar";
+    };
+    minDaysNotice: {
+      days: number;
+      dayType: "working" | "calendar";
+    };
   };
   overlapRules: {
     enabled: boolean;

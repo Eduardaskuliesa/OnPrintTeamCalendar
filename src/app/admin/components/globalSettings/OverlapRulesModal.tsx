@@ -146,9 +146,9 @@ const OverlapRulesModal = ({
         </DialogHeader>
         <div className="space-y-6 overflow-y-auto custom-scrollbar">
           <div className="space-y-4 bg-slate-50 p-4 rounded-lg border-2 shadow-md border-blue-50">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm font-medium text-gray-800">
+            <div className="grid grid-cols-2 gap-10">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-800 ">
                   Maximum Simultaneous Bookings
                 </label>
                 <Input
@@ -157,64 +157,89 @@ const OverlapRulesModal = ({
                   pattern="[0-9]*"
                   value={localMaxSimultaneous}
                   onChange={(e) => setLocalMaxSimultaneous(e.target.value)}
-                  className="bg-white border-gray-200 text-gray-800"
+                  className="bg-white border-gray-200 text-gray-800 w-24"
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-800">
                   Bypass Overlap Rules
                 </label>
-                <div className="mt-2">
-                  <input
-                    type="checkbox"
-                    checked={overlapRules.bypassOverlapRules}
-                    onChange={(e) =>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    size="sm"
+                    type="button"
+                    onClick={() =>
                       setOverlapRules((prev) => ({
                         ...prev,
-                        bypassOverlapRules: e.target.checked,
+                        bypassOverlapRules: true,
                       }))
                     }
-                    className="mr-2"
-                  />
-                  <span className="text-sm text-gray-600">
-                    Allow bypassing all overlap rules
-                  </span>
+                    className={`${
+                      overlapRules.bypassOverlapRules
+                        ? "bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200"
+                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                    }`}
+                  >
+                    Yes
+                  </Button>
+                  <Button
+                    size="sm"
+                    type="button"
+                    onClick={() =>
+                      setOverlapRules((prev) => ({
+                        ...prev,
+                        bypassOverlapRules: false,
+                      }))
+                    }
+                    className={`${
+                      !overlapRules.bypassOverlapRules
+                        ? "bg-red-50 text-red-800 hover:bg-red-100 border border-red-200"
+                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                    }`}
+                  >
+                    No
+                  </Button>
                 </div>
               </div>
             </div>
 
-            {!overlapRules.bypassOverlapRules && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-800">
-                  Users That Can Be Ignored
-                </label>
-                <div className="bg-white border rounded-lg p-4 max-h-[250px] overflow-y-auto custom-scrollbar">
-                  {users
-                    .filter((user) => user.email !== selectedUserId)
-                    .map((user) => (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-800">
+                Users That Can Be Ignored
+              </label>
+              <div className="bg-white border rounded-lg p-4 max-h-[250px] relative">
+                {overlapRules.bypassOverlapRules && (
+                  <div className="absolute inset-0 bg-gray-50/90 flex items-center justify-center">
+                    <p className="text-gray-700 font-medium">
+                      All Users Can Be Ignored
+                    </p>
+                  </div>
+                )}
+                {users
+                  .filter((user) => user.userId !== selectedUserId)
+                  .map((user) => (
+                    <div
+                      key={user.userId}
+                      className="flex items-center space-x-2 py-2 border-b last:border-0"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={overlapRules.canIgnoreOverlapRulesOf.includes(
+                          user.userId
+                        )}
+                        onChange={() => handleUserSelect(user.userId)}
+                        className="mr-2"
+                      />
                       <div
-                        key={user.email}
-                        className="flex items-center space-x-2 py-2 border-b last:border-0"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={overlapRules.canIgnoreOverlapRulesOf.includes(
-                            user.email
-                          )}
-                          onChange={() => handleUserSelect(user.email)}
-                          className="mr-2"
-                        />
-                        <div
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: user.color }}
-                        />
-                        <span className="text-sm">{user.name}</span>
-                        <span className="text-sm">- {user.email}</span>
-                      </div>
-                    ))}
-                </div>
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: user.color }}
+                      />
+                      <span className="text-sm">{user.name}</span>
+                      <span className="text-sm">- {user.email}</span>
+                    </div>
+                  ))}
               </div>
-            )}
+            </div>
           </div>
         </div>
         <div className="flex justify-end space-x-3 mt-4 pt-4 border-t border-gray-200">

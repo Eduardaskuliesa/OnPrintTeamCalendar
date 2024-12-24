@@ -9,6 +9,7 @@ import { FormData } from "@/app/admin/CreateUserForm";
 import bcrypt from "bcryptjs";
 import { PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
+import { v4 as uuidv4 } from "uuid";
 
 async function getGlobalSettings(): Promise<GlobalSettingsType> {
   const result = await dynamoDb.send(
@@ -33,12 +34,14 @@ export async function createUser(formData: FormData) {
       throw new Error("Unauthorized");
     }
 
+    const userId = uuidv4();
     const email = formData.email;
     const password = formData.password;
     const name = formData.name;
+    const birthday = formData.birthday || "";
     const color = formData.color;
-    const vacationDays = 20;
-    const useGlobal = true;
+    const vacationDays = formData.vacationDays;
+    const useGlobal = false;
     const role = "USER";
 
     if (!email || !password || !name) {
@@ -54,8 +57,10 @@ export async function createUser(formData: FormData) {
     const createUser = new PutCommand({
       TableName: dynamoName,
       Item: {
+        userId,
         email,
         color,
+        birthday,
         password: hashedPassword,
         name,
         role,
@@ -64,17 +69,23 @@ export async function createUser(formData: FormData) {
         createdAt: timestamp,
         updatedAt: timestamp,
       },
-      ConditionExpression: "attribute_not_exists(email)",
+      ConditionExpression: "attribute_not_exists(id)",
     });
 
-    // Create structured user settings
     const userSettings = {
-      settingId: `USER_${email}`,
+      settingId: `USER_${userId}`,
       bookingRules: globalSettings.bookingRules,
       gapRules: globalSettings.gapRules,
       overlapRules: globalSettings.overlapRules,
       restrictedDays: globalSettings.restrictedDays,
       seasonalRules: globalSettings.seasonalRules,
+      useGlobalSettings: {
+        gapRules: true,
+        bookingRules: true,
+        overlapRules: true,
+        restrictedDays: true,
+        seasonalRules: true,
+      },
       createdAt: timestamp,
       updatedAt: timestamp,
     };
@@ -95,14 +106,16 @@ export async function createUser(formData: FormData) {
 
     revalidateTag("users");
     revalidateTag("global-settings");
-    revalidateTag(`user-${email}`);
+    revalidateTag(`user-${userId}`);
 
     return {
       message: "User and settings created successfully",
       user: {
+        userId,
         email,
         name,
         color,
+        birthday,
         role,
         vacationDays: vacationDays,
         useGlobal,
@@ -114,7 +127,7 @@ export async function createUser(formData: FormData) {
   } catch (error: any) {
     console.error("Error creating user:", error);
     if (error.name === "ConditionalCheckFailedException") {
-      throw new Error("Šis elpaštas jau yra užimtas");
+      throw new Error("Vartotojas su šiuo ID jau egzistuoja"); // Updated error message
     }
     throw new Error(error.message);
   }

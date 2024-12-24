@@ -32,25 +32,27 @@ function getWorkingDays(startDate: Date, endDate: Date): number {
 export async function bookVacation(formData: FormData) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.userId) {
       return {
         success: false,
         error: "Not authenticated",
       };
     }
 
-    const user = await usersActions.getUser(session.user.id);
-    console.log("user data:", user.data);
+    const user = await usersActions.getUser(session.user.userId);
+    console.log("user data:", user.data.useGlobal);
     let settings;
     if (user.data.useGlobal === true) {
       settings = await getGlobalSettings();
+      console.log("Global settings: ", settings);
     } else {
-      settings = await getUserSettings(session.user.id);
+      settings = await getUserSettings(session.user.userId);
+      console.log("User settings: ", settings);
     }
 
     const vacations = await vacationsAction.getAdminVacations();
     console.log("vacations:", vacations);
-    const userEmail = session.user.email
+    const userEmail = session.user.email;
 
     const conflictCheck = await checkVacationConflicts(
       formData.startDate,
@@ -60,6 +62,7 @@ export async function bookVacation(formData: FormData) {
       userEmail
     );
     if (conflictCheck.hasConflict) {
+      console.log(conflictCheck.error?.type);
       return {
         success: false,
         error: conflictCheck.error?.message,

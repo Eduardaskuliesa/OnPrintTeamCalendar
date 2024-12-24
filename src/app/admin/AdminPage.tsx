@@ -39,16 +39,16 @@ export default function AdminPage({
     setShowCreateModal(false);
   };
 
-  const handleUserDeleted = (deletedEmail: string) => {
+  const handleUserDeleted = (deleteUser: string) => {
     setUsers((prevUsers) =>
-      prevUsers.filter((user) => user.email !== deletedEmail)
+      prevUsers.filter((user) => user.userId !== deleteUser)
     );
   };
 
   const handleUserUpdated = (updatedUser: User) => {
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
-        user.email === updatedUser.email ? updatedUser : user
+        user.userId === updatedUser.userId ? updatedUser : user
       )
     );
   };
@@ -70,6 +70,7 @@ export default function AdminPage({
       setSelectedUser(user);
     }
   };
+
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
@@ -108,7 +109,7 @@ export default function AdminPage({
 
   return (
     <div className="">
-      <div className="py-4 max-w-5xl ml-[10%]">
+      <div className="py-4 max-w-5xl lg:ml-[10%]">
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">
             Admin Dashboard

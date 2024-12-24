@@ -1,6 +1,6 @@
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { GetCommand } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand } from "@aws-sdk/lib-dynamodb"; // We only need QueryCommand now
 import { dynamoDb } from "@/app/lib/dynamodb";
 import bcrypt from "bcryptjs";
 
@@ -20,12 +20,17 @@ export const authOptions: AuthOptions = {
         }
 
         try {
-          const command = new GetCommand({
+          const queryCommand = new QueryCommand({
             TableName: process.env.DYNAMODB_NAME || "",
-            Key: { email: credentials.email },
+            IndexName: "email-index",
+            KeyConditionExpression: "email = :email",
+            ExpressionAttributeValues: {
+              ":email": credentials.email,
+            },
           });
 
-          const user = (await dynamoDb.send(command)).Item;
+          const queryResult = await dynamoDb.send(queryCommand);
+          const user = queryResult.Items?.[0];
 
           if (
             !user ||
@@ -35,7 +40,7 @@ export const authOptions: AuthOptions = {
           }
 
           return {
-            id: user.email,
+            id: user.userId,
             email: user.email,
             role: user.role,
           };
@@ -50,16 +55,16 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.userId = user.id;
         token.email = user.email;
         token.role = user.role;
       }
-      return token; // Need to return token
+      return token;
     },
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
+        session.user.userId = token.userId;
         session.user.email = token.email;
         session.user.role = token.role;
       }
@@ -69,7 +74,7 @@ export const authOptions: AuthOptions = {
 
   session: {
     strategy: "jwt",
-    maxAge: 7 * 24 * 60 * 60, // 7 days
+    maxAge: 7 * 24 * 60 * 60,
   },
 
   pages: {

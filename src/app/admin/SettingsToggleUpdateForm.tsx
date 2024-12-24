@@ -31,7 +31,7 @@ const SettingsToggle = ({
         <User2 className="w-4 h-4 mr-1.5" />
       )}
       <span className="text-xs font-semibold">
-        {enabled ? "Bendrus nustatymus" : "Vartotojo nustatymus"}
+        {enabled ? "Bendri nustatymai" : "Vartotojo nustatymai"}
       </span>
     </button>
   );

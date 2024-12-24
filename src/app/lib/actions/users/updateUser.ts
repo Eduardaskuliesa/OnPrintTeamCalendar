@@ -5,21 +5,24 @@ import { dynamoDb } from "@/app/lib/dynamodb";
 import { UpdateCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
+import bcrypt from 'bcryptjs'
 
-export async function updateUser(
-  email: string,
-  userData: {
-    name?: string;
-    color?: string;
-    gapDays?: number;
-    useGlobal?: boolean;
-    vacationDays?: number;
-  }
-) {
+interface UpdateUserData {
+  name?: string;
+  email?: string;
+  color?: string;
+  useGlobal?: boolean;
+  password?: string;
+  vacationDays?: number;
+  birthday?: string;
+}
+
+export async function updateUser(userId: string, userData: UpdateUserData) {
   try {
+    // Verify user has admin permissions
     const session = await getServerSession(authOptions);
-    if (session?.user?.role !== "ADMIN") {
-      throw new Error("Unauthorized");
+    if (!session?.user) {
+      throw new Error("Unauthorized: No active session");
     }
 
     const updateExpressions = [];
@@ -27,11 +30,15 @@ export async function updateUser(
     const expressionAttributeValues: Record<string, any> = {
       ":updatedAt": new Date().toISOString(),
     };
-
     if (userData.name) {
       updateExpressions.push("#name = :name");
       expressionAttributeNames["#name"] = "name";
       expressionAttributeValues[":name"] = userData.name;
+    }
+
+    if (userData.email) {
+      updateExpressions.push("email = :email");
+      expressionAttributeValues[":email"] = userData.email;
     }
 
     if (userData.color) {
@@ -39,15 +46,15 @@ export async function updateUser(
       expressionAttributeValues[":color"] = userData.color;
     }
 
-    if (userData.gapDays !== undefined) {
-      console.log("Adding gapDays to update expression:", userData.gapDays);
-      updateExpressions.push("gapDays = :gapDays");
-      expressionAttributeValues[":gapDays"] = userData.gapDays;
-    }
-
     if (userData.useGlobal !== undefined) {
       updateExpressions.push("useGlobal = :useGlobal");
       expressionAttributeValues[":useGlobal"] = userData.useGlobal;
+    }
+
+    if (userData.password) {
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      updateExpressions.push("password = :password");
+      expressionAttributeValues[":password"] = hashedPassword;
     }
 
     if (userData.vacationDays !== undefined) {
@@ -55,29 +62,34 @@ export async function updateUser(
       expressionAttributeValues[":vacationDays"] = userData.vacationDays;
     }
 
-    // Always update the updatedAt timestamp
+    if (userData.birthday) {
+      updateExpressions.push("birthday = :birthday");
+      expressionAttributeValues[":birthday"] = userData.birthday;
+    }
+
     updateExpressions.push("updatedAt = :updatedAt");
 
+   
     const result = await dynamoDb.send(
       new UpdateCommand({
         TableName: process.env.DYNAMODB_NAME!,
-        Key: { email },
+        Key: { userId },
         UpdateExpression: `SET ${updateExpressions.join(", ")}`,
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
-        ConditionExpression: "attribute_exists(email)",
+        ConditionExpression: "attribute_exists(userId)",
         ReturnValues: "ALL_NEW",
       })
     );
 
-    if (userData.name || userData.color) {
+    if (userData.name || userData.color || userData.email) {
       const { Items: vacations } = await dynamoDb.send(
         new QueryCommand({
           TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
-          IndexName: "userEmail-index",
-          KeyConditionExpression: "userEmail = :email",
+          IndexName: "userId-index",
+          KeyConditionExpression: "userId = :userId",
           ExpressionAttributeValues: {
-            ":email": email,
+            ":userId": userId,
           },
         })
       );
@@ -98,6 +110,11 @@ export async function updateUser(
               expValues[":userColor"] = userData.color;
             }
 
+            if (userData.email) {
+              updateExp.push("userEmail = :userEmail");
+              expValues[":userEmail"] = userData.email;
+            }
+
             return dynamoDb.send(
               new UpdateCommand({
                 TableName: process.env.VACATION_DYNAMODB_TABLE_NAME!,
@@ -110,23 +127,27 @@ export async function updateUser(
           })
         );
       }
+      revalidateTag('users')
+      revalidateTag(`user-${userId}`)
+      revalidateTag("vacations");
     }
-
-    revalidateTag(`user-${email}`);
-    revalidateTag("users");
-    revalidateTag("vacations");
 
     return {
       success: true,
-      message: "User and related vacations updated successfully",
+      message: "User updated successfully",
       user: result.Attributes,
     };
   } catch (error: any) {
     console.error("Update failed:", error);
+
     if (error.name === "ConditionalCheckFailedException") {
       return { success: false, error: "User not found" };
     }
-    return { success: false, error: error.message };
+
+    return {
+      success: false,
+      error: error.message || "Failed to update user",
+    };
   }
 }
 

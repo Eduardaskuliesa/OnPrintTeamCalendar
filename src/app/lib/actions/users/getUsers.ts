@@ -1,4 +1,4 @@
-"use server"
+"use server";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { ScanCommand } from "@aws-sdk/lib-dynamodb";
@@ -13,9 +13,10 @@ async function queryUsers() {
   const getAllUsers = new ScanCommand({
     TableName: dynamoName || "",
     ProjectionExpression:
-      "email, #name, #role, color, createdAt, updatedAt, useGlobal, vacationDays",
+      "email, #name, #role, #userId, color, createdAt, updatedAt, useGlobal, vacationDays",
     ExpressionAttributeNames: {
       "#name": "name",
+      "#userId": "userId",
       "#role": "role",
     },
   });

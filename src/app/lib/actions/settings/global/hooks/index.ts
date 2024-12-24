@@ -37,14 +37,22 @@ export const useUpdateSettingEnabled = () => {
 export const useUpdateGapDays = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (days: number) => {
-      const result = await updateGapRules({days: days});
+    mutationFn: async ({
+      days,
+      dayType,
+    }: {
+      days: number;
+      dayType: "working" | "calendar";
+    }) => {
+      const result = await updateGapRules({
+        days,
+        dayType,
+      });
       if (!result.success) {
-        throw new Error(result.error || "Failed to update gap days");
+        throw new Error(result.error || "Failed to update gap rules");
       }
       return result;
     },
-
     onSuccess: (result) => {
       queryClient.setQueryData(
         ["getGlobalSettings"],
@@ -88,11 +96,10 @@ export const useUpdateBookingRules = () => {
 
   return useMutation({
     mutationFn: async (bookingRules: {
-      enabled: boolean;
-      maxDaysPerBooking: number;
-      maxDaysPerYear: number;
-      maxAdvanceBookingDays: number;
-      minDaysNotice: number;
+      maxDaysPerBooking: GlobalSettingsType['bookingRules']['maxDaysPerBooking'];
+      maxDaysPerYear: GlobalSettingsType['bookingRules']['maxDaysPerYear'];
+      maxAdvanceBookingDays: GlobalSettingsType['bookingRules']['maxAdvanceBookingDays'];
+      minDaysNotice: GlobalSettingsType['bookingRules']['minDaysNotice'];
     }) => {
       const result = await updateBookingRules(bookingRules);
       if (!result.success) {

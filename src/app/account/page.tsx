@@ -12,7 +12,7 @@ export default async function UserPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) return null;
 
-  const userData = await usersActions.getUser(session.user.email);
+  const userData = await usersActions.getUser(session.user.userId);
 
   const dummyStats = {
     totalVacationDays: 20,

@@ -44,6 +44,7 @@ export default function UserList({
   };
 
   const handleUserUpdated = (updatedUser: User) => {
+
     onUserUpdated(updatedUser);
     setShowUpdateModal(false);
     setUserToUpdate(null);
@@ -52,11 +53,12 @@ export default function UserList({
   const confirmDelete = async () => {
     if (userToDelete) {
       setDeletingEmail(userToDelete.email);
+      console.log(userToDelete)
       setShowDeleteDialog(false);
       try {
-        await usersActions.deleteUser(userToDelete.email);
+        await usersActions.deleteUser(userToDelete.userId);
         toast.success("User deleted successfully");
-        onUserDeleted(userToDelete.email);
+        onUserDeleted(userToDelete.userId);
       } catch (error: any) {
         toast.error(error.message || "Failed to delete user");
       } finally {

@@ -15,12 +15,12 @@ const Home = async () => {
 
   const fetchTimestamp = new Date().toISOString();
 
-  const user = await usersActions.getUser(session.user.email);
+  const user = await usersActions.getUser(session.user.userId);
   const isGlobalSettings = user.data.useGlobal;
 
   const settings = isGlobalSettings
     ? await getGlobalSettings()
-    : await getUserSettings(session.user.email);
+    : await getUserSettings(session.user.userId);
 
   const initialVacations = await vacationsAction.getVacations();
 

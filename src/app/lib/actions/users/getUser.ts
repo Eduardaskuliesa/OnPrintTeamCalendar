@@ -6,13 +6,13 @@ import { unstable_cache } from "next/cache";
 import { dynamoName } from "../../dynamodb";
 import { dynamoDb } from "../../dynamodb";
 
-async function fetchUserFromDb(email: string) {
+async function fetchUserFromDb(userId: string) {
   console.log("Fetching single user from DB at:", new Date().toISOString());
 
   const result = await dynamoDb.send(
     new GetCommand({
       TableName: dynamoName,
-      Key: { email },
+      Key: { userId },
       ProjectionExpression:
         "email, #name, #role, color, createdAt, updatedAt, useGlobal",
       ExpressionAttributeNames: {
@@ -29,18 +29,18 @@ async function fetchUserFromDb(email: string) {
   return result.Item;
 }
 
-const getCachedUser = (email: string) =>
-  unstable_cache(() => fetchUserFromDb(email), [`user-${email}`], {
+const getCachedUser = (userId: string) =>
+  unstable_cache(() => fetchUserFromDb(userId), [`user-${userId}`], {
     revalidate: 604800,
-    tags: [`user-${email}`],
+    tags: [`user-${userId}`],
   });
 
-export async function getUser(email: string) {
+export async function getUser(userId: string) {
   const session = await getServerSession(authOptions);
-  if (session?.user?.role !== "ADMIN" && session?.user?.email !== email) {
+  if (session?.user?.role !== "ADMIN" && session?.user?.userId !== userId) {
     throw new Error("Unauthorized");
   }
 
-  const result = await getCachedUser(email)();
+  const result = await getCachedUser(userId)();
   return { data: result };
 }

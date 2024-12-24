@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Clock, Settings2 } from "lucide-react";
+import { Briefcase, Calendar, Clock, Settings2 } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -31,6 +31,12 @@ import { useNumericInput } from "@/app/hooks/useNumericInput";
 import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 import { toast } from "react-toastify";
 import SettingsSourceIndicator from "./SettingsSourceIndicator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const gapRulesExplanations = {
   minimumGap:
@@ -68,7 +74,9 @@ const GapRulesCard = ({
   const [localEnabled, setLocalEnabled] = useState(
     currentData?.gapRules?.enabled || false
   );
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isWorkingDays, setIsWorkingDays] = useState(
+    currentData?.gapRules?.dayType === "working"
+  );
 
   const updateGapRules = useUpdateGapDays();
   const updateEnabled = useUpdateSettingEnabled();
@@ -81,6 +89,12 @@ const GapRulesCard = ({
     setValue: setLocalDays,
     parseValue: parseLocalDays,
   } = useNumericInput(currentData?.gapRules?.days ?? 0);
+
+  const toggleDayType = () => {
+    if (isEditing) {
+      setIsWorkingDays(!isWorkingDays);
+    }
+  };
 
   const handleToggleEnabled = async () => {
     const newEnabledState = !localEnabled;
@@ -122,50 +136,62 @@ const GapRulesCard = ({
   const handleGlobalSave = async () => {
     const currentValue = parseLocalDays();
     const initialValue = currentData?.gapRules?.days || 0;
+    const initialDayType = currentData?.gapRules?.dayType || "working";
     toast.dismiss();
 
-    if (currentValue === initialValue) {
+    if (
+      currentValue === initialValue &&
+      isWorkingDays === (initialDayType === "working")
+    ) {
       handleNoChanges(ErrorMessages.GAP_RULES.NO_CHANGES);
       onCancel();
       return;
     }
 
     return new Promise<void>((resolve, reject) => {
-      updateGapRules.mutate(currentValue, {
-        onSuccess: () => {
-          handleMutationResponse(true, ErrorMessages.GAP_RULES, {
-            onSuccess: () => {
-              setLocalDays(String(currentValue));
-              onCancel();
-              resolve();
-            },
-          });
-        },
-        onError: (error) => {
-          handleMutationResponse(false, ErrorMessages.GAP_RULES, {
-            onError: () => {
-              setLocalDays(String(initialValue));
-              console.error("Error updating gap rules:", error);
-              reject(error);
-            },
-          });
-        },
-      });
+      updateGapRules.mutate(
+        { days: currentValue, dayType: isWorkingDays ? "working" : "calendar" },
+        {
+          onSuccess: () => {
+            handleMutationResponse(true, ErrorMessages.GAP_RULES, {
+              onSuccess: () => {
+                setLocalDays(String(currentValue));
+                onCancel();
+                resolve();
+              },
+            });
+          },
+          onError: (error) => {
+            handleMutationResponse(false, ErrorMessages.GAP_RULES, {
+              onError: () => {
+                setLocalDays(String(initialValue));
+                setIsWorkingDays(initialDayType === "working");
+                console.error("Error updating gap rules:", error);
+                reject(error);
+              },
+            });
+          },
+        }
+      );
     });
   };
 
   const handleGlobalCancel = () => {
     toast.dismiss();
     const initialValue = currentData?.gapRules?.days ?? 0;
+    const initialDayType = currentData?.gapRules?.dayType || "working";
     setLocalDays(String(initialValue));
+    setIsWorkingDays(initialDayType === "working");
     onCancel();
   };
 
-  // Only track changes for global settings
   React.useEffect(() => {
     if (selectedUserId === "global") {
       const initialValue = currentData?.gapRules?.days ?? 0;
-      const hasChanges = parseLocalDays() !== initialValue;
+      const initialDayType = currentData?.gapRules?.dayType || "working";
+      const hasChanges =
+        parseLocalDays() !== initialValue ||
+        isWorkingDays !== (initialDayType === "working");
 
       onUnsavedChanges(
         hasChanges,
@@ -173,10 +199,17 @@ const GapRulesCard = ({
         hasChanges ? handleGlobalCancel : undefined
       );
     }
-  }, [localDays, currentData?.gapRules?.days, selectedUserId]);
+  }, [
+    localDays,
+    isWorkingDays,
+    currentData?.gapRules?.days,
+    currentData?.gapRules?.dayType,
+    selectedUserId,
+  ]);
 
   React.useEffect(() => {
     setLocalEnabled(currentData?.gapRules?.enabled || false);
+    setIsWorkingDays(currentData?.gapRules?.dayType === "working");
   }, [currentData]);
 
   const handleSettingsSourceToggle = async () => {
@@ -190,7 +223,6 @@ const GapRulesCard = ({
     const newGlobalState = !userData?.useGlobalSettings?.gapRules;
 
     try {
-      // Only update the useGlobalSettings flag
       await updateGlobalSettingsPreference.mutateAsync({
         userId: selectedUserId,
         settingKey: "gapRules",
@@ -251,7 +283,7 @@ const GapRulesCard = ({
                     size="sm"
                     variant="ghost"
                     className="opacity-0 text-sm group-hover:opacity-100 bg-lcoffe transition-all duration-300 hover:bg-dcoffe"
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => onEdit()}
                   >
                     <Settings2 className="w-4 h-4 mr-1" />
                     Configure
@@ -265,8 +297,36 @@ const GapRulesCard = ({
             <HoverCard openDelay={200}>
               <HoverCardTrigger asChild>
                 <div className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
-                  <div className="text-sm font-semibold text-gray-900">
-                    Minimum Gap
+                  <div className="text-sm font-semibold text-gray-900 flex items-center justify-between">
+                    <span>Minimum Gap</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={`pr-2 h-auto ${
+                              !isEditing &&
+                              "cursor-default disabled:opacity-100"
+                            }`}
+                            onClick={toggleDayType}
+                            disabled={!isEditing}
+                          >
+                            {isWorkingDays ? (
+                              <Briefcase
+                                size={16}
+                                className="text-orange-700"
+                              />
+                            ) : (
+                              <Calendar size={16} className="text-blue-700" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Toggle between w.d. / c.d.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <div className="font-semibold text-db mt-1 flex items-center">
                     {selectedUserId === "global" && isEditing ? (
@@ -279,11 +339,20 @@ const GapRulesCard = ({
                           onChange={(e) => setLocalDays(e.target.value)}
                           className="w-12 h-auto text-center p-1 mx-1 bg-white border border-gray-300"
                         />
+                        <span className="ml-1">
+                          {isWorkingDays ? "working days" : "calendar days"}
+                        </span>
                       </div>
                     ) : (
-                      currentData.gapRules.days
+                      <div className="flex items-center gap-1">
+                        <span>{currentData.gapRules.days}</span>
+                        <span className="">
+                          {currentData.gapRules.dayType === "working"
+                            ? "working days"
+                            : "calendar days"}
+                        </span>
+                      </div>
                     )}
-                    <span className="ml-1">days</span>
                   </div>
                 </div>
               </HoverCardTrigger>
@@ -303,14 +372,13 @@ const GapRulesCard = ({
               </HoverCardContent>
             </HoverCard>
 
-            {selectedUserId !== "global" && (
-              <HoverCard openDelay={300} closeDelay={100}>
+            {!isGlobalSettings && selectedUserId !== "global" && (
+              <HoverCard openDelay={300}>
                 <HoverCardTrigger asChild>
                   <div className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
                     <div className="text-sm font-semibold text-gray-900">
                       Ignoring User
                     </div>
-                    <div>{currentData.gapRules.bypassGapRules}</div>
                     <div className="font-semibold text-db mt-1">
                       {currentData.gapRules.bypassGapRules
                         ? "All"
@@ -327,9 +395,11 @@ const GapRulesCard = ({
                 >
                   <div className="space-y-1">
                     <p className="text-sm font-semibold text-gray-700">
-                      Preferred Periods:
+                      Gap Rules Exceptions:
                     </p>
-                    <p className="text-sm text-gray-600 leading-relaxed"></p>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      Users who can bypass or be excluded from gap rules
+                    </p>
                   </div>
                 </HoverCardContent>
               </HoverCard>
@@ -338,13 +408,14 @@ const GapRulesCard = ({
         </CardContent>
       </Card>
 
-      {selectedUserId !== "global" && isModalOpen && (
+      {selectedUserId !== "global" && isEditing && (
         <GapRulesModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          isOpen={isEditing}
+          onClose={onCancel}
           selectedUserId={selectedUserId}
           users={users}
           initialData={{
+            dayType: currentData.gapRules.dayType,
             enabled: localEnabled,
             days: currentData.gapRules.days,
             bypassGapRules: currentData.gapRules.bypassGapRules || false,

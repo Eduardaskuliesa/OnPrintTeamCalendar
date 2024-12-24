@@ -65,7 +65,6 @@ const OverlapRulesCard = ({
   const isGlobalSettings = userData?.useGlobalSettings?.overlapRules;
   const currentData = isGlobalSettings ? globalData : userData;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [localEnabled, setLocalEnabled] = useState(
     currentData?.overlapRules?.enabled || false
   );
@@ -257,7 +256,7 @@ const OverlapRulesCard = ({
                     size="sm"
                     variant="ghost"
                     className="opacity-0 text-sm group-hover:opacity-100 bg-lcoffe transition-all duration-300 hover:bg-dcoffe"
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => onEdit()}
                   >
                     <Settings2 className="w-4 h-4 mr-1" />
                     Configure
@@ -311,7 +310,7 @@ const OverlapRulesCard = ({
               </HoverCardContent>
             </HoverCard>
 
-            {selectedUserId !== "global" && (
+            {!isGlobalSettings && selectedUserId !== "global" && (
               <HoverCard openDelay={300} closeDelay={100}>
                 <HoverCardTrigger asChild>
                   <div className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
@@ -350,10 +349,10 @@ const OverlapRulesCard = ({
         </CardContent>
       </Card>
 
-      {selectedUserId !== "global" && isModalOpen && (
+      {selectedUserId !== "global" && isEditing && (
         <OverlapRulesModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          isOpen={isEditing}
+          onClose={onCancel}
           selectedUserId={selectedUserId}
           users={users}
           initialData={{

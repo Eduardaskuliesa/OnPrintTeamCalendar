@@ -129,11 +129,10 @@ export const useUpdateUserBookingRules = () => {
     }: {
       userId: string;
       bookingRules: {
-        enabled: boolean;
-        maxDaysPerBooking: number;
-        maxDaysPerYear: number;
-        maxAdvanceBookingDays: number;
-        minDaysNotice: number;
+        maxDaysPerBooking: GlobalSettingsType["bookingRules"]["maxDaysPerBooking"];
+        maxDaysPerYear: GlobalSettingsType["bookingRules"]["maxDaysPerYear"];
+        maxAdvanceBookingDays: GlobalSettingsType["bookingRules"]["maxDaysPerBooking"];
+        minDaysNotice: GlobalSettingsType["bookingRules"]["minDaysNotice"];
       };
     }) => {
       const result = await updateUserBookingRules(userId, bookingRules);

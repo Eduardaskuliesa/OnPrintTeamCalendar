@@ -35,7 +35,7 @@ const GlobalSettings = ({
   selectedUser,
 }: GlobalSettingsProps) => {
   const [selectedUserId, setSelectedUserId] = useState<string>(
-    selectedUser?.email || "global"
+    selectedUser?.userId || "global"
   );
 
   const [editingSection, setEditingSection] = useState<string | null>(null);
@@ -147,7 +147,7 @@ const GlobalSettings = ({
     setSelectedUserId(value);
   };
 
-  const currentUser = users.find((user) => user.email === selectedUserId);
+  const currentUser = users.find((user) => user.userId === selectedUserId);
   const isGlobalSettings = selectedUserId === "global";
 
   return (
@@ -196,11 +196,14 @@ const GlobalSettings = ({
                       className="w-2 h-2 rounded-full"
                       style={{
                         backgroundColor: users.find(
-                          (u) => u.email === selectedUserId
+                          (u) => u.userId === selectedUserId
                         )?.color,
                       }}
                     />
-                    <span className="text-sm">{selectedUserId}</span>
+                    <span className="text-sm">
+                      {" "}
+                      {users.find((u) => u.userId === selectedUserId)?.email}
+                    </span>
                   </div>
                 )
               ) : (
@@ -213,7 +216,7 @@ const GlobalSettings = ({
                 <SelectItem value="global">Global Settings</SelectItem>
                 <SelectLabel className="mt-2">Users</SelectLabel>
                 {users.map((user) => (
-                  <SelectItem key={user.email} value={user.email}>
+                  <SelectItem key={user.userId} value={user.userId}>
                     <div className="flex items-center gap-2">
                       <div
                         className="w-2 h-2 rounded-full"
@@ -251,7 +254,7 @@ const GlobalSettings = ({
             }
           />
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1  lg:grid-cols-2 gap-6">
             <GapRulesCard
               globalData={globalData?.data as GlobalSettingsType}
               userData={currentData?.data as GlobalSettingsType}
@@ -288,7 +291,7 @@ const GlobalSettings = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1  lg:grid-cols-2 gap-6">
             <SeasonalRulesCard
               selectedUserId={selectedUserId}
               globalData={globalData?.data as GlobalSettingsType}
