@@ -11,6 +11,7 @@ import { getGlobalSettings } from "../settings/global/getGlobalSettings";
 import { getUserSettings } from "../settings/user/getUserSettings";
 import { FormData } from "@/app/components/Calendar/VacationForm";
 import { vacationsAction } from ".";
+import { User } from "@/app/types/api";
 
 function isWeekend(date: Date): boolean {
   const day = date.getDay();
@@ -59,7 +60,8 @@ export async function bookVacation(formData: FormData) {
       formData.endDate,
       settings.data as GlobalSettingsType,
       vacations,
-      userEmail
+      userEmail,
+      user.data as User
     );
     if (conflictCheck.hasConflict) {
       console.log(conflictCheck.error?.type);
@@ -83,7 +85,7 @@ export async function bookVacation(formData: FormData) {
       startDate: formData.startDate,
       endDate: formData.endDate,
       status: "PENDING",
-      gapDays: workingDays > 2 ? settings.data?.gapRules.days : 0,
+      gapDays: workingDays > 2 ? conflictCheck.gapDays : 0,
       requiresApproval: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
