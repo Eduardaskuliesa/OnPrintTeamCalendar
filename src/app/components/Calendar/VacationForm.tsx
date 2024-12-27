@@ -1,14 +1,32 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { bookVacation } from "@/app/lib/actions/vacations/bookVacation";
 import { CalendarIcon, X } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import React from "react";
+
+interface Event {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  backgroundColor: string;
+  extendedProps: {
+    status: "PENDING" | "APPROVED" | "REJECTED" | "GAP";
+    userId: string;
+    email: string;
+    totalVacationDays: number;
+  };
+}
 
 interface VacationFormProps {
   isOpen: boolean;
   onClose: () => void;
+  initialStartDate?: Date | null;
+  initialEndDate?: Date | null;
+  onVacationCreated?: (events: Event[]) => void;
 }
+
 type ErrorType =
   | "OVERLAP"
   | "GAP_CONFLICT"
@@ -47,14 +65,36 @@ const errorMessages: Record<ErrorType, string> = {
   default: "Įvyko klaida. Bandykite dar kartą",
 };
 
-const VacationForm = ({ isOpen, onClose }: VacationFormProps) => {
+const VacationForm = ({
+  isOpen,
+  onClose,
+  initialStartDate,
+  initialEndDate,
+  onVacationCreated,
+}: VacationFormProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     startDate: "",
     endDate: "",
   });
-  const router = useRouter();
+
+  React.useEffect(() => {
+    if (initialStartDate) {
+      const start = new Date(initialStartDate);
+      start.setDate(start.getDate() + 1);
+
+      const end = initialEndDate
+        ? new Date(initialEndDate)
+        : new Date(initialStartDate);
+      end.setDate(end.getDate());
+
+      setFormData({
+        startDate: start.toISOString().split("T")[0],
+        endDate: end.toISOString().split("T")[0],
+      });
+    }
+  }, [initialStartDate, initialEndDate]);
 
   const handleClose = () => {
     setFormData({ startDate: "", endDate: "" });
@@ -70,12 +110,59 @@ const VacationForm = ({ isOpen, onClose }: VacationFormProps) => {
 
     try {
       const result = await bookVacation(formData);
-      router.refresh();
 
-      if (result.success) {
+      if (result.success && result.data) {
+        // Create events array with vacation and gap if present
+        const events = [];
+
+        const endDate = new Date(result.data.endDate);
+        endDate.setDate(endDate.getDate()); // Add one day to include the end dat
+
+        // Main vacation event
+        const vacationEvent = {
+          id: result?.data?.id,
+          title: result.data?.userName,
+          start: result.data?.startDate,
+          end: endDate.toISOString(),
+          backgroundColor: result.data?.userColor,
+          extendedProps: {
+            status: result.data?.status,
+            userId: result.data?.userId,
+            email: result.data?.userEmail,
+            totalVacationDays: result.data?.totalVacationDays,
+          },
+        };
+        events.push(vacationEvent);
+
+        // Add gap event if exists
+        if (result.data?.gapDays && result.data.gapDays > 0) {
+          const gapEvent: Event = {
+            id: `gap-${result.data.id}`,
+            title: `Tarpas - ${result.data.userName}`,
+            start: new Date(
+              new Date(result.data.endDate).setDate(
+                new Date(result.data.endDate).getDate() + 1
+              )
+            ).toISOString(),
+            end: new Date(
+              new Date(result.data.endDate).setDate(
+                new Date(result.data.endDate).getDate() + result.data.gapDays
+              )
+            ).toISOString(),
+            backgroundColor: "#808080",
+            extendedProps: {
+              status: "GAP",
+              userId: result.data.userId,
+              email: result.data.userEmail,
+              totalVacationDays: 0,
+            },
+          };
+          events.push(gapEvent);
+        }
+
+        onVacationCreated?.(events as Event[]);
         toast.success("Atostogos sėkmingai užregistruotos");
         handleClose();
-
         return;
       }
 
@@ -104,7 +191,9 @@ const VacationForm = ({ isOpen, onClose }: VacationFormProps) => {
           <div className="flex items-center gap-2">
             <CalendarIcon className="w-5 h-5 text-vdcoffe" />
             <h2 className="text-xl font-semibold text-gray-900">
-              Registruoti atostogas
+              {initialStartDate
+                ? "Registruoti pasirinktas atostogas"
+                : "Registruoti atostogas"}
             </h2>
           </div>
           <button

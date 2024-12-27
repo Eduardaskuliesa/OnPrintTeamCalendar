@@ -1,4 +1,4 @@
-"use server"
+"use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
@@ -7,7 +7,8 @@ import { dynamoDb } from "../../dynamodb";
 
 export async function updateVacationStatus(
   id: string,
-  status: "APPROVED" | "REJECTED"
+  status: "APPROVED" | "REJECTED",
+  userId: string
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -30,7 +31,8 @@ export async function updateVacationStatus(
       })
     );
     revalidateTag("admin-vacations");
-    revalidateTag("vacation-list");
+    revalidateTag("vacations");
+    revalidateTag(`user-vacations-${userId}`);
 
     return { success: true };
   } catch (error) {

@@ -10,10 +10,12 @@ import VacationForm from "./VacationForm";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
-import { Plus } from "lucide-react";
+import { Clock2, Plus } from "lucide-react";
 import { User } from "@/app/types/api";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { vacationsAction } from "@/app/lib/actions/vacations";
+import SettingsDisplay from "./SettingsDisplay";
+import { bookVacation } from "@/app/lib/actions/vacations/bookVacation";
 
 interface Event {
   id: string;
@@ -21,7 +23,12 @@ interface Event {
   start: string;
   end: string;
   backgroundColor: string;
-  status: string;
+  extendedProps: {
+    status: "PENDING" | "APPROVED" | "REJECTED" | "GAP";
+    userId: string;
+    totalVacationDays: number;
+    email: string;
+  };
   gapDays?: number;
 }
 
@@ -53,14 +60,22 @@ const CalendarToolbar: React.FC<CalendarToolbarProps> = ({ onAddVacation }) => (
   </div>
 );
 
-const Calendar = ({ initialVacations }: CalendarProps) => {
+const Calendar = ({ initialVacations, settings }: CalendarProps) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>(initialVacations);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedDates, setSelectedDates] = useState<{
+    start: Date | null;
+    end: Date | null;
+  }>({ start: null, end: null });
   const [loading, setLoading] = useState(false);
+
+  const handleVacationCreated = (newEvents: Event[]) => {
+    setEvents((prev) => [...prev, ...newEvents]);
+  };
 
   const handleEventClick = (info: any) => {
     if (
@@ -72,12 +87,25 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
     setShowDeleteDialog(true);
   };
 
+  const handleSelect = (selectInfo: any) => {
+    setSelectedDates({
+      start: selectInfo.start,
+      end: selectInfo.end,
+    });
+    setShowAddModal(true);
+  };
+
   const handleDelete = async () => {
     if (!selectedEvent) return;
 
     setLoading(true);
     try {
-      const result = await vacationsAction.deleteVacation(selectedEvent.id);
+      const result = await vacationsAction.deleteVacation(
+        selectedEvent.id,
+        selectedEvent.extendedProps.userId,
+        selectedEvent.extendedProps.totalVacationDays
+      );
+
       if (result.success) {
         setEvents((prev) =>
           prev.filter(
@@ -100,9 +128,14 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
   };
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
-      <CalendarToolbar onAddVacation={() => setShowAddModal(true)} />
-      <div className="bg-slate-50 border-2 border-blue-50 p-6 rounded-lg shadow-xl">
+    <div className="max-w-[1300px]  py-4  ml-[5%]">
+      <CalendarToolbar
+        onAddVacation={() => {
+          setSelectedDates({ start: null, end: null });
+          setShowAddModal(true);
+        }}
+      />
+      <div className="bg-slate-50 border-2  border-blue-50 p-6 rounded-lg shadow-xl">
         {isLoading && <CalendarSkeleton />}
         <div className={isLoading ? "invisible" : "visible"}>
           <FullCalendar
@@ -115,16 +148,36 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
               center: "title",
               right: "multiMonthYear,dayGridMonth",
             }}
-            height="auto"
+            dayCellContent={(arg) => (
+              <div
+                className={`relative ${
+                  arg.view.type === "multiMonthYear"
+                    ? "min-h-auto"
+                    : "min-h-[48px]"
+                }`}
+              >
+                <div
+                  className={`text justify-start font-medium ${
+                    arg.view.type === "multiMonthYear" ? "text-xs" : ""
+                  }`}
+                >
+                  {arg.dayNumberText}
+                </div>
+                <SettingsDisplay
+                  settings={settings}
+                  date={arg.date}
+                  viewType={arg.view.type}
+                />
+              </div>
+            )}
+            height="100%"
             contentHeight="auto"
             dayMaxEvents={2}
             handleWindowResize={true}
             stickyHeaderDates={true}
-            dateClick={(info) => {
-              if (info.view.type === "multiMonthYear") {
-                info.view.calendar.changeView("dayGridMonth", info.date);
-              }
-            }}
+            select={handleSelect}
+            selectable={true}
+            selectMirror={true}
             buttonText={{
               today: "Šiandien",
               month: "Mėnuo",
@@ -149,6 +202,8 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
               },
             }}
             eventContent={(arg) => {
+              const isPending = arg.event.extendedProps.status === "PENDING";
+
               if (arg.view.type === "multiMonthYear") {
                 return (
                   <div
@@ -157,22 +212,21 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
                       backgroundColor: arg.event.backgroundColor,
                       color: "#fff",
                       fontSize: "0.65rem",
-                      lineHeight: 1,
-                      position: "relative",
+
                       zIndex: 1,
                     }}
                   >
-                    {arg.event.title.split(" - ")[1] || arg.event.title}
+                    {arg.event.title}
                   </div>
                 );
               }
               return (
                 <div
-                  className="w-full py-1 px-2 truncate rounded flex items-center"
+                  className="w-full  px-2 truncate rounded flex items-center justify-between"
                   style={{
                     backgroundColor: arg.event.backgroundColor,
                     color: "#fff",
-                    minHeight: "24px",
+                    minHeight: "14px",
                     position: "relative",
                     left: "0",
                     right: "0",
@@ -181,7 +235,12 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
                     visibility: "visible",
                   }}
                 >
-                  <span className="text-sm font-medium">{arg.event.title}</span>
+                  <span className="text-[1rem] font-medium flex items-center">
+                    {arg.event.title}
+                    <span className="flex items-center animate-pulse">
+                      {isPending && <Clock2 size={14} className="mx-1" />}
+                    </span>
+                  </span>
                 </div>
               );
             }}
@@ -192,7 +251,6 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
             eventClick={
               session?.user?.role === "ADMIN" ? handleEventClick : undefined
             }
-            selectable={true}
             loading={(loading) => setIsLoading(loading)}
           />
         </div>
@@ -211,7 +269,13 @@ const Calendar = ({ initialVacations }: CalendarProps) => {
       />
       <VacationForm
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => {
+          setShowAddModal(false);
+          setSelectedDates({ start: null, end: null });
+        }}
+        initialStartDate={selectedDates.start}
+        initialEndDate={selectedDates.end}
+        onVacationCreated={handleVacationCreated}
       />
     </div>
   );

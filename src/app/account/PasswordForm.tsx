@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 
 interface PasswordData {
-  currentPassword: string;
   newPassword: string;
 }
 
@@ -18,12 +17,10 @@ interface PasswordError {
 
 export default function PasswordForm() {
   const { data: session } = useSession();
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<PasswordError | null>(null);
   const [passwordData, setPasswordData] = useState<PasswordData>({
-    currentPassword: "",
     newPassword: "",
   });
 
@@ -33,31 +30,14 @@ export default function PasswordForm() {
     setError(null);
 
     // Check if current and new password are the same
-    if (passwordData.currentPassword === passwordData.newPassword) {
-      const newPasswordError: PasswordError = {
-        field: "newPassword",
-        message: "Slaptažodis negali būti toks pat kaip dabartinis",
-      };
-      setError(newPasswordError);
-      toast.error(newPasswordError.message);
-
-      // Clear the error message after 5 seconds
-      setTimeout(() => {
-        setError(null);
-      }, 5000);
-
-      setLoading(false);
-      return;
-    }
 
     try {
       await usersActions.updatePassword(
-        session?.user.email,
-        passwordData.currentPassword,
+        session?.user.userId,
         passwordData.newPassword
       );
       toast.success("Slaptažodis sėkmingai pakeistas");
-      setPasswordData({ currentPassword: "", newPassword: "" });
+      setPasswordData({ newPassword: "" });
     } catch (err: any) {
       if (err.message === "Invalid current password") {
         setError({
@@ -99,45 +79,6 @@ export default function PasswordForm() {
             </div>
           )}
           <form onSubmit={handlePasswordChange} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-db">
-                Dabartinis slaptažodis
-              </label>
-              <div className="flex relative mt-1">
-                <input
-                  type={showCurrentPassword ? "text" : "password"}
-                  value={passwordData.currentPassword}
-                  required
-                  onChange={(e) =>
-                    setPasswordData((prev) => ({
-                      ...prev,
-                      currentPassword: e.target.value,
-                    }))
-                  }
-                  className={`flex-1 pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-dcoffe focus:border-transparent ${
-                    error?.field === "currentPassword"
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="ml-2 text-gray-600 absolute right-2 top-3 hover:text-gray-700"
-                >
-                  {showCurrentPassword ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
-                </button>
-              </div>
-              {error?.field === "currentPassword" && (
-                <p className="mt-1 text-sm text-red-500">{error.message}</p>
-              )}
-            </div>
-
             <div>
               <label className="block text-sm font-medium text-db">
                 Naujas slaptažodis

@@ -32,6 +32,7 @@ export async function deleteUser(userId: string) {
 
     revalidateTag("users");
     revalidateTag(`user-settings-${userId}`);
+    
 
     return { message: "User and settings deleted successfully" };
   } catch (error: any) {

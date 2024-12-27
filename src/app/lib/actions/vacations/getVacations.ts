@@ -49,9 +49,14 @@ async function fetchVacationsData() {
         new Date(vacation.endDate).setDate(new Date(vacation.endDate).getDate())
       ).toISOString(),
       backgroundColor: vacation.userColor,
-      status: vacation.status,
-      email: vacation.userEmail,
+      extendedProps: {
+        status: vacation.status,
+        email: vacation.userEmail,
+        userId: vacation.userId,
+        totalVacationDays: vacation.totalVacationDays,
+      },
     };
+
     console.log(vacation.gapDays);
 
     const gapEvent =
@@ -70,7 +75,9 @@ async function fetchVacationsData() {
               )
             ).toISOString(),
             backgroundColor: "#808080",
-            status: "GAP",
+            extendedProps: {
+              status: "GAP",
+            },
           }
         : null;
 

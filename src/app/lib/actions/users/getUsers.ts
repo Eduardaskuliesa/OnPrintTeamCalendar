@@ -30,13 +30,11 @@ async function queryUsers() {
   return response.Items;
 }
 
-// Create a stable cache key based on the session
 async function getUserCacheKey() {
   const session = await getServerSession(authOptions);
   return `users-${session?.user?.email}-${session?.user?.role}`;
 }
 
-// The main getUsers function
 export async function getUsers() {
   try {
     const session = await getServerSession(authOptions);

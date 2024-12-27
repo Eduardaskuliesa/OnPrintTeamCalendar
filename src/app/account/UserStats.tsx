@@ -1,12 +1,11 @@
-"use client";
-
 import { Calendar, Clock, CalendarCheck, CalendarX } from "lucide-react";
 
 interface UserStatsProps {
   totalVacationDays: number;
   usedVacationDays: number;
   pendingRequests: number;
-  nextVacation: string;
+  totalPendingVacationDays: number;
+  nextVacation: string | null;
 }
 
 export default function UserStats({
@@ -14,6 +13,7 @@ export default function UserStats({
   usedVacationDays,
   pendingRequests,
   nextVacation,
+  totalPendingVacationDays,
 }: UserStatsProps) {
   return (
     <div className="grid gap-6 mb-8 grid-cols-1 md:grid-cols-4">
@@ -26,7 +26,14 @@ export default function UserStats({
             <Calendar className="text-green-800" size={20} />
           </div>
         </div>
-        <p className="text-3xl font-bold text-green-800">{totalVacationDays}</p>
+        <div className="flex items-center space-x-2">
+          <p className="text-3xl font-bold text-green-800">
+            {totalVacationDays}
+          </p>
+          {totalPendingVacationDays > 0 && (
+            <span className="text-green-800 text-2xl mb-1 font-semibold">({totalPendingVacationDays})</span>
+          )}
+        </div>
       </div>
 
       <div className="bg-slate-50 p-6 rounded-lg shadow-md border-2 border-blue-50">
@@ -63,7 +70,9 @@ export default function UserStats({
           </div>
         </div>
         <p className="text-3xl font-bold text-purple-800">
-          {new Date(nextVacation).toLocaleDateString("lt-LT")}
+          {nextVacation
+            ? new Date(nextVacation).toLocaleDateString("lt-LT")
+            : "Nėra"}
         </p>
         <p className="text-sm text-gray-700 mt-1">sekančios suplanuotos</p>
       </div>

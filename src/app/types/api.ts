@@ -31,14 +31,12 @@ export interface ApiError {
 
 export interface Vacation {
   id: string;
-  userEmail: string;
+  userId: string;
   userName: string;
-  userColor: string;
   startDate: string;
+  userEmail: string;
   endDate: string;
-  status: string;
-  gapDays?: number;
-  requiresApproval?: boolean;
-  createdAt: string;
-  updatedAt: string;
+  userColor: string;
+  totalVacationDays: number;
+  status: "PENDING" | "APPROVED" | "REJECTED";
 }

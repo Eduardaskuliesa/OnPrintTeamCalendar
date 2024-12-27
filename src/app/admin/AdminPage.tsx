@@ -1,5 +1,5 @@
 "use client";
-import { User } from "@/app/types/api";
+import { User, Vacation } from "@/app/types/api";
 import { lazy, useState } from "react";
 import CreateUserForm from "./CreateUserForm";
 import UserList from "./UserList";
@@ -9,16 +9,6 @@ import AdminTabs from "./AdminTabs";
 import AddUserButton from "./AddUserButton";
 import ActiveVacationsList from "./ActiveVacationsList";
 const GlobalSettings = lazy(() => import("./GlobalSettings"));
-
-export interface Vacation {
-  id: string;
-  userName: string;
-  userEmail: string;
-  startDate: string;
-  userColor: string;
-  endDate: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
-}
 
 export default function AdminPage({
   initialUsers,
@@ -88,6 +78,8 @@ export default function AdminPage({
             initialRequests={initialVacations.filter(
               (v) => v.status === "PENDING"
             )}
+            onUserUpdated={handleUserUpdated}
+            users={users}
           />
         );
       case "active":

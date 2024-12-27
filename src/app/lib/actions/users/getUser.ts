@@ -1,4 +1,4 @@
-"use server"
+"use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
@@ -13,12 +13,6 @@ async function fetchUserFromDb(userId: string) {
     new GetCommand({
       TableName: dynamoName,
       Key: { userId },
-      ProjectionExpression:
-        "email, #name, #role, color, createdAt, updatedAt, useGlobal",
-      ExpressionAttributeNames: {
-        "#name": "name",
-        "#role": "role",
-      },
     })
   );
 

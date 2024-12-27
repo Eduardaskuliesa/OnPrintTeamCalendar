@@ -1,6 +1,6 @@
 import { usersActions } from "../lib/actions/users";
-import { User } from "../types/api";
-import AdminPage, { Vacation } from "./AdminPage";
+import { User, Vacation } from "../types/api";
+import AdminPage from "./AdminPage";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/auth";
@@ -15,12 +15,12 @@ export default async function AdminPageWrapper() {
 
   try {
     const { data: users } = await usersActions.getUsers();
-    const initialVacations = (await getAdminVacations()) as Vacation[];
+    const initialVacations = await getAdminVacations();
 
     return (
       <AdminPage
         initialUsers={users as User[]}
-        initialVacations={initialVacations}
+        initialVacations={initialVacations as Vacation[]}
       />
     );
   } catch (error) {

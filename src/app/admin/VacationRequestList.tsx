@@ -1,26 +1,34 @@
 "use client";
 import { Clock, RefreshCcw } from "lucide-react";
 import { useState } from "react";
-import { updateVacationStatus} from "../lib/actions/vacation";
+import { updateVacationStatus } from "../lib/actions/vacation";
 import { toast } from "react-toastify";
 import DeleteConfirmation from "../ui/DeleteConfirmation";
 import { vacationsAction } from "../lib/actions/vacations";
+import { User } from "../types/api";
 
 interface Vacation {
   id: string;
+  userId: string;
   userName: string;
   startDate: string;
   userEmail: string;
   endDate: string;
   userColor: string;
+  totalVacationDays: number;
   status: "PENDING" | "APPROVED" | "REJECTED";
+}
+interface Props {
+  initialRequests: Vacation[];
+  onUserUpdated: (user: User) => void;
+  users: User[];
 }
 
 export default function VacationRequestList({
   initialRequests,
-}: {
-  initialRequests: Vacation[];
-}) {
+  onUserUpdated,
+  users,
+}: Props) {
   const [requests, setRequests] = useState(initialRequests);
   const [loadingApproveIds, setLoadingApproveIds] = useState(new Set());
   const [loadingRejectIds, setLoadingRejectIds] = useState(new Set());
@@ -28,12 +36,10 @@ export default function VacationRequestList({
   const [selectedRequest, setSelectedRequest] = useState<Vacation | null>(null);
   const [deleteMessage, setDeleteMessage] = useState<string | JSX.Element>("");
 
-  console.log(requests);
-
   const handleStatusUpdate = async (
     id: string,
     status: "APPROVED" | "REJECTED",
-    userEmail: string
+    request: Vacation
   ) => {
     if (status === "APPROVED") {
       setLoadingApproveIds((prev) => new Set(prev).add(id));
@@ -44,20 +50,43 @@ export default function VacationRequestList({
     try {
       let result;
       if (status === "APPROVED") {
-        result = await updateVacationStatus(id, status);
+        result = await vacationsAction.updateVacationStatus(
+          id,
+          status,
+          request.userId
+        );
       } else {
-        result = await vacationsAction.deleteVacation(id);
+        const user = users.find((u) => u.userId === request.userId);
+        if (user) {
+          const updatedUser = {
+            ...user,
+            vacationDays: user.vacationDays + request.totalVacationDays,
+          };
+          onUserUpdated(updatedUser);
+        }
+
+        result = await vacationsAction.deleteVacation(
+          id,
+          request.userId,
+          request.totalVacationDays
+        );
       }
 
       if (result.success) {
         setRequests((prev) => prev.filter((req) => req.id !== id));
         toast.success(
           <span>
-            <strong>{userEmail}</strong> atostogos buvo{" "}
+            <strong>{request.userEmail}</strong> atostogos buvo{" "}
             {status === "APPROVED" ? "patvirtintos" : "atmestos"}
           </span>
         );
       } else {
+        if (status === "REJECTED") {
+          const user = users.find((u) => u.userId === request.userId);
+          if (user) {
+            onUserUpdated(user);
+          }
+        }
         throw new Error(result.error);
       }
     } catch (error) {
@@ -92,17 +121,11 @@ export default function VacationRequestList({
 
   const handleDeleteConfirm = async () => {
     if (selectedRequest) {
-      console.log(selectedRequest.id);
-      await handleStatusUpdate(
-        selectedRequest.id,
-        "REJECTED",
-        selectedRequest.userEmail
-      );
+      await handleStatusUpdate(selectedRequest.id, "REJECTED", selectedRequest);
       setDeleteModalOpen(false);
       setSelectedRequest(null);
     }
   };
-  console.log();
 
   return (
     <>
@@ -163,11 +186,7 @@ export default function VacationRequestList({
                   <div className="flex space-x-2">
                     <button
                       onClick={() =>
-                        handleStatusUpdate(
-                          request.id,
-                          "APPROVED",
-                          request.userEmail
-                        )
+                        handleStatusUpdate(request.id, "APPROVED", request)
                       }
                       disabled={
                         loadingApproveIds.has(request.id) ||

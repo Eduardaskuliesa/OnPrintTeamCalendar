@@ -12,6 +12,7 @@ import { getUserSettings } from "../settings/user/getUserSettings";
 import { FormData } from "@/app/components/Calendar/VacationForm";
 import { vacationsAction } from ".";
 import { User } from "@/app/types/api";
+import { sanitizeSettings } from "../settings/sanitizeSettings";
 
 function isWeekend(date: Date): boolean {
   const day = date.getDay();
@@ -42,23 +43,24 @@ export async function bookVacation(formData: FormData) {
 
     const user = await usersActions.getUser(session.user.userId);
     console.log("user data:", user.data.useGlobal);
-    let settings;
-    if (user.data.useGlobal === true) {
-      settings = await getGlobalSettings();
-      console.log("Global settings: ", settings);
-    } else {
-      settings = await getUserSettings(session.user.userId);
-      console.log("User settings: ", settings);
-    }
+
+    const globalSettings = await getGlobalSettings();
+    const userSettings = await getUserSettings(session.user.userId);
+
+    const settings = sanitizeSettings(
+      userSettings.data as GlobalSettingsType,
+      globalSettings.data as GlobalSettingsType,
+      user.data.useGlobal
+    );
 
     const vacations = await vacationsAction.getAdminVacations();
-    console.log("vacations:", vacations);
+
     const userEmail = session.user.email;
 
     const conflictCheck = await checkVacationConflicts(
       formData.startDate,
       formData.endDate,
-      settings.data as GlobalSettingsType,
+      settings,
       vacations,
       userEmail,
       user.data as User
@@ -72,6 +74,20 @@ export async function bookVacation(formData: FormData) {
       };
     }
 
+    const remainingVacationDays =
+      user.data.vacationDays - conflictCheck.vacationDaysUsed;
+
+    const updateResult = await usersActions.updateUserVacationDays(
+      session.user.userId,
+      remainingVacationDays
+    );
+    if (!updateResult.success) {
+      return {
+        success: false,
+        error: "Failed to update vacation days",
+      };
+    }
+
     const workingDays = getWorkingDays(
       new Date(formData.startDate),
       new Date(formData.endDate)
@@ -80,11 +96,13 @@ export async function bookVacation(formData: FormData) {
     const vacation = {
       id: crypto.randomUUID(),
       userEmail: user.data.email,
+      userId: user.data.userId,
       userName: user.data.name,
       userColor: user.data.color,
       startDate: formData.startDate,
       endDate: formData.endDate,
       status: "PENDING",
+      totalVacationDays: conflictCheck.vacationDaysUsed,
       gapDays: workingDays > 2 ? conflictCheck.gapDays : 0,
       requiresApproval: true,
       createdAt: new Date().toISOString(),
@@ -101,6 +119,7 @@ export async function bookVacation(formData: FormData) {
 
     revalidateTag("vacations");
     revalidateTag("admin-vacations");
+    revalidateTag(`user-vacations-${user.data.userId}`);
 
     return {
       success: true,
