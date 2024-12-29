@@ -51,8 +51,8 @@ export async function updateSettingEnabled(
 }
 // Update gap rules
 export async function updateGapRules(gapRules: {
-  days: number;
-  dayType: "working" | "calendar";
+  daysForGap: GlobalSettingsType["gapRules"]["daysForGap"];
+  minimumDaysForGap: GlobalSettingsType["gapRules"]["minimumDaysForGap"];
 }) {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "ADMIN") {
@@ -66,16 +66,21 @@ export async function updateGapRules(gapRules: {
         Key: {
           settingId: "GLOBAL",
         },
-        UpdateExpression:
-          "SET #gapRules.#days = :days, #gapRules.#dayType = :dayType",
+        UpdateExpression: `
+        SET #gapRules.#daysForGap = :daysForGap,
+            #gapRules.#minimumDaysForGap = :minimumDaysForGap,
+            #updatedAt = :updatedAt
+      `,
         ExpressionAttributeNames: {
           "#gapRules": "gapRules",
-          "#days": "days",
-          "#dayType": "dayType",
+          "#daysForGap": "daysForGap",
+          "#minimumDaysForGap": "minimumDaysForGap",
+          "#updatedAt": "updatedAt",
         },
         ExpressionAttributeValues: {
-          ":days": gapRules.days,
-          ":dayType": gapRules.dayType,
+          ":daysForGap": gapRules.daysForGap,
+          ":minimumDaysForGap": gapRules.minimumDaysForGap,
+          ":updatedAt": new Date().toISOString(),
         },
         ReturnValues: "ALL_NEW",
       })
@@ -131,6 +136,7 @@ export async function updateBookingRules(bookingRules: {
   maxDaysPerYear: GlobalSettingsType["bookingRules"]["maxDaysPerYear"];
   maxAdvanceBookingDays: GlobalSettingsType["bookingRules"]["maxAdvanceBookingDays"];
   minDaysNotice: GlobalSettingsType["bookingRules"]["minDaysNotice"];
+  overdraftRules: GlobalSettingsType["bookingRules"]["overdraftRules"];
 }) {
   await checkAdminAuth();
 
@@ -145,7 +151,9 @@ export async function updateBookingRules(bookingRules: {
           SET #bookingRules.#maxDaysPerBooking = :maxDaysPerBooking,
               #bookingRules.#maxDaysPerYear = :maxDaysPerYear,
               #bookingRules.#maxAdvanceBookingDays = :maxAdvanceBookingDays,
-              #bookingRules.#minDaysNotice = :minDaysNotice
+              #bookingRules.#minDaysNotice = :minDaysNotice,
+              #bookingRules.#overdraftRules = :overdraftRules,
+              #updatedAt = :updatedAt
         `,
         ExpressionAttributeNames: {
           "#bookingRules": "bookingRules",
@@ -153,12 +161,16 @@ export async function updateBookingRules(bookingRules: {
           "#maxDaysPerYear": "maxDaysPerYear",
           "#maxAdvanceBookingDays": "maxAdvanceBookingDays",
           "#minDaysNotice": "minDaysNotice",
+          "#overdraftRules": "overdraftRules",
+          "#updatedAt": "updatedAt",
         },
         ExpressionAttributeValues: {
           ":maxDaysPerBooking": bookingRules.maxDaysPerBooking,
           ":maxDaysPerYear": bookingRules.maxDaysPerYear,
           ":maxAdvanceBookingDays": bookingRules.maxAdvanceBookingDays,
           ":minDaysNotice": bookingRules.minDaysNotice,
+          ":overdraftRules": bookingRules.overdraftRules,
+          ":updatedAt": new Date().toISOString(),
         },
         ReturnValues: "ALL_NEW",
       })

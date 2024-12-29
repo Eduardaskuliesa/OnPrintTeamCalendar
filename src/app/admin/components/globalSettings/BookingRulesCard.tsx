@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Briefcase, Calendar } from "lucide-react";
+import { Briefcase, Calendar, Shield, ShieldOff } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -64,6 +64,13 @@ const bookingRulesConfig = {
       explanation: "Required notice period before vacation can start.",
       suffix: "days",
     },
+    {
+      key: "maximumOverdraftDays",
+      label: "Maximum Overdraft",
+      explanation:
+        "Maximum number of days a user can go into negative balance.",
+      suffix: "days",
+    },
   ],
 };
 
@@ -108,6 +115,10 @@ const BookingRulesCard = ({
       currentData?.bookingRules?.minDaysNotice?.dayType || "working",
   });
 
+  const [useStrict, setUseStrict] = useState(
+    currentData?.bookingRules?.overdraftRules?.useStrict ?? false
+  );
+
   const updateEnabled = useUpdateSettingEnabled();
   const updateUserEnabled = useUpdateUserSettingEnabled();
   const updateUserBookingRules = useUpdateUserBookingRules();
@@ -141,6 +152,14 @@ const BookingRulesCard = ({
     parseValue: parseMinDaysNotice,
   } = useNumericInput(currentData?.bookingRules?.minDaysNotice?.days ?? 0);
 
+  const {
+    value: maximumOverdraftDaysValue,
+    setValue: setMaximumOverdraftDaysValue,
+    parseValue: parseMaximumOverdraftDays,
+  } = useNumericInput(
+    currentData?.bookingRules?.overdraftRules?.maximumOverdraftDays ?? 0
+  );
+
   const toggleDayType = (key: string) => {
     if (!isEditing) return;
 
@@ -149,6 +168,12 @@ const BookingRulesCard = ({
       [key]:
         prev[key as keyof typeof prev] === "working" ? "calendar" : "working",
     }));
+  };
+
+  const toggleOverdraftStrict = () => {
+    if (isEditing) {
+      setUseStrict(!useStrict);
+    }
   };
 
   useEffect(() => {
@@ -161,6 +186,9 @@ const BookingRulesCard = ({
         (currentData?.bookingRules?.maxAdvanceBookingDays?.days ?? 0) ||
       parseMinDaysNotice() !==
         (currentData?.bookingRules?.minDaysNotice?.days ?? 0) ||
+      parseMaximumOverdraftDays() !==
+        (currentData?.bookingRules?.overdraftRules?.maximumOverdraftDays ??
+          0) ||
       dayTypes.maxDaysPerBooking !==
         currentData?.bookingRules?.maxDaysPerBooking?.dayType ||
       dayTypes.maxDaysPerYear !==
@@ -168,7 +196,8 @@ const BookingRulesCard = ({
       dayTypes.maxAdvanceBookingDays !==
         currentData?.bookingRules?.maxAdvanceBookingDays?.dayType ||
       dayTypes.minDaysNotice !==
-        currentData?.bookingRules?.minDaysNotice?.dayType;
+        currentData?.bookingRules?.minDaysNotice?.dayType ||
+      useStrict !== currentData?.bookingRules?.overdraftRules?.useStrict;
 
     onUnsavedChanges(
       hasChanges,
@@ -180,7 +209,9 @@ const BookingRulesCard = ({
     maxDaysPerYearValue,
     maxAdvanceBookingDaysValue,
     minDaysNoticeValue,
+    maximumOverdraftDaysValue,
     dayTypes,
+    useStrict,
     currentData?.bookingRules,
   ]);
 
@@ -198,6 +229,11 @@ const BookingRulesCard = ({
     setMinDaysNoticeValue(
       String(currentData?.bookingRules?.minDaysNotice?.days ?? 0)
     );
+    setMaximumOverdraftDaysValue(
+      String(
+        currentData?.bookingRules?.overdraftRules?.maximumOverdraftDays ?? 0
+      )
+    );
     setDayTypes({
       maxDaysPerBooking:
         currentData?.bookingRules?.maxDaysPerBooking?.dayType || "working",
@@ -208,6 +244,7 @@ const BookingRulesCard = ({
       minDaysNotice:
         currentData?.bookingRules?.minDaysNotice?.dayType || "working",
     });
+    setUseStrict(currentData?.bookingRules?.overdraftRules?.useStrict ?? false);
   }, [currentData, isGlobalSettings]);
 
   const handleToggleEnabled = async () => {
@@ -265,6 +302,10 @@ const BookingRulesCard = ({
         days: parseMinDaysNotice(),
         dayType: dayTypes.minDaysNotice,
       },
+      overdraftRules: {
+        useStrict,
+        maximumOverdraftDays: parseMaximumOverdraftDays(),
+      },
     };
 
     const hasChanges =
@@ -276,6 +317,9 @@ const BookingRulesCard = ({
         (currentData?.bookingRules?.maxAdvanceBookingDays?.days ?? 0) ||
       parseMinDaysNotice() !==
         (currentData?.bookingRules?.minDaysNotice?.days ?? 0) ||
+      parseMaximumOverdraftDays() !==
+        (currentData?.bookingRules?.overdraftRules?.maximumOverdraftDays ??
+          0) ||
       dayTypes.maxDaysPerBooking !==
         currentData?.bookingRules?.maxDaysPerBooking?.dayType ||
       dayTypes.maxDaysPerYear !==
@@ -283,7 +327,8 @@ const BookingRulesCard = ({
       dayTypes.maxAdvanceBookingDays !==
         currentData?.bookingRules?.maxAdvanceBookingDays?.dayType ||
       dayTypes.minDaysNotice !==
-        currentData?.bookingRules?.minDaysNotice?.dayType;
+        currentData?.bookingRules?.minDaysNotice?.dayType ||
+      useStrict !== currentData?.bookingRules?.overdraftRules?.useStrict;
 
     toast.dismiss();
     if (!hasChanges) {
@@ -322,6 +367,12 @@ const BookingRulesCard = ({
                 setMinDaysNoticeValue(
                   String(currentData?.bookingRules?.minDaysNotice?.days ?? 0)
                 );
+                setMaximumOverdraftDaysValue(
+                  String(
+                    currentData?.bookingRules?.overdraftRules
+                      ?.maximumOverdraftDays ?? 0
+                  )
+                );
                 setDayTypes({
                   maxDaysPerBooking:
                     currentData?.bookingRules?.maxDaysPerBooking?.dayType ||
@@ -336,6 +387,9 @@ const BookingRulesCard = ({
                     currentData?.bookingRules?.minDaysNotice?.dayType ||
                     "working",
                 });
+                setUseStrict(
+                  currentData?.bookingRules?.overdraftRules?.useStrict ?? false
+                );
                 console.error("Error updating booking rules:", error);
                 reject(error);
               },
@@ -377,6 +431,12 @@ const BookingRulesCard = ({
                   setMinDaysNoticeValue(
                     String(currentData?.bookingRules?.minDaysNotice?.days ?? 0)
                   );
+                  setMaximumOverdraftDaysValue(
+                    String(
+                      currentData?.bookingRules?.overdraftRules
+                        ?.maximumOverdraftDays ?? 0
+                    )
+                  );
                   setDayTypes({
                     maxDaysPerBooking:
                       currentData?.bookingRules?.maxDaysPerBooking?.dayType ||
@@ -391,6 +451,10 @@ const BookingRulesCard = ({
                       currentData?.bookingRules?.minDaysNotice?.dayType ||
                       "working",
                   });
+                  setUseStrict(
+                    currentData?.bookingRules?.overdraftRules?.useStrict ??
+                      false
+                  );
                   console.error("Error updating booking rules:", error);
                   reject(error);
                 },
@@ -401,7 +465,6 @@ const BookingRulesCard = ({
       }
     });
   };
-
   const handleCancel = () => {
     toast.dismiss();
     setMaxDaysPerBookingValue(
@@ -416,6 +479,11 @@ const BookingRulesCard = ({
     setMinDaysNoticeValue(
       String(currentData?.bookingRules?.minDaysNotice?.days ?? 0)
     );
+    setMaximumOverdraftDaysValue(
+      String(
+        currentData?.bookingRules?.overdraftRules?.maximumOverdraftDays ?? 0
+      )
+    );
     setDayTypes({
       maxDaysPerBooking:
         currentData?.bookingRules?.maxDaysPerBooking?.dayType || "working",
@@ -426,6 +494,7 @@ const BookingRulesCard = ({
       minDaysNotice:
         currentData?.bookingRules?.minDaysNotice?.dayType || "working",
     });
+    setUseStrict(currentData?.bookingRules?.overdraftRules?.useStrict ?? false);
     onCancel();
   };
   const handleSettingsSourceToggle = async () => {
@@ -496,6 +565,16 @@ const BookingRulesCard = ({
           dayType: dayTypes.minDaysNotice,
           onToggleDayType: () => toggleDayType(key),
         };
+      case "maximumOverdraftDays":
+        return {
+          value: maximumOverdraftDaysValue,
+          onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+            setMaximumOverdraftDaysValue(e.target.value),
+          parseValue: parseMaximumOverdraftDays,
+          useStrict: useStrict,
+          onToggleDayType: () => toggleDayType(key),
+          onToggleStrict: () => toggleOverdraftStrict(),
+        };
       default:
         return {
           value: "",
@@ -543,7 +622,7 @@ const BookingRulesCard = ({
           )}
         </div>
       </CardHeader>
-      <CardContent className="px-4 pb-4 pt-2 grid grid-cols-2 gap-2">
+      <CardContent className="px-4 pb-4 pt-2 grid grid-cols-3 gap-2">
         {bookingRulesConfig.options.map((option) => {
           const inputProps = getInputProps(option.key);
           return (
@@ -552,7 +631,7 @@ const BookingRulesCard = ({
                 <div className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
                   <div className="text-sm font-semibold text-gray-900 flex items-center gap-4">
                     <span>{option.label}</span>
-                    {isEditing ? (
+                    {option.key === "maximumOverdraftDays" && isEditing ? (
                       <TooltipProvider>
                         <Tooltip delayDuration={100}>
                           <TooltipTrigger asChild>
@@ -561,28 +640,59 @@ const BookingRulesCard = ({
                                 variant="ghost"
                                 size="sm"
                                 className="ml-2 p-0 h-auto cursor-pointer"
-                                onClick={inputProps.onToggleDayType}
+                                onClick={inputProps.onToggleStrict}
                               >
-                                {inputProps.dayType === "working" ? (
-                                  <Briefcase
-                                    size={16}
-                                    className="text-orange-700"
-                                  />
+                                {inputProps.useStrict ? (
+                                  <Shield size={16} className="text-red-700" />
                                 ) : (
-                                  <Calendar
+                                  <ShieldOff
                                     size={16}
-                                    className="text-blue-700"
+                                    className="text-green-700"
                                   />
                                 )}
                               </Button>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent className="bg-white border border-blue-100 text-db text-sm p-1">
-                            <p>Toggle between w.d. / c.d.</p>
+                            <p>Toggle strict/non-strict overdraft</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     ) : (
+                      option.key !== "maximumOverdraftDays" &&
+                      isEditing && (
+                        <TooltipProvider>
+                          <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="ml-2 p-0 h-auto cursor-pointer"
+                                  onClick={inputProps.onToggleDayType}
+                                >
+                                  {inputProps.dayType === "working" ? (
+                                    <Briefcase
+                                      size={16}
+                                      className="text-orange-700"
+                                    />
+                                  ) : (
+                                    <Calendar
+                                      size={16}
+                                      className="text-blue-700"
+                                    />
+                                  )}
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-white border border-blue-100 text-db text-sm p-1">
+                              <p>Toggle between w.d. / c.d.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )
+                    )}
+                    {option.key !== "maximumOverdraftDays" && !isEditing && (
                       <div>
                         {inputProps.dayType === "working" ? (
                           <Briefcase size={16} className="text-orange-700 " />
@@ -591,32 +701,74 @@ const BookingRulesCard = ({
                         )}
                       </div>
                     )}
+                    {option.key === "maximumOverdraftDays" && !isEditing && (
+                      <div>
+                        {inputProps.useStrict ? (
+                          <Shield size={16} className="text-red-700" />
+                        ) : (
+                          <ShieldOff size={16} className="text-green-700" />
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="font-semibold text-db mt-1 flex items-center">
                     {isEditing ? (
                       <div className="flex items-center">
-                        <Input
-                          type="text"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          value={inputProps.value}
-                          onChange={inputProps.onChange}
-                          className="w-12 h-auto text-center p-1 mx-1 bg-white border border-gray-300"
-                        />
-                        <span className="ml-1">
-                          {inputProps.dayType === "working"
-                            ? "working days"
-                            : "calendar days"}
-                        </span>
+                        {option.key === "maximumOverdraftDays" ? (
+                          inputProps.useStrict ? (
+                            <span className="text-red-700">Strict</span>
+                          ) : (
+                            <>
+                              <Input
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                value={inputProps.value}
+                                onChange={inputProps.onChange}
+                                className="w-12 h-auto text-center p-1 mx-1 bg-white border border-gray-300"
+                              />
+                              <span className="ml-1">days</span>
+                            </>
+                          )
+                        ) : (
+                          <>
+                            <Input
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              value={inputProps.value}
+                              onChange={inputProps.onChange}
+                              className="w-12 h-auto text-center p-1 mx-1 bg-white border border-gray-300"
+                            />
+                            <span className="ml-1">
+                              {inputProps.dayType === "working"
+                                ? "working days"
+                                : "calendar days"}
+                            </span>
+                          </>
+                        )}
                       </div>
                     ) : (
                       <div className="flex items-center gap-1">
-                        <span>{inputProps.parseValue()}</span>
-                        <span className="">
-                          {inputProps.dayType === "working"
-                            ? "working days"
-                            : "calendar days"}
-                        </span>
+                        {option.key === "maximumOverdraftDays" ? (
+                          inputProps.useStrict ? (
+                            <span className="text-red-700">Strict</span>
+                          ) : (
+                            <>
+                              <span>{inputProps.parseValue()}</span>
+                              <span className="">days</span>
+                            </>
+                          )
+                        ) : (
+                          <>
+                            <span>{inputProps.parseValue()}</span>
+                            <span className="">
+                              {inputProps.dayType === "working"
+                                ? "working days"
+                                : "calendar days"}
+                            </span>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
@@ -628,20 +780,33 @@ const BookingRulesCard = ({
                 className="w-80 px-4 py-2 bg-white border border-blue-100 shadow-lg"
               >
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-gray-700">
-                    {inputProps.dayType === "working"
-                      ? "Working Days"
-                      : "Calendar Days"}
-                    :
-                  </p>
+                  {option.key !== "maximumOverdraftDays" ? (
+                    <p className="text-sm font-semibold text-gray-700">
+                      {inputProps.dayType === "working"
+                        ? "Working Days"
+                        : "Calendar Days"}
+                      :
+                    </p>
+                  ) : (
+                    <p className="text-sm font-semibold text-gray-700">
+                      {inputProps.useStrict
+                        ? "Strict Overdraft"
+                        : "Flexible Overdraft"}
+                      :
+                    </p>
+                  )}
                   <p className="text-sm text-gray-600 leading-relaxed">
                     {option.explanation}
                   </p>
                   {!isEditing && (
                     <p className="text-sm text-gray-600 mt-2">
-                      {inputProps.dayType === "working"
-                        ? "Days are counted based on working day settings (excluding weekends and holidays)"
-                        : "All calendar days are counted, including weekends and holidays"}
+                      {option.key !== "maximumOverdraftDays"
+                        ? inputProps.dayType === "working"
+                          ? "Days are counted based on working day settings (excluding weekends and holidays)"
+                          : "All calendar days are counted, including weekends and holidays"
+                        : inputProps.useStrict
+                        ? "No negative balance allowed beyond current allocation"
+                        : "Limited negative balance allowed"}
                     </p>
                   )}
                 </div>

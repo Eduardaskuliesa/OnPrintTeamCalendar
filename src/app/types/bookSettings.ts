@@ -1,13 +1,23 @@
 export interface GlobalSettingsType {
   gapRules: {
     enabled: boolean;
-    days: number;
-    dayType: "working" | "calendar";
+    daysForGap: {
+      days: number;
+      dayType: "working" | "calendar";
+    };
+    minimumDaysForGap: {
+      days: number;
+      dayType: "working" | "calendar";
+    };
     bypassGapRules: boolean | null;
     canIgnoreGapsof: string[] | null;
   };
   bookingRules: {
     enabled: boolean;
+    overdraftRules: {
+      useStrict: boolean;
+      maximumOverdraftDays: number;
+    };
     maxDaysPerBooking: {
       days: number;
       dayType: "working" | "calendar";

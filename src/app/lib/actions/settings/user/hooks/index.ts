@@ -133,6 +133,7 @@ export const useUpdateUserBookingRules = () => {
         maxDaysPerYear: GlobalSettingsType["bookingRules"]["maxDaysPerYear"];
         maxAdvanceBookingDays: GlobalSettingsType["bookingRules"]["maxDaysPerBooking"];
         minDaysNotice: GlobalSettingsType["bookingRules"]["minDaysNotice"];
+        overdraftRules: GlobalSettingsType["bookingRules"]["overdraftRules"];
       };
     }) => {
       const result = await updateUserBookingRules(userId, bookingRules);

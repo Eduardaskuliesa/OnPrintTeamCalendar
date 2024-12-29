@@ -1,8 +1,6 @@
 "use server";
-import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { settingsDynamoName } from "@/app/lib/dynamodb";
 import { GetCommand } from "@aws-sdk/lib-dynamodb";
-import { getServerSession } from "next-auth";
 import { unstable_cache } from "next/cache";
 import { dynamoDb } from "@/app/lib/dynamodb";
 
@@ -41,10 +39,7 @@ const getCachedUserSettings = (email: string) =>
   });
 
 export async function getUserSettings(email: string) {
-  const session = await getServerSession(authOptions);
-  if (session?.user?.role !== "ADMIN" && session?.user?.email !== email) {
-    throw new Error("Unauthorized");
-  }
+ 
 
   const result = await getCachedUserSettings(email)();
   return { data: result };

@@ -38,10 +38,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const gapRulesExplanations = {
-  minimumGap:
-    "Required waiting period between two vacation bookings to ensure work continuity.",
-};
 
 interface GapRulesCardProps {
   userData: GlobalSettingsType;
@@ -74,9 +70,23 @@ const GapRulesCard = ({
   const [localEnabled, setLocalEnabled] = useState(
     currentData?.gapRules?.enabled || false
   );
-  const [isWorkingDays, setIsWorkingDays] = useState(
-    currentData?.gapRules?.dayType === "working"
-  );
+  const [dayTypes, setDayTypes] = useState({
+    daysForGap: currentData?.gapRules?.daysForGap?.dayType || "working",
+    minimumDaysForGap:
+      currentData?.gapRules?.minimumDaysForGap?.dayType || "working",
+  });
+
+  const {
+    value: daysForGapValue,
+    setValue: setDaysForGapValue,
+    parseValue: parseDaysForGap,
+  } = useNumericInput(currentData?.gapRules?.daysForGap?.days ?? 0);
+
+  const {
+    value: minimumDaysForGapValue,
+    setValue: setMinimumDaysForGapValue,
+    parseValue: parseMinimumDaysForGap,
+  } = useNumericInput(currentData?.gapRules?.minimumDaysForGap?.days ?? 0);
 
   const updateGapRules = useUpdateGapDays();
   const updateEnabled = useUpdateSettingEnabled();
@@ -84,16 +94,14 @@ const GapRulesCard = ({
   const updateGlobalSettingsPreference =
     useUpdateUserGlobalSettingsPreference();
 
-  const {
-    value: localDays,
-    setValue: setLocalDays,
-    parseValue: parseLocalDays,
-  } = useNumericInput(currentData?.gapRules?.days ?? 0);
+  const toggleDayType = (key: string) => {
+    if (!isEditing) return;
 
-  const toggleDayType = () => {
-    if (isEditing) {
-      setIsWorkingDays(!isWorkingDays);
-    }
+    setDayTypes((prev) => ({
+      ...prev,
+      [key]:
+        prev[key as keyof typeof prev] === "working" ? "calendar" : "working",
+    }));
   };
 
   const handleToggleEnabled = async () => {
@@ -134,64 +142,90 @@ const GapRulesCard = ({
   };
 
   const handleGlobalSave = async () => {
-    const currentValue = parseLocalDays();
-    const initialValue = currentData?.gapRules?.days || 0;
-    const initialDayType = currentData?.gapRules?.dayType || "working";
-    toast.dismiss();
+    const newValues = {
+      daysForGap: {
+        days: parseDaysForGap(),
+        dayType: dayTypes.daysForGap,
+      },
+      minimumDaysForGap: {
+        days: parseMinimumDaysForGap(),
+        dayType: dayTypes.minimumDaysForGap,
+      },
+    };
 
-    if (
-      currentValue === initialValue &&
-      isWorkingDays === (initialDayType === "working")
-    ) {
+    const hasChanges =
+      parseDaysForGap() !== (currentData?.gapRules?.daysForGap?.days ?? 0) ||
+      parseMinimumDaysForGap() !==
+        (currentData?.gapRules?.minimumDaysForGap?.days ?? 0) ||
+      dayTypes.daysForGap !== currentData?.gapRules?.daysForGap?.dayType ||
+      dayTypes.minimumDaysForGap !==
+        currentData?.gapRules?.minimumDaysForGap?.dayType;
+
+    toast.dismiss();
+    if (!hasChanges) {
       handleNoChanges(ErrorMessages.GAP_RULES.NO_CHANGES);
       onCancel();
       return;
     }
 
     return new Promise<void>((resolve, reject) => {
-      updateGapRules.mutate(
-        { days: currentValue, dayType: isWorkingDays ? "working" : "calendar" },
-        {
-          onSuccess: () => {
-            handleMutationResponse(true, ErrorMessages.GAP_RULES, {
-              onSuccess: () => {
-                setLocalDays(String(currentValue));
-                onCancel();
-                resolve();
-              },
-            });
-          },
-          onError: (error) => {
-            handleMutationResponse(false, ErrorMessages.GAP_RULES, {
-              onError: () => {
-                setLocalDays(String(initialValue));
-                setIsWorkingDays(initialDayType === "working");
-                console.error("Error updating gap rules:", error);
-                reject(error);
-              },
-            });
-          },
-        }
-      );
+      updateGapRules.mutate(newValues, {
+        onSuccess: () => {
+          handleMutationResponse(true, ErrorMessages.GAP_RULES, {
+            onSuccess: () => {
+              onCancel();
+              resolve();
+            },
+          });
+        },
+        onError: (error) => {
+          handleMutationResponse(false, ErrorMessages.GAP_RULES, {
+            onError: () => {
+              setDaysForGapValue(
+                String(currentData?.gapRules?.daysForGap?.days ?? 0)
+              );
+              setMinimumDaysForGapValue(
+                String(currentData?.gapRules?.minimumDaysForGap?.days ?? 0)
+              );
+              setDayTypes({
+                daysForGap:
+                  currentData?.gapRules?.daysForGap?.dayType || "working",
+                minimumDaysForGap:
+                  currentData?.gapRules?.minimumDaysForGap?.dayType ||
+                  "working",
+              });
+              console.error("Error updating gap rules:", error);
+              reject(error);
+            },
+          });
+        },
+      });
     });
   };
 
   const handleGlobalCancel = () => {
     toast.dismiss();
-    const initialValue = currentData?.gapRules?.days ?? 0;
-    const initialDayType = currentData?.gapRules?.dayType || "working";
-    setLocalDays(String(initialValue));
-    setIsWorkingDays(initialDayType === "working");
+    setDaysForGapValue(String(currentData?.gapRules?.daysForGap?.days ?? 0));
+    setMinimumDaysForGapValue(
+      String(currentData?.gapRules?.minimumDaysForGap?.days ?? 0)
+    );
+    setDayTypes({
+      daysForGap: currentData?.gapRules?.daysForGap?.dayType || "working",
+      minimumDaysForGap:
+        currentData?.gapRules?.minimumDaysForGap?.dayType || "working",
+    });
     onCancel();
   };
 
   React.useEffect(() => {
     if (selectedUserId === "global") {
-      const initialValue = currentData?.gapRules?.days ?? 0;
-      const initialDayType = currentData?.gapRules?.dayType || "working";
       const hasChanges =
-        parseLocalDays() !== initialValue ||
-        isWorkingDays !== (initialDayType === "working");
+        parseDaysForGap() !== (currentData?.gapRules?.daysForGap?.days ?? 0) ||
+        parseMinimumDaysForGap() !==
+          (currentData?.gapRules?.minimumDaysForGap?.days ?? 0) ||
+        dayTypes.daysForGap !== currentData?.gapRules?.daysForGap?.dayType ||
+        dayTypes.minimumDaysForGap !==
+          currentData?.gapRules?.minimumDaysForGap?.dayType;
 
       onUnsavedChanges(
         hasChanges,
@@ -200,16 +234,24 @@ const GapRulesCard = ({
       );
     }
   }, [
-    localDays,
-    isWorkingDays,
-    currentData?.gapRules?.days,
-    currentData?.gapRules?.dayType,
+    daysForGapValue,
+    minimumDaysForGapValue,
+    dayTypes,
+    currentData?.gapRules,
     selectedUserId,
   ]);
 
   React.useEffect(() => {
     setLocalEnabled(currentData?.gapRules?.enabled || false);
-    setIsWorkingDays(currentData?.gapRules?.dayType === "working");
+    setDayTypes({
+      daysForGap: currentData?.gapRules?.daysForGap?.dayType || "working",
+      minimumDaysForGap:
+        currentData?.gapRules?.minimumDaysForGap?.dayType || "working",
+    });
+    setDaysForGapValue(String(currentData?.gapRules?.daysForGap?.days ?? 0));
+    setMinimumDaysForGapValue(
+      String(currentData?.gapRules?.minimumDaysForGap?.days ?? 0)
+    );
   }, [currentData]);
 
   const handleSettingsSourceToggle = async () => {
@@ -294,11 +336,12 @@ const GapRulesCard = ({
         </CardHeader>
         <CardContent className="px-4 pb-4 pt-2">
           <div className="grid grid-cols-2 gap-2">
+            {/* Gap Days Card */}
             <HoverCard openDelay={200}>
               <HoverCardTrigger asChild>
                 <div className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
                   <div className="text-sm font-semibold text-gray-900 flex items-center justify-between">
-                    <span>Minimum Gap</span>
+                    <span>Gap Days</span>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -309,10 +352,10 @@ const GapRulesCard = ({
                               !isEditing &&
                               "cursor-default disabled:opacity-100"
                             }`}
-                            onClick={toggleDayType}
+                            onClick={() => toggleDayType("daysForGap")}
                             disabled={!isEditing}
                           >
-                            {isWorkingDays ? (
+                            {dayTypes.daysForGap === "working" ? (
                               <Briefcase
                                 size={16}
                                 className="text-orange-700"
@@ -329,25 +372,30 @@ const GapRulesCard = ({
                     </TooltipProvider>
                   </div>
                   <div className="font-semibold text-db mt-1 flex items-center">
-                    {selectedUserId === "global" && isEditing ? (
+                    {isEditing ? (
                       <div className="flex items-center">
                         <Input
                           type="text"
                           inputMode="numeric"
                           pattern="[0-9]*"
-                          value={localDays}
-                          onChange={(e) => setLocalDays(e.target.value)}
+                          value={daysForGapValue}
+                          onChange={(e) => setDaysForGapValue(e.target.value)}
                           className="w-12 h-auto text-center p-1 mx-1 bg-white border border-gray-300"
                         />
                         <span className="ml-1">
-                          {isWorkingDays ? "working days" : "calendar days"}
+                          {dayTypes.daysForGap === "working"
+                            ? "working days"
+                            : "calendar days"}
                         </span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1">
-                        <span>{currentData.gapRules.days}</span>
-                        <span className="">
-                          {currentData.gapRules.dayType === "working"
+                        <span>
+                          {currentData?.gapRules?.daysForGap?.days ?? 0}
+                        </span>
+                        <span>
+                          {currentData?.gapRules?.daysForGap?.dayType ===
+                          "working"
                             ? "working days"
                             : "calendar days"}
                         </span>
@@ -363,15 +411,103 @@ const GapRulesCard = ({
               >
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-gray-700">
-                    Minimum Gap Rule:
+                    Gap Days:
                   </p>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    {gapRulesExplanations.minimumGap}
+                    Required waiting period between vacation bookings.
                   </p>
                 </div>
               </HoverCardContent>
             </HoverCard>
 
+            {/* Minimum Days for Gap Card */}
+            <HoverCard openDelay={200}>
+              <HoverCardTrigger asChild>
+                <div className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors cursor-help">
+                  <div className="text-sm font-semibold text-gray-900 flex items-center justify-between">
+                    <span>Min For Gap</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={`pr-2 h-auto ${
+                              !isEditing &&
+                              "cursor-default disabled:opacity-100"
+                            }`}
+                            onClick={() => toggleDayType("minimumDaysForGap")}
+                            disabled={!isEditing}
+                          >
+                            {dayTypes.minimumDaysForGap === "working" ? (
+                              <Briefcase
+                                size={16}
+                                className="text-orange-700"
+                              />
+                            ) : (
+                              <Calendar size={16} className="text-blue-700" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Toggle between w.d. / c.d.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="font-semibold text-db mt-1 flex items-center">
+                    {isEditing ? (
+                      <div className="flex items-center">
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={minimumDaysForGapValue}
+                          onChange={(e) =>
+                            setMinimumDaysForGapValue(e.target.value)
+                          }
+                          className="w-12 h-auto text-center p-1 mx-1 bg-white border border-gray-300"
+                        />
+                        <span className="ml-1">
+                          {dayTypes.minimumDaysForGap === "working"
+                            ? "working days"
+                            : "calendar days"}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <span>
+                          {currentData?.gapRules?.minimumDaysForGap?.days ?? 0}
+                        </span>
+                        <span>
+                          {currentData?.gapRules?.minimumDaysForGap?.dayType ===
+                          "working"
+                            ? "working days"
+                            : "calendar days"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </HoverCardTrigger>
+              <HoverCardContent
+                align="start"
+                side="bottom"
+                className="w-80 px-4 py-2 bg-white border border-blue-100 shadow-lg"
+              >
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-gray-700">
+                    Minimum Days for Gap:
+                  </p>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    Minimum vacation duration that requires gap days between
+                    bookings.
+                  </p>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+
+            {/* Bypass Rules Card (if needed) */}
             {!isGlobalSettings && selectedUserId !== "global" && (
               <HoverCard openDelay={300}>
                 <HoverCardTrigger asChild>
@@ -407,7 +543,6 @@ const GapRulesCard = ({
           </div>
         </CardContent>
       </Card>
-
       {selectedUserId !== "global" && isEditing && (
         <GapRulesModal
           isOpen={isEditing}
@@ -415,11 +550,18 @@ const GapRulesCard = ({
           selectedUserId={selectedUserId}
           users={users}
           initialData={{
-            dayType: currentData.gapRules.dayType,
+            daysForGap: {
+              dayType: currentData?.gapRules?.daysForGap?.dayType || "working",
+              days: currentData?.gapRules?.daysForGap?.days ?? 0,
+            },
+            minimumDaysForGap: {
+              dayType:
+                currentData?.gapRules?.minimumDaysForGap?.dayType || "working",
+              days: currentData?.gapRules?.minimumDaysForGap?.days ?? 0,
+            },
             enabled: localEnabled,
-            days: currentData.gapRules.days,
-            bypassGapRules: currentData.gapRules.bypassGapRules || false,
-            canIgnoreGapsof: currentData.gapRules.canIgnoreGapsof || [],
+            bypassGapRules: currentData?.gapRules?.bypassGapRules || false,
+            canIgnoreGapsof: currentData?.gapRules?.canIgnoreGapsof || [],
           }}
           onUnsavedChanges={onUnsavedChanges}
         />

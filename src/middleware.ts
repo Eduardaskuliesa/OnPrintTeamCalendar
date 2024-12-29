@@ -8,7 +8,7 @@ export default withAuth(
     const userRole = token?.role;
 
     if (isAdminPage && userRole !== "ADMIN") {
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(new URL("/login", req.url));
     }
   },
   {
@@ -19,5 +19,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ['/'],
+  matcher: ["/", "/admin", "/account"],
 };

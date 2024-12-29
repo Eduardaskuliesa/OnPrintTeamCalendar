@@ -2,13 +2,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { getSession, signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -16,6 +15,8 @@ export default function LoginPage() {
     password: "",
     confirmPassword: "",
   });
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,30 +27,26 @@ export default function LoginPage() {
       const response = await signIn("credentials", {
         email: formData.get("email"),
         password: formData.get("password"),
-        redirect: false,
+        redirect: false, // Keep this false so we can handle redirect
       });
 
       if (response?.error) {
         toast.error("Invalid credentials");
         return;
       }
-      const updatedSession = await getSession();
 
-      switch (updatedSession?.user?.role) {
-        case "ADMIN":
-          router.push("/admin");
-          toast.success("Successfully logged in!");
-          break;
-        case "USER":
-          router.push("/account");
-          toast.success("Successfully logged in!");
-          break;
-        default:
-          router.push("/");
+      // If login successful, get the session
+      const session = await getSession();
+
+      // Redirect based on role
+      if (session?.user?.role === "ADMIN") {
+        router.replace("/admin");
+      } else if (session?.user?.role === "USER") {
+        router.replace("/account");
       }
 
-      router.refresh();
-    } catch (error: any) {
+      toast.success("Successfully logged in!");
+    } catch (error) {
       toast.error("Login failed. Please try again.");
     } finally {
       setLoading(false);
@@ -65,7 +62,6 @@ export default function LoginPage() {
         </div>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {/* Email Field */}
           <div>
             <label
               htmlFor="email"

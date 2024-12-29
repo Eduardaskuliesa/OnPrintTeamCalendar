@@ -112,13 +112,11 @@ const VacationForm = ({
       const result = await bookVacation(formData);
 
       if (result.success && result.data) {
-        // Create events array with vacation and gap if present
         const events = [];
 
         const endDate = new Date(result.data.endDate);
-        endDate.setDate(endDate.getDate()); // Add one day to include the end dat
+        endDate.setDate(endDate.getDate());
 
-        // Main vacation event
         const vacationEvent = {
           id: result?.data?.id,
           title: result.data?.userName,
@@ -134,7 +132,6 @@ const VacationForm = ({
         };
         events.push(vacationEvent);
 
-        // Add gap event if exists
         if (result.data?.gapDays && result.data.gapDays > 0) {
           const gapEvent: Event = {
             id: `gap-${result.data.id}`,

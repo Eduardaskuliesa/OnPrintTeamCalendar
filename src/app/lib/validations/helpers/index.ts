@@ -96,14 +96,69 @@ export function calculateDaysInAdvance(
   return daysInAdvance;
 }
 
+function calculateDuration(
+  startDate: Date,
+  endDate: Date,
+  dayType: "working" | "calendar",
+  weekendRestriction: "all" | "none" | "saturday-only" | "sunday-only",
+  holidays: string[]
+): number {
+  let duration = 0;
+  const currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+    if (dayType === "working") {
+      const isValidWorkingDay = isWorkingDay(currentDate, weekendRestriction);
+      const isHoliday = holidays.some((holiday) => {
+        const holidayDate = new Date(holiday);
+        return (
+          holidayDate.getFullYear() === currentDate.getFullYear() &&
+          holidayDate.getMonth() === currentDate.getMonth() &&
+          holidayDate.getDate() === currentDate.getDate()
+        );
+      });
+
+      if (isValidWorkingDay && !isHoliday) {
+        duration++;
+      }
+    } else {
+      duration++;
+    }
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return duration;
+}
+
 export function calculateGapDays(
   endDate: Date,
-  settings: GlobalSettingsType
+  settings: GlobalSettingsType,
+  startDate?: Date
 ): { gapEndDate: Date; totalGapDays: number } {
-  const gapDays = settings.gapRules.days;
-  const dayType = settings.gapRules.dayType;
+  const gapDays = settings.gapRules.daysForGap.days;
+  const dayType = settings.gapRules.daysForGap.dayType;
   const weekendRestriction = settings.restrictedDays.weekends.restriction;
   const holidays = settings.restrictedDays.holidays || [];
+  const minGapDays = settings.gapRules.minimumDaysForGap.days;
+  const minGapDayType = settings.gapRules.minimumDaysForGap.dayType;
+
+  if (startDate) {
+    const vacationDuration = calculateDuration(
+      startDate,
+      endDate,
+      minGapDayType,
+      weekendRestriction,
+      holidays
+    );
+
+    if (vacationDuration <= minGapDays) {
+      return {
+        gapEndDate: new Date(endDate),
+        totalGapDays: 0,
+      };
+    }
+  }
 
   const currentDate = new Date(endDate);
   currentDate.setDate(currentDate.getDate() + 1); // Start from the next day

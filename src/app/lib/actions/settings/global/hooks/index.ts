@@ -33,21 +33,14 @@ export const useUpdateSettingEnabled = () => {
   });
 };
 
-// Hook for gap rules updates
 export const useUpdateGapDays = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({
-      days,
-      dayType,
-    }: {
-      days: number;
-      dayType: "working" | "calendar";
+    mutationFn: async (gapRules: {
+      daysForGap: GlobalSettingsType["gapRules"]["daysForGap"];
+      minimumDaysForGap: GlobalSettingsType["gapRules"]["minimumDaysForGap"];
     }) => {
-      const result = await updateGapRules({
-        days,
-        dayType,
-      });
+      const result = await updateGapRules(gapRules);
       if (!result.success) {
         throw new Error(result.error || "Failed to update gap rules");
       }
@@ -57,7 +50,7 @@ export const useUpdateGapDays = () => {
       queryClient.setQueryData(
         ["getGlobalSettings"],
         (oldData: GlobalSettingsType) => ({
-          ...oldData,
+          ...oldData.gapRules,
           data: result.data,
         })
       );
@@ -96,10 +89,11 @@ export const useUpdateBookingRules = () => {
 
   return useMutation({
     mutationFn: async (bookingRules: {
-      maxDaysPerBooking: GlobalSettingsType['bookingRules']['maxDaysPerBooking'];
-      maxDaysPerYear: GlobalSettingsType['bookingRules']['maxDaysPerYear'];
-      maxAdvanceBookingDays: GlobalSettingsType['bookingRules']['maxAdvanceBookingDays'];
-      minDaysNotice: GlobalSettingsType['bookingRules']['minDaysNotice'];
+      maxDaysPerBooking: GlobalSettingsType["bookingRules"]["maxDaysPerBooking"];
+      maxDaysPerYear: GlobalSettingsType["bookingRules"]["maxDaysPerYear"];
+      maxAdvanceBookingDays: GlobalSettingsType["bookingRules"]["maxAdvanceBookingDays"];
+      minDaysNotice: GlobalSettingsType["bookingRules"]["minDaysNotice"];
+      overdraftRules: GlobalSettingsType["bookingRules"]["overdraftRules"];
     }) => {
       const result = await updateBookingRules(bookingRules);
       if (!result.success) {

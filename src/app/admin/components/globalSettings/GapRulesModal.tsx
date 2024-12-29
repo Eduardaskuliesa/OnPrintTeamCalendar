@@ -8,11 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Briefcase,
-  Calendar,
-  Loader,
-} from "lucide-react";
+import { Briefcase, Calendar, Loader } from "lucide-react";
 import { useUpdateUserGapDays } from "@/app/lib/actions/settings/user/hooks";
 import {
   handleMutationResponse,
@@ -22,19 +18,23 @@ import {
 import { User } from "@/app/types/api";
 import { useNumericInput } from "@/app/hooks/useNumericInput";
 
-interface GapRulesData {
-  enabled: boolean;
-  days: number;
-  dayType: "working" | "calendar";
-  bypassGapRules: boolean;
-  canIgnoreGapsof: string[];
-}
-
 interface GapRulesModalProps {
   selectedUserId: string;
   isOpen: boolean;
   onClose: () => void;
-  initialData: GapRulesData;
+  initialData: {
+    daysForGap: {
+      days: number;
+      dayType: "working" | "calendar";
+    };
+    minimumDaysForGap: {
+      days: number;
+      dayType: "working" | "calendar";
+    };
+    enabled: boolean;
+    bypassGapRules: boolean;
+    canIgnoreGapsof: string[];
+  };
   users: User[];
   onUnsavedChanges: (
     hasChanges: boolean,
@@ -51,39 +51,63 @@ const GapRulesModal = ({
   users,
   onUnsavedChanges,
 }: GapRulesModalProps) => {
-  const [gapRules, setGapRules] = useState<GapRulesData>({
+  const [gapRules, setGapRules] = useState({
     enabled: initialData.enabled,
-    days: initialData.days,
-    dayType: initialData.dayType || "working",
+    daysForGap: initialData.daysForGap,
+    minimumDaysForGap: initialData.minimumDaysForGap,
     bypassGapRules: initialData.bypassGapRules,
     canIgnoreGapsof: initialData.canIgnoreGapsof,
   });
-  const [isWorkingDays, setIsWorkingDays] = useState(
-    initialData.dayType === "working"
-  );
 
-  const toggleDayType = () => {
-    setIsWorkingDays(!isWorkingDays);
-    setGapRules((prev) => ({
-      ...prev,
-      dayType: !isWorkingDays ? "working" : "calendar",
-    }));
-  };
+  const [dayTypes, setDayTypes] = useState({
+    daysForGap: initialData.daysForGap.dayType,
+    minimumDaysForGap: initialData.minimumDaysForGap.dayType,
+  });
+
+  // Input hooks
+  const {
+    value: daysForGapValue,
+    setValue: setDaysForGapValue,
+    parseValue: parseDaysForGap,
+  } = useNumericInput(initialData.daysForGap.days);
 
   const {
-    value: localDays,
-    setValue: setLocalDays,
-    parseValue: parseLocalDays,
-  } = useNumericInput(initialData.days);
+    value: minimumDaysForGapValue,
+    setValue: setMinimumDaysForGapValue,
+    parseValue: parseMinimumDaysForGap,
+  } = useNumericInput(initialData.minimumDaysForGap.days);
+
+  const toggleDayType = (key: string) => {
+    setDayTypes((prev) => ({
+      ...prev,
+      [key]:
+        prev[key as keyof typeof prev] === "working" ? "calendar" : "working",
+    }));
+  };
 
   const updateGapUserRules = useUpdateUserGapDays();
 
   const handleSave = useCallback(async () => {
-    const currentDays = parseLocalDays();
+    const newValues = {
+      daysForGap: {
+        days: parseDaysForGap(),
+        dayType: dayTypes.daysForGap,
+      },
+      minimumDaysForGap: {
+        days: parseMinimumDaysForGap(),
+        dayType: dayTypes.minimumDaysForGap,
+      },
+      enabled: gapRules.enabled,
+      bypassGapRules: gapRules.bypassGapRules,
+      canIgnoreGapsof: gapRules.canIgnoreGapsof,
+    };
+
     const hasChanges =
-      currentDays !== initialData.days ||
+      parseDaysForGap() !== initialData.daysForGap.days ||
+      parseMinimumDaysForGap() !== initialData.minimumDaysForGap.days ||
+      dayTypes.daysForGap !== initialData.daysForGap.dayType ||
+      dayTypes.minimumDaysForGap !== initialData.minimumDaysForGap.dayType ||
       gapRules.bypassGapRules !== initialData.bypassGapRules ||
-      gapRules.dayType !== initialData.dayType ||
       JSON.stringify(gapRules.canIgnoreGapsof) !==
         JSON.stringify(initialData.canIgnoreGapsof);
 
@@ -96,13 +120,7 @@ const GapRulesModal = ({
     try {
       await updateGapUserRules.mutateAsync({
         userId: selectedUserId,
-        gapRules: {
-          enabled: gapRules.enabled,
-          days: currentDays,
-          dayType: isWorkingDays ? "working" : "calendar",
-          bypassGapRules: gapRules.bypassGapRules,
-          canIgnoreGapsof: gapRules.canIgnoreGapsof,
-        },
+        gapRules: newValues,
       });
 
       handleMutationResponse(true, ErrorMessages.GAP_RULES);
@@ -113,24 +131,37 @@ const GapRulesModal = ({
     }
   }, [
     gapRules,
+    dayTypes,
     initialData,
     onClose,
     selectedUserId,
-    updateGapUserRules,
-    parseLocalDays,
-    isWorkingDays,
+    parseDaysForGap,
+    parseMinimumDaysForGap,
   ]);
 
   const handleCancel = useCallback(() => {
-    setLocalDays(String(initialData.days));
-    setGapRules(initialData);
+    setDaysForGapValue(String(initialData.daysForGap.days));
+    setMinimumDaysForGapValue(String(initialData.minimumDaysForGap.days));
+    setDayTypes({
+      daysForGap: initialData.daysForGap.dayType,
+      minimumDaysForGap: initialData.minimumDaysForGap.dayType,
+    });
+    setGapRules({
+      enabled: initialData.enabled,
+      daysForGap: initialData.daysForGap,
+      minimumDaysForGap: initialData.minimumDaysForGap,
+      bypassGapRules: initialData.bypassGapRules,
+      canIgnoreGapsof: initialData.canIgnoreGapsof,
+    });
     onClose();
-  }, [initialData, onClose, setLocalDays]);
+  }, [initialData, onClose, setDaysForGapValue, setMinimumDaysForGapValue]);
 
   useEffect(() => {
-    const currentDays = parseLocalDays();
     const hasChanges =
-      currentDays !== initialData.days ||
+      parseDaysForGap() !== initialData.daysForGap.days ||
+      parseMinimumDaysForGap() !== initialData.minimumDaysForGap.days ||
+      dayTypes.daysForGap !== initialData.daysForGap.dayType ||
+      dayTypes.minimumDaysForGap !== initialData.minimumDaysForGap.dayType ||
       gapRules.bypassGapRules !== initialData.bypassGapRules ||
       JSON.stringify(gapRules.canIgnoreGapsof) !==
         JSON.stringify(initialData.canIgnoreGapsof);
@@ -143,9 +174,9 @@ const GapRulesModal = ({
   }, []);
 
   const handleUserSelect = (userId: string) => {
-    const updatedIgnoreList = gapRules.canIgnoreGapsof.includes(userId)
+    const updatedIgnoreList = gapRules?.canIgnoreGapsof?.includes(userId)
       ? gapRules.canIgnoreGapsof.filter((id) => id !== userId)
-      : [...gapRules.canIgnoreGapsof, userId];
+      : [...gapRules?.canIgnoreGapsof, userId];
 
     setGapRules((prev) => ({
       ...prev,
@@ -166,29 +197,30 @@ const GapRulesModal = ({
         <div className="space-y-6 overflow-y-auto custom-scrollbar">
           <div className="space-y-4 bg-slate-50 p-4 rounded-lg border-2 shadow-md border-blue-50">
             <div className="grid grid-cols-2 gap-10">
+              {/* Gap Days Input */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Minimum Gap Days
+                  Gap Days
                 </label>
                 <div className="flex items-center space-x-2">
                   <Input
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    value={localDays}
-                    onChange={(e) => setLocalDays(e.target.value)}
+                    value={daysForGapValue}
+                    onChange={(e) => setDaysForGapValue(e.target.value)}
                     className="bg-white border-gray-300 text-gray-900 w-24"
                   />
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={toggleDayType}
-                    className={`flex items-center space-x-1  ${
-                      isWorkingDays
+                    onClick={() => toggleDayType("daysForGap")}
+                    className={`flex items-center space-x-1 ${
+                      dayTypes.daysForGap === "working"
                         ? "bg-orange-50 text-orange-800 hover:bg-orange-100 hover:text-orange-800 border-orange-200"
                         : "bg-blue-50 text-blue-800 hover:text-blue-800 hover:bg-blue-100 border-blue-200"
                     }`}
                   >
-                    {isWorkingDays ? (
+                    {dayTypes.daysForGap === "working" ? (
                       <>
                         <Briefcase size={16} className="text-orange-700" />
                         <span className="font-medium">Working Days</span>
@@ -202,43 +234,79 @@ const GapRulesModal = ({
                   </Button>
                 </div>
               </div>
+
+              {/* Minimum Days for Gap Input */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Bypass All Gap Rules
+                  Minimum Days for Gap
                 </label>
                 <div className="flex items-center space-x-2">
+                  <Input
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={minimumDaysForGapValue}
+                    onChange={(e) => setMinimumDaysForGapValue(e.target.value)}
+                    className="bg-white border-gray-300 text-gray-900 w-24"
+                  />
                   <Button
+                    variant="outline"
                     size="sm"
-                    type="button"
-                    onClick={() =>
-                      setGapRules((prev) => ({ ...prev, bypassGapRules: true }))
-                    }
-                    className={`${
-                      gapRules.bypassGapRules
-                        ? "bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200"
-                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                    onClick={() => toggleDayType("minimumDaysForGap")}
+                    className={`flex items-center space-x-1 ${
+                      dayTypes.minimumDaysForGap === "working"
+                        ? "bg-orange-50 text-orange-800 hover:bg-orange-100 hover:text-orange-800 border-orange-200"
+                        : "bg-blue-50 text-blue-800 hover:text-blue-800 hover:bg-blue-100 border-blue-200"
                     }`}
                   >
-                    Yes
-                  </Button>
-                  <Button
-                    size="sm"
-                    type="button"
-                    onClick={() =>
-                      setGapRules((prev) => ({
-                        ...prev,
-                        bypassGapRules: false,
-                      }))
-                    }
-                    className={`${
-                      !gapRules.bypassGapRules
-                        ? "bg-red-50 text-red-800 hover:bg-red-100 border border-red-200"
-                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                    }`}
-                  >
-                    No
+                    {dayTypes.minimumDaysForGap === "working" ? (
+                      <>
+                        <Briefcase size={16} className="text-orange-700" />
+                        <span className="font-medium">Working Days</span>
+                      </>
+                    ) : (
+                      <>
+                        <Calendar size={16} className="text-blue-700" />
+                        <span className="font-medium">Calendar Days</span>
+                      </>
+                    )}
                   </Button>
                 </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-800">
+                Bypass All Gap Rules
+              </label>
+              <div className="flex items-center space-x-2">
+                <Button
+                  size="sm"
+                  type="button"
+                  onClick={() =>
+                    setGapRules((prev) => ({ ...prev, bypassGapRules: true }))
+                  }
+                  className={`${
+                    gapRules.bypassGapRules
+                      ? "bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200"
+                      : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                  }`}
+                >
+                  Yes
+                </Button>
+                <Button
+                  size="sm"
+                  type="button"
+                  onClick={() =>
+                    setGapRules((prev) => ({ ...prev, bypassGapRules: false }))
+                  }
+                  className={`${
+                    !gapRules.bypassGapRules
+                      ? "bg-red-50 text-red-800 hover:bg-red-100 border border-red-200"
+                      : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                  }`}
+                >
+                  No
+                </Button>
               </div>
             </div>
 
@@ -263,7 +331,9 @@ const GapRulesModal = ({
                     >
                       <input
                         type="checkbox"
-                        checked={gapRules.canIgnoreGapsof.includes(user.userId)}
+                        checked={gapRules?.canIgnoreGapsof?.includes(
+                          user.userId
+                        )}
                         onChange={() => handleUserSelect(user.userId)}
                         className="mr-2"
                       />
@@ -272,7 +342,9 @@ const GapRulesModal = ({
                         style={{ backgroundColor: user.color }}
                       />
                       <span className="text-sm">{user.name}</span>
-                      <span className="text-sm">- {user.email}</span>
+                      <span className="text-sm text-gray-500">
+                        - {user.email}
+                      </span>
                     </div>
                   ))}
               </div>

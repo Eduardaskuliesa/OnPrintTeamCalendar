@@ -14,23 +14,6 @@ import { vacationsAction } from ".";
 import { User } from "@/app/types/api";
 import { sanitizeSettings } from "../settings/sanitizeSettings";
 
-function isWeekend(date: Date): boolean {
-  const day = date.getDay();
-  return day === 0 || day === 6;
-}
-function getWorkingDays(startDate: Date, endDate: Date): number {
-  let days = 0;
-  const current = new Date(startDate);
-
-  while (current <= endDate) {
-    if (!isWeekend(current)) {
-      days++;
-    }
-    current.setDate(current.getDate() + 1);
-  }
-  return days;
-}
-
 export async function bookVacation(formData: FormData) {
   try {
     const session = await getServerSession(authOptions);
@@ -74,8 +57,12 @@ export async function bookVacation(formData: FormData) {
       };
     }
 
+    console.log(conflictCheck.vacationDaysUsed);
+
     const remainingVacationDays =
       user.data.vacationDays - conflictCheck.vacationDaysUsed;
+
+    console.log("Days left:", remainingVacationDays);
 
     const updateResult = await usersActions.updateUserVacationDays(
       session.user.userId,
@@ -88,11 +75,6 @@ export async function bookVacation(formData: FormData) {
       };
     }
 
-    const workingDays = getWorkingDays(
-      new Date(formData.startDate),
-      new Date(formData.endDate)
-    );
-
     const vacation = {
       id: crypto.randomUUID(),
       userEmail: user.data.email,
@@ -103,7 +85,7 @@ export async function bookVacation(formData: FormData) {
       endDate: formData.endDate,
       status: "PENDING",
       totalVacationDays: conflictCheck.vacationDaysUsed,
-      gapDays: workingDays > 2 ? conflictCheck.gapDays : 0,
+      gapDays: conflictCheck.gapDays,
       requiresApproval: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

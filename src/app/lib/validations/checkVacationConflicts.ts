@@ -36,19 +36,29 @@ export async function checkVacationConflicts(
 
   const daysInAdvance = calculateDaysInAdvance(startDateObj, settings);
 
-  // Check if working days exceeds user's available vacation days
-  if (workingDays > user.vacationDays) {
+  const overdraftRules = settings.bookingRules.overdraftRules;
+  const availableBalance = user.vacationDays;
+  const maxOverdraftDays = overdraftRules.useStrict
+    ? 0
+    : overdraftRules.maximumOverdraftDays;
+  const totalAvailableDays = availableBalance + maxOverdraftDays;
+
+  if (workingDays > totalAvailableDays) {
     return {
       hasConflict: true,
       vacationDaysUsed: 0,
       error: {
         type: "INSUFFICIENT_VACATION_DAYS",
-        message: `Not enough vacation days. Required: ${workingDays}, Available: ${user.vacationDays}`,
+        message: `Not enough vacation days. Required: ${workingDays}, Available: ${availableBalance}, Allowed overdraft: ${maxOverdraftDays}`,
       },
     };
   }
 
-  // First check overlap (including self-overlap)
+  const newBalance = Math.max(
+    availableBalance - workingDays,
+    -maxOverdraftDays
+  );
+
   const overlapConflict = checkOverlapConflict(
     startDateObj,
     endDateObj,
@@ -65,7 +75,6 @@ export async function checkVacationConflicts(
     };
   }
 
-  // Check gap rules
   const gapConflict = checkGapRuleConflict(
     startDateObj,
     endDateObj,
@@ -86,7 +95,6 @@ export async function checkVacationConflicts(
     };
   }
 
-  // Skip other rules if booking rules are disabled
   if (!settings.bookingRules.enabled) {
     return {
       hasConflict: false,
@@ -97,7 +105,6 @@ export async function checkVacationConflicts(
     };
   }
 
-  // Check max days per booking
   if (
     settings.bookingRules.maxDaysPerBooking.days > 0 &&
     totalVacationDays > settings.bookingRules.maxDaysPerBooking.days
@@ -112,29 +119,23 @@ export async function checkVacationConflicts(
     };
   }
 
-  // Check yearly limits
   if (settings.bookingRules.maxDaysPerYear.days > 0) {
-    // Get yearly breakdown of new booking
     const { yearlyBreakdown } = calculateVacationDays(
       startDateObj,
       endDateObj,
       settings
     );
 
-    // Check each year independently
     for (const [year, daysInYear] of Object.entries(yearlyBreakdown)) {
-      // Only get vacations for this specific year
       const yearBookings = userVacations.filter((vacation) => {
         const vacationStart = new Date(vacation.startDate);
         return vacationStart.getFullYear().toString() === year;
       });
 
-      // Calculate days used in this year
       const bookedDays = yearBookings.reduce((total, booking) => {
         const bookingStart = new Date(booking.startDate);
         const bookingEnd = new Date(booking.endDate);
 
-        // Only count days that fall within this year
         const effectiveStart = bookingStart;
         const effectiveEnd =
           bookingEnd.getFullYear().toString() === year
@@ -150,7 +151,6 @@ export async function checkVacationConflicts(
         return total + workingDays;
       }, 0);
 
-      // Check if adding new vacation would exceed the limit for this year
       if (bookedDays + daysInYear > settings.bookingRules.maxDaysPerYear.days) {
         return {
           hasConflict: true,
@@ -167,7 +167,6 @@ export async function checkVacationConflicts(
     }
   }
 
-  // Check advance booking limits
   if (settings.bookingRules.maxAdvanceBookingDays.days > 0) {
     const maxDays = settings.bookingRules.maxAdvanceBookingDays.days;
 
@@ -186,7 +185,6 @@ export async function checkVacationConflicts(
     }
   }
 
-  // Check minimum notice period
   if (settings.bookingRules.minDaysNotice.days > 0) {
     const minDays = settings.bookingRules.minDaysNotice.days;
 
@@ -205,7 +203,6 @@ export async function checkVacationConflicts(
     }
   }
 
-  // Check seasonal and custom restricted days last
   const seasonalConflict = checkSeasonalConflict(
     startDateObj,
     endDateObj,
@@ -236,7 +233,8 @@ export async function checkVacationConflicts(
     hasConflict: false,
     vacationDaysUsed: totalVacationDays,
     gapDays: settings.gapRules.enabled
-      ? calculateGapDays(endDateObj, settings).totalGapDays
+      ? calculateGapDays(endDateObj, settings, startDateObj).totalGapDays
       : 0,
+    newBalance: newBalance,
   };
 }

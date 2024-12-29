@@ -88,6 +88,7 @@ export function checkGapRuleConflict(
     }
 
     const newBookingGap = calculateGapDays(endDate, settings);
+
     if (
       (new Date(vacation.startDate) >= endDate &&
         new Date(vacation.startDate) <= newBookingGap.gapEndDate) ||

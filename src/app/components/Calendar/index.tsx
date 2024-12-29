@@ -15,7 +15,6 @@ import { User } from "@/app/types/api";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { vacationsAction } from "@/app/lib/actions/vacations";
 import SettingsDisplay from "./SettingsDisplay";
-import { bookVacation } from "@/app/lib/actions/vacations/bookVacation";
 
 interface Event {
   id: string;

@@ -57,6 +57,8 @@ const GlobalSettings = ({
   const isLoading =
     selectedUserId === "global" ? isGlobalLoading : isUserLoading;
 
+  console.log(currentData?.data);
+
   const handleEdit = (section: string) => {
     if (editingSection && unsavedChanges[editingSection]?.hasChanges) {
       const toastId = toast(

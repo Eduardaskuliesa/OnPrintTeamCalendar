@@ -1,7 +1,6 @@
 "use client";
 import { Clock, RefreshCcw } from "lucide-react";
 import { useState } from "react";
-import { updateVacationStatus } from "../lib/actions/vacation";
 import { toast } from "react-toastify";
 import DeleteConfirmation from "../ui/DeleteConfirmation";
 import { vacationsAction } from "../lib/actions/vacations";

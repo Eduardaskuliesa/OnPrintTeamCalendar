@@ -1,15 +1,6 @@
 "use client";
 import React from "react";
-import {
-  CalendarX,
-  CloudSun,
-  TreePine,
-  AlertCircle,
-  Flag,
-  Ban,
-  SunSnow,
-  Leaf,
-} from "lucide-react";
+import { Flag, Ban, SunSnow, Leaf } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,

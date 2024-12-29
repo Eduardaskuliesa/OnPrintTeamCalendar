@@ -91,6 +91,7 @@ export async function updateUserBookingRules(
     maxDaysPerYear: GlobalSettingsType["bookingRules"]["maxDaysPerYear"];
     maxAdvanceBookingDays: GlobalSettingsType["bookingRules"]["maxAdvanceBookingDays"];
     minDaysNotice: GlobalSettingsType["bookingRules"]["minDaysNotice"];
+    overdraftRules: GlobalSettingsType["bookingRules"]["overdraftRules"];
   }
 ) {
   await checkAuth();
@@ -105,7 +106,8 @@ export async function updateUserBookingRules(
               #bookingRules.#maxDaysPerYear = :maxDaysPerYear,
               #bookingRules.#maxAdvanceBookingDays = :maxAdvanceBookingDays,
               #bookingRules.#minDaysNotice = :minDaysNotice,
-              #updatedAt = :updatedAt
+              #bookingRules.#overdraftRules = :overdraftRules,
+               #updatedAt = :updatedAt
         `,
         ExpressionAttributeNames: {
           "#bookingRules": "bookingRules",
@@ -113,6 +115,7 @@ export async function updateUserBookingRules(
           "#maxDaysPerYear": "maxDaysPerYear",
           "#maxAdvanceBookingDays": "maxAdvanceBookingDays",
           "#minDaysNotice": "minDaysNotice",
+          "#overdraftRules": "overdraftRules",
           "#updatedAt": "updatedAt",
         },
         ExpressionAttributeValues: {
@@ -120,6 +123,7 @@ export async function updateUserBookingRules(
           ":maxDaysPerYear": bookingRules.maxDaysPerYear,
           ":maxAdvanceBookingDays": bookingRules.maxAdvanceBookingDays,
           ":minDaysNotice": bookingRules.minDaysNotice,
+          ":overdraftRules": bookingRules.overdraftRules,
           ":updatedAt": new Date().toISOString(),
         },
         ReturnValues: "ALL_NEW",
@@ -157,13 +161,7 @@ export async function updateUserGapDays(
           "#updatedAt": "updatedAt",
         },
         ExpressionAttributeValues: {
-          ":gapRules": {
-            enabled: gapRules.enabled,
-            days: gapRules.days,
-            dayType: gapRules.dayType || "working",
-            bypassGapRules: gapRules.bypassGapRules ?? null,
-            canIgnoreGapsof: gapRules.canIgnoreGapsof ?? null,
-          },
+          ":gapRules": gapRules,
           ":updatedAt": new Date().toISOString(),
         },
         ReturnValues: "ALL_NEW",

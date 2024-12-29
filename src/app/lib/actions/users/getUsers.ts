@@ -8,7 +8,7 @@ import { dynamoName } from "../../dynamodb";
 import { dynamoDb } from "../../dynamodb";
 
 async function queryUsers() {
-  console.log("DB Query executed at:", new Date().toISOString());
+  console.log("Fetching all Users:", new Date().toISOString());
 
   const getAllUsers = new ScanCommand({
     TableName: dynamoName || "",
