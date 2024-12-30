@@ -19,7 +19,6 @@ import {
   ErrorMessages,
   handleNoChanges,
 } from "@/app/utils/errorHandling";
-import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 import { useNumericInput } from "@/app/hooks/useNumericInput";
 import EditableControls from "./EditableControls";
 import { StatusToggle } from "./StatusTogle";
@@ -31,6 +30,7 @@ import SettingsSourceIndicator from "./SettingsSourceIndicator";
 import { Button } from "@/components/ui/button";
 import OverlapRulesModal from "./OverlapRulesModal";
 import { User } from "@/app/types/api";
+import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 
 const overlapRulesExplanations = {
   maxSimultaneous:
@@ -213,7 +213,11 @@ const OverlapRulesCard = ({
     }
   };
 
-  useKeyboardShortcuts(isEditing, handleSave, handleCancel);
+  useKeyboardShortcuts({
+    isOpen: isEditing,
+    onSubmit: handleSave,
+    onClose: handleCancel,
+  });
 
   return (
     <>

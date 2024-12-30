@@ -1,23 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { bookVacation } from "@/app/lib/actions/vacations/bookVacation";
-import { CalendarIcon, X } from "lucide-react";
-import { useState } from "react";
-import { toast } from "react-toastify";
-import React from "react";
+"use client";
 
-interface Event {
-  id: string;
-  title: string;
-  start: string;
-  end: string;
-  backgroundColor: string;
-  extendedProps: {
-    status: "PENDING" | "APPROVED" | "REJECTED" | "GAP";
-    userId: string;
-    email: string;
-    totalVacationDays: number;
-  };
-}
+import React, { useState, useEffect, useRef } from "react";
+import { CalendarIcon, X } from "lucide-react";
+import { toast } from "react-toastify";
+import { bookVacation } from "@/app/lib/actions/vacations/bookVacation";
+import { createVacationEvents } from "@/app/utils/eventUtils";
+import DateSelection from "../selectors/DateSelection";
+import SubmitButton from "../buttons/SubmitButton";
+import { Event, VacationData } from "@/app/types/event";
+import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 
 interface VacationFormProps {
   isOpen: boolean;
@@ -27,44 +18,6 @@ interface VacationFormProps {
   onVacationCreated?: (events: Event[]) => void;
 }
 
-type ErrorType =
-  | "OVERLAP"
-  | "GAP_CONFLICT"
-  | "EXCEEDED_LIMIT"
-  | "MAX_DAYS_PER_BOOKING"
-  | "ADVANCE_BOOKING"
-  | "MIN_NOTICE"
-  | "MAX_DAYS_PER_YEAR"
-  | "MAX_SIMULTANEOUS"
-  | "WEEKEND_RESTRICTION"
-  | "HOLIDAY_RESTRICTION"
-  | "CUSTOM_RESTRICTION"
-  | "BLACKOUT_PERIOD"
-  | "GAP_RULE"
-  | "default";
-
-export interface FormData {
-  startDate: string;
-  endDate: string;
-}
-
-const errorMessages: Record<ErrorType, string> = {
-  OVERLAP: "Šios dienos jau užimtos",
-  GAP_CONFLICT: "Reikalingas tarpas atostogaujančiu",
-  EXCEEDED_LIMIT: "Per daug atostogų dienu MAX 14",
-  MAX_DAYS_PER_BOOKING: "Viršytas maksimalus atostogų dienų skaičius",
-  ADVANCE_BOOKING: "Per anksti registruoti atostogas",
-  MIN_NOTICE: "Per vėlai registruoti atostogas",
-  MAX_DAYS_PER_YEAR: "Viršytas metinis atostogų limitas",
-  MAX_SIMULTANEOUS: "Per daug sutampančių atostogų",
-  WEEKEND_RESTRICTION: "Savaitgaliai negalimi",
-  HOLIDAY_RESTRICTION: "Šventinės dienos negalimos",
-  CUSTOM_RESTRICTION: "Pasirinktos dienos negalimos",
-  BLACKOUT_PERIOD: "Šiuo periodu atostogos negalimos",
-  GAP_RULE: "Reikalingas tarpas tarp atostogų",
-  default: "Įvyko klaida. Bandykite dar kartą",
-};
-
 const VacationForm = ({
   isOpen,
   onClose,
@@ -72,6 +25,7 @@ const VacationForm = ({
   initialEndDate,
   onVacationCreated,
 }: VacationFormProps) => {
+  const formRef = useRef<HTMLFormElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
@@ -79,7 +33,7 @@ const VacationForm = ({
     endDate: "",
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (initialStartDate) {
       const start = new Date(initialStartDate);
       start.setDate(start.getDate() + 1);
@@ -112,72 +66,30 @@ const VacationForm = ({
       const result = await bookVacation(formData);
 
       if (result.success && result.data) {
-        const events = [];
-
-        const endDate = new Date(result.data.endDate);
-        endDate.setDate(endDate.getDate());
-
-        const vacationEvent = {
-          id: result?.data?.id,
-          title: result.data?.userName,
-          start: result.data?.startDate,
-          end: endDate.toISOString(),
-          backgroundColor: result.data?.userColor,
-          extendedProps: {
-            status: result.data?.status,
-            userId: result.data?.userId,
-            email: result.data?.userEmail,
-            totalVacationDays: result.data?.totalVacationDays,
-          },
-        };
-        events.push(vacationEvent);
-
-        if (result.data?.gapDays && result.data.gapDays > 0) {
-          const gapEvent: Event = {
-            id: `gap-${result.data.id}`,
-            title: `Tarpas - ${result.data.userName}`,
-            start: new Date(
-              new Date(result.data.endDate).setDate(
-                new Date(result.data.endDate).getDate() + 1
-              )
-            ).toISOString(),
-            end: new Date(
-              new Date(result.data.endDate).setDate(
-                new Date(result.data.endDate).getDate() + result.data.gapDays
-              )
-            ).toISOString(),
-            backgroundColor: "#808080",
-            extendedProps: {
-              status: "GAP",
-              userId: result.data.userId,
-              email: result.data.userEmail,
-              totalVacationDays: 0,
-            },
-          };
-          events.push(gapEvent);
-        }
-
+        const events = createVacationEvents(result.data as VacationData);
         onVacationCreated?.(events as Event[]);
         toast.success("Atostogos sėkmingai užregistruotos");
         handleClose();
         return;
       }
 
-      setError(
-        result.error ||
-          (result.conflictDetails
-            ? errorMessages[result.conflictDetails?.type as ErrorType]
-            : errorMessages.default)
-      );
+      setError(result.error)
       toast.error("Nepavyko užregistruoti atostogų");
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setError("Įvyko nenumatyta klaida");
       toast.error("Sistemos klaida");
     } finally {
       setLoading(false);
     }
   };
+
+  useKeyboardShortcuts({
+    isOpen,
+    onSubmit: handleSubmit,
+    onClose: handleClose,
+    formRef,
+  });
 
   if (!isOpen) return null;
 
@@ -196,50 +108,27 @@ const VacationForm = ({
           <button
             onClick={handleClose}
             disabled={loading}
-            className="text-gray-400 hover:text-gray-500 transition-colors disabled:opacity-50"
+            className="text-gray-500 p-0.5 hover:bg-gray-200 rounded-sm hover:text-gray-600 transition-colors disabled:opacity-50"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Pradžios data
-              </label>
-              <input
-                type="date"
-                required
-                disabled={loading}
-                min={new Date().toISOString().split("T")[0]}
-                value={formData.startDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, startDate: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Pabaigos data
-              </label>
-              <input
-                type="date"
-                required
-                disabled={loading}
-                min={
-                  formData.startDate || new Date().toISOString().split("T")[0]
-                }
-                value={formData.endDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, endDate: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
-              />
-            </div>
-          </div>
+        <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-4">
+          <DateSelection
+            startDate={formData.startDate}
+            endDate={formData.endDate}
+            onStartDateChange={(date) =>
+              setFormData({ ...formData, startDate: date })
+            }
+            onEndDateChange={(date) =>
+              setFormData({ ...formData, endDate: date })
+            }
+            disabled={loading}
+            startLabel="Pradžios data"
+            endLabel="Pabaigos data"
+            minStartDate={new Date().toISOString().split("T")[0]}
+          />
 
           {error && (
             <p className="text-sm text-red-500 bg-red-50 p-2 rounded">
@@ -248,39 +137,11 @@ const VacationForm = ({
           )}
 
           <div className="flex justify-end pt-2">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full px-4 py-2 text-sm font-medium text-gray-950 bg-lcoffe border border-transparent rounded-md shadow-sm hover:bg-dcoffe focus:outline-none focus:ring-2 focus:ring-slate-50 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <svg
-                    className="animate-spin h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Siunčiama...
-                </>
-              ) : (
-                "Registruoti"
-              )}
-            </button>
+            <SubmitButton
+              loading={loading}
+              text="Registruoti"
+              loadingText="Siunčiama..."
+            />
           </div>
         </form>
       </div>

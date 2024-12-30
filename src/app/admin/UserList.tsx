@@ -9,6 +9,7 @@ import DeleteUserConfirmation, {
 } from "../ui/DeleteUserConfirmation";
 import UpdateUserForm from "./UpdateUserForm";
 import { ShieldCheck, CalendarDays } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UserListProps {
   users: User[];
@@ -28,6 +29,7 @@ export default function UserList({
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToUpdate, setUserToUpdate] = useState<User | null>(null);
+  const queryClient = useQueryClient();
 
   const handleSettings = (user: User) => {
     onNavigate("settings", user);
@@ -44,7 +46,6 @@ export default function UserList({
   };
 
   const handleUserUpdated = (updatedUser: User) => {
-
     onUserUpdated(updatedUser);
     setShowUpdateModal(false);
     setUserToUpdate(null);
@@ -53,10 +54,11 @@ export default function UserList({
   const confirmDelete = async () => {
     if (userToDelete) {
       setDeletingEmail(userToDelete.email);
-      console.log(userToDelete)
+      console.log(userToDelete);
       setShowDeleteDialog(false);
       try {
         await usersActions.deleteUser(userToDelete.userId);
+        queryClient.invalidateQueries({ queryKey: ["users"] });
         toast.success("User deleted successfully");
         onUserDeleted(userToDelete.userId);
       } catch (error: any) {
@@ -116,7 +118,8 @@ export default function UserList({
                   <div className="flex items-center text-gray-600">
                     <CalendarDays size={16} className="text-orange-500 mr-1" />
                     <span className="text-sm">
-                      <span className="font-semibold">{user.vacationDays}</span> d.
+                      <span className="font-semibold">{user.vacationDays}</span>{" "}
+                      d.
                     </span>
                   </div>
                 </div>

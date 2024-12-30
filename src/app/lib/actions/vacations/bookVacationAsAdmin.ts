@@ -4,67 +4,61 @@ import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
-import { checkVacationConflicts } from "../../validations/checkVacationConflicts";
 import { dynamoDb } from "../../dynamodb";
 import { usersActions } from "../users";
 import { getGlobalSettings } from "../settings/global/getGlobalSettings";
 import { getUserSettings } from "../settings/user/getUserSettings";
-import { vacationsAction } from ".";
 import { User } from "@/app/types/api";
 import { sanitizeSettings } from "../settings/sanitizeSettings";
+import { calculateVacationDays } from "../../validations/helpers";
 
-interface FormData {
+interface formData {
   startDate: string;
   endDate: string;
+  createGap: boolean;
+  gapEndDate: string;
 }
 
-export async function bookVacation(formData: FormData) {
+export async function bookAsAdminVacation(formData: formData, user: User) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.userId) {
+    if (session?.user?.role !== "ADMIN") {
       return {
         success: false,
         error: "Not authenticated",
       };
     }
 
-    const user = await usersActions.getUser(session.user.userId);
-
     const globalSettings = await getGlobalSettings();
-    const userSettings = await getUserSettings(session.user.userId);
+    const userSettings = await getUserSettings(user.userId);
 
     const settings = sanitizeSettings(
       userSettings.data as GlobalSettingsType,
       globalSettings.data as GlobalSettingsType,
-      user.data.useGlobal
+      user.useGlobal
     );
 
-    const vacations = await vacationsAction.getAdminVacations();
-
-    const userEmail = session.user.email;
-
-    const conflictCheck = await checkVacationConflicts(
-      formData.startDate,
-      formData.endDate,
-      settings,
-      vacations,
-      userEmail,
-      user.data as User
+    const { totalVacationDays } = calculateVacationDays(
+      new Date(formData.startDate),
+      new Date(formData.endDate),
+      settings
     );
-    if (conflictCheck.hasConflict) {
-      console.log(conflictCheck.error?.type);
-      return {
-        success: false,
-        error: conflictCheck.error?.message,
-        conflictDetails: conflictCheck.error,
-      };
+
+    let gapDays = 0;
+    if (formData.createGap && formData.gapEndDate) {
+      const gapStart = new Date(formData.endDate);
+      gapStart.setDate(gapStart.getDate() + 1);
+      const gapEnd = new Date(formData.gapEndDate);
+      const timeDiff = Math.abs(gapEnd.getTime() - gapStart.getTime());
+      gapDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
     }
 
-    const remainingVacationDays =
-      user.data.vacationDays - conflictCheck.vacationDaysUsed;
+    const remainingVacationDays = user.vacationDays - totalVacationDays;
+
+    console.log("Days left:", remainingVacationDays);
 
     const updateResult = await usersActions.updateUserVacationDays(
-      session.user.userId,
+      user.userId,
       remainingVacationDays
     );
     if (!updateResult.success) {
@@ -76,18 +70,20 @@ export async function bookVacation(formData: FormData) {
 
     const vacation = {
       id: crypto.randomUUID(),
-      userEmail: user.data.email,
-      userId: user.data.userId,
-      userName: user.data.name,
-      userColor: user.data.color,
+      userEmail: user.email,
+      userId: user.userId,
+      userName: user.name,
+      userColor: user.color,
       startDate: formData.startDate,
       endDate: formData.endDate,
-      status: "PENDING",
-      totalVacationDays: conflictCheck.vacationDaysUsed,
-      gapDays: conflictCheck.gapDays,
-      requiresApproval: true,
+      status: "APPROVED",
+      totalVacationDays,
+      gapDays,
+      requiresApproval: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      approvedBy: session?.user.email,
+      approvedAt: new Date().toISOString(),
     };
 
     await dynamoDb.send(
@@ -100,7 +96,7 @@ export async function bookVacation(formData: FormData) {
 
     revalidateTag("vacations");
     revalidateTag("admin-vacations");
-    revalidateTag(`user-vacations-${user.data.userId}`);
+    revalidateTag(`user-vacations-${user.userId}`);
 
     return {
       success: true,

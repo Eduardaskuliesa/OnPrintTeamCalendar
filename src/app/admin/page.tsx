@@ -1,13 +1,14 @@
 import { usersActions } from "../lib/actions/users";
+import { vacationsAction } from "../lib/actions/vacations";
 import { User, Vacation } from "../types/api";
 import AdminPage from "./AdminPage";
-import { getAdminVacations } from "../lib/actions/vacation";
+
 
 export default async function AdminPageWrapper() {
   try {
     console.log('Rendered')
     const { data: users } = await usersActions.getUsers();
-    const initialVacations = await getAdminVacations();
+    const initialVacations = await vacationsAction.getAdminVacations();
 
     return (
       <AdminPage

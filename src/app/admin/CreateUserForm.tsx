@@ -8,6 +8,7 @@ import { User } from "../types/api";
 import { X, Eye, EyeOff, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
 
 const COLORS = [
   "#7986cb",
@@ -46,6 +47,7 @@ export default function CreateUserForm({
   const [showPassword, setShowPassword] = useState(false);
   const [customColor, setCustomColor] = useState("");
   const formRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -103,7 +105,7 @@ export default function CreateUserForm({
     try {
       setLoading(true);
       const response = await usersActions.createUser(formData);
-
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       onUserCreated(response.user);
       toast.success("Vartotojas sėkmingai sukurtas");
       setFormData({

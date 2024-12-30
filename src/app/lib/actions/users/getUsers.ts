@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 "use server";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";

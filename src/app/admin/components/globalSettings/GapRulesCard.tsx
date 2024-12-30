@@ -28,7 +28,6 @@ import { User } from "@/app/types/api";
 import GapRulesModal from "./GapRulesModal";
 import EditableControls from "./EditableControls";
 import { useNumericInput } from "@/app/hooks/useNumericInput";
-import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 import { toast } from "react-toastify";
 import SettingsSourceIndicator from "./SettingsSourceIndicator";
 import {
@@ -37,7 +36,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
+import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 
 interface GapRulesCardProps {
   userData: GlobalSettingsType;
@@ -282,7 +281,11 @@ const GapRulesCard = ({
     }
   };
 
-  useKeyboardShortcuts(isEditing, handleGlobalSave, handleGlobalCancel);
+  useKeyboardShortcuts({
+    isOpen: isEditing,
+    onSubmit: handleGlobalSave,
+    onClose: handleGlobalCancel,
+  });
 
   return (
     <>

@@ -52,6 +52,13 @@ const SettingsDisplay = ({
   date,
   viewType,
 }: SettingsDisplayProps) => {
+  const getLocalDateString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const activeBlackoutPeriod = settings.seasonalRules.blackoutPeriods.find(
     (period) => {
       const start = new Date(period.start);
@@ -76,16 +83,12 @@ const SettingsDisplay = ({
     }
   );
 
-  // Check if date is a holiday
-  const isHoliday = settings.restrictedDays.holidays.includes(
-    date.toISOString().split("T")[0]
-  );
+  const localDateStr = getLocalDateString(date);
 
-  // Check if date is a custom restricted day
-  const isCustomRestricted = settings.restrictedDays.customRestricted.includes(
-    date.toISOString().split("T")[0]
-  );
+  const isHoliday = settings.restrictedDays.holidays.includes(localDateStr);
 
+  const isCustomRestricted =
+    settings.restrictedDays.customRestricted.includes(localDateStr);
   const hasIcons =
     activeBlackoutPeriod ||
     activePreferredPeriod ||

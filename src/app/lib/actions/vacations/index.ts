@@ -1,3 +1,4 @@
+import { bookAsAdminVacation } from "./bookVacationAsAdmin";
 import { deleteVacation } from "./deleteVaction";
 import { getAdminVacations } from "./getAdminVacations";
 import { getFutureVacations } from "./getFutureVacations";
@@ -10,4 +11,5 @@ export const vacationsAction = {
   getFutureVacations,
   updateVacationStatus,
   deleteVacation,
+  bookAsAdminVacation,
 };

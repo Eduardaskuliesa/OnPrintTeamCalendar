@@ -5,11 +5,11 @@ import { updateUser } from "../lib/actions/users/updateUser";
 import { toast } from "react-toastify";
 import { User } from "../types/api";
 import { X, Eye, EyeOff, Plus } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNumericInput } from "../hooks/useNumericInput";
 import SettingsToggle from "./SettingsToggleUpdateForm";
+import { useQueryClient } from "@tanstack/react-query";
 
 const COLORS = [
   "#7986cb",
@@ -36,11 +36,12 @@ export default function UpdateUserForm({
   onCancel,
 }: UpdateUserFormProps) {
   const [loading, setLoading] = useState(false);
-  const { update } = useSession();
+
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [customColor, setCustomColor] = useState("");
   const formRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
     name: user.name,
@@ -118,6 +119,7 @@ export default function UpdateUserForm({
         ...formData,
         vacationDays: vacationDays.parseValue(),
       });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
 
       if (result.success) {
         toast.success("Vartotojas sėkmingai atnaujintas");
@@ -128,7 +130,6 @@ export default function UpdateUserForm({
           updatedAt: new Date().toISOString(),
         };
         onUserUpdated(updatedUser);
-        await update({ force: true });
       } else {
         toast.error(result.error || "Nepavyko atnaujinti vartotojo");
       }

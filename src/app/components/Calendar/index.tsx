@@ -10,31 +10,20 @@ import VacationForm from "./VacationForm";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
-import { Clock2, Plus } from "lucide-react";
+import { Clock2, Plus, Shield } from "lucide-react";
 import { User } from "@/app/types/api";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { vacationsAction } from "@/app/lib/actions/vacations";
 import SettingsDisplay from "./SettingsDisplay";
-
-interface Event {
-  id: string;
-  title: string;
-  start: string;
-  end: string;
-  backgroundColor: string;
-  extendedProps: {
-    status: "PENDING" | "APPROVED" | "REJECTED" | "GAP";
-    userId: string;
-    totalVacationDays: number;
-    email: string;
-  };
-  gapDays?: number;
-}
+import AdminVacationForm from "./AdminVacationForm";
+import { useQueryClient } from "@tanstack/react-query";
+import { Event } from "@/app/types/event";
 
 interface CalendarToolbarProps {
   onAddVacation: () => void;
+  onAddAdminVacation: () => void;
+  isAdmin: boolean;
 }
-
 interface CalendarProps {
   initialVacations: Event[];
   user: User;
@@ -43,29 +32,49 @@ interface CalendarProps {
   initialFetchTimestamp: string;
 }
 
-const CalendarToolbar: React.FC<CalendarToolbarProps> = ({ onAddVacation }) => (
+const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
+  onAddVacation,
+  onAddAdminVacation,
+  isAdmin,
+}) => (
   <div className="flex justify-between items-center mb-6">
     <h1 className="text-2xl font-semibold text-gray-800">Vacation Calendar</h1>
-    <button
-      onClick={onAddVacation}
-      className="px-4 py-2 group bg-dcoffe text-gray-950 rounded-md hover:bg-vdcoffe hover:text-gray-100 transition-colors shadow-sm flex items-center gap-2"
-    >
-      <Plus
-        size={18}
-        className="transform transition-transform group-hover:rotate-90"
-      />
-      Book Vacation
-    </button>
+    <div className="flex gap-2">
+      {isAdmin && (
+        <button
+          onClick={onAddAdminVacation}
+          className="px-4 py-2 group bg-dcoffe text-gray-950 rounded-md hover:bg-vdcoffe hover:text-gray-100 transition-colors shadow-sm flex items-center gap-2"
+        >
+          <Shield
+            size={18}
+            className="transform transition-transform group-hover:scale-110"
+          />
+          Admin Booking
+        </button>
+      )}
+      <button
+        onClick={onAddVacation}
+        className="px-4 py-2 group bg-dcoffe text-gray-950 rounded-md hover:bg-vdcoffe hover:text-gray-100 transition-colors shadow-sm flex items-center gap-2"
+      >
+        <Plus
+          size={18}
+          className="transform transition-transform group-hover:rotate-90"
+        />
+        Book Vacation
+      </button>
+    </div>
   </div>
 );
 
 const Calendar = ({ initialVacations, settings }: CalendarProps) => {
   const { data: session } = useSession();
+  const [showAdminModal, setShowAdminModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>(initialVacations);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const queryClient = useQueryClient();
   const [selectedDates, setSelectedDates] = useState<{
     start: Date | null;
     end: Date | null;
@@ -104,6 +113,7 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
         selectedEvent.extendedProps.userId,
         selectedEvent.extendedProps.totalVacationDays
       );
+      queryClient.invalidateQueries({ queryKey: ["users"] });
 
       if (result.success) {
         setEvents((prev) =>
@@ -133,6 +143,11 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
           setSelectedDates({ start: null, end: null });
           setShowAddModal(true);
         }}
+        onAddAdminVacation={() => {
+          setSelectedDates({ start: null, end: null });
+          setShowAdminModal(true);
+        }}
+        isAdmin={session?.user?.role === "ADMIN"}
       />
       <div className="bg-slate-50 border-2  border-blue-50 p-6 rounded-lg shadow-xl">
         {isLoading && <CalendarSkeleton />}
@@ -270,6 +285,17 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
         isOpen={showAddModal}
         onClose={() => {
           setShowAddModal(false);
+          setSelectedDates({ start: null, end: null });
+        }}
+        initialStartDate={selectedDates.start}
+        initialEndDate={selectedDates.end}
+        onVacationCreated={handleVacationCreated}
+      />
+
+      <AdminVacationForm
+        isOpen={showAdminModal}
+        onClose={() => {
+          setShowAdminModal(false);
           setSelectedDates({ start: null, end: null });
         }}
         initialStartDate={selectedDates.start}
