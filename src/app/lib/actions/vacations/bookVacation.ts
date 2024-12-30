@@ -98,6 +98,7 @@ export async function bookVacation(formData: FormData) {
         ConditionExpression: "attribute_not_exists(id)",
       })
     );
+    
 
     revalidateTag("vacations");
     revalidateTag("admin-vacations");
