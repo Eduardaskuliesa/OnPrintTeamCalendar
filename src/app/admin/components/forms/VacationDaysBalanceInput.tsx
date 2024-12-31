@@ -34,6 +34,7 @@ export const VacationDaysBalanceInput = ({
           name="vacationDays"
           value={vacationDays || ""} // Convert 0 to empty string
           onChange={(e) => handleInputChange("vacationDays", e.target.value)}
+          step="0.00000001"
           min="0"
           max="365"
           className="w-full h-10 rounded-lg"

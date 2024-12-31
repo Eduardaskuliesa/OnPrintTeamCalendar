@@ -8,7 +8,7 @@ const BATCH_SIZE = 25;
 export async function POST() {
   try {
     let lastEvaluatedKey: Record<string, any> | undefined;
-    let allUpdates: Promise<any>[] = [];
+    const allUpdates: Promise<any>[] = [];
 
     do {
       const scanCommand = new ScanCommand({
