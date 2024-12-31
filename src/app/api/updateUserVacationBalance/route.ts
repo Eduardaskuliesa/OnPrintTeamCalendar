@@ -1,45 +1,61 @@
 import { dynamoDb, dynamoName } from "@/app/lib/dynamodb";
-import { ScanCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { ScanCommand, BatchWriteCommand } from "@aws-sdk/lib-dynamodb";
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 
+const BATCH_SIZE = 25; 
+
 export async function POST() {
   try {
-    const getAllUsers = new ScanCommand({
-      TableName: dynamoName || "",
-      ProjectionExpression: "userId, vacationDays, updateAmount",
-    });
+    let lastEvaluatedKey: Record<string, any> | undefined;
+    let allUpdates: Promise<any>[] = [];
 
-    const response = await dynamoDb.send(getAllUsers);
+    do {
+      const scanCommand = new ScanCommand({
+        TableName: dynamoName || "",
+        ProjectionExpression: "userId, vacationDays, updateAmount",
+        ExclusiveStartKey: lastEvaluatedKey,
+      });
 
-    if (!response || !response.Items) {
-      throw new Error("Failed to fetch users");
-    }
+      const response = await dynamoDb.send(scanCommand);
 
-    const updatePromises = response.Items.map(async (user) => {
-      if (!user.updateAmount) return;
+      if (!response || !response.Items) {
+        throw new Error("Failed to fetch users");
+      }
 
-      const newVacationDays =
-        (user.vacationDays || 0) + (user.updateAmount || 0);
+      for (let i = 0; i < response.Items.length; i += BATCH_SIZE) {
+        const batch = response.Items.slice(i, i + BATCH_SIZE);
+        const writeRequests = batch
+          .filter((user) => user.updateAmount)
+          .map((user) => ({
+            PutRequest: {
+              Item: {
+                userId: user.userId,
+                vacationDays:
+                  (user.vacationDays || 0) + (user.updateAmount || 0),
+                updatedAt: new Date().toISOString(),
+              },
+            },
+          }));
 
-      return dynamoDb.send(
-        new UpdateCommand({
-          TableName: dynamoName || "",
-          Key: {
-            userId: user.userId,
-          },
-          UpdateExpression:
-            "SET vacationDays = :vacationDays, updatedAt = :updatedAt",
-          ExpressionAttributeValues: {
-            ":vacationDays": newVacationDays,
-            ":updatedAt": new Date().toISOString(),
-          },
-          ReturnValues: "ALL_NEW",
-        })
-      );
-    });
+        if (writeRequests.length > 0) {
+          allUpdates.push(
+            dynamoDb.send(
+              new BatchWriteCommand({
+                RequestItems: {
+                  [dynamoName || ""]: writeRequests,
+                },
+              })
+            )
+          );
+        }
+      }
 
-    await Promise.all(updatePromises);
+      lastEvaluatedKey = response.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
+
+    await Promise.all(allUpdates);
+
     revalidateTag("users");
 
     return NextResponse.json({
