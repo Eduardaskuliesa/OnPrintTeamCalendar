@@ -29,7 +29,7 @@ export async function POST() {
             userId: user.userId,
           },
           UpdateExpression:
-            "SET vacationDays = :newDays, updatedAt = :updatedAt",
+            "SET vacationDays = :vacationDays, updatedAt = :updatedAt",
           ExpressionAttributeValues: {
             ":vacationDays": newVacationDays,
             ":updatedAt": new Date().toISOString(),
