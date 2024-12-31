@@ -57,14 +57,14 @@ export default function VacationRequestList({
           request.userId
         );
 
-        // if (result.success) {
-        //   await sendApprovedEmail({
-        //     to: request.userEmail,
-        //     name: request.userName,
-        //     startDate: request.startDate,
-        //     endDate: request.endDate,
-        //   });
-        // }
+        if (result.success) {
+          await sendApprovedEmail({
+            to: request.userEmail,
+            name: request.userName,
+            startDate: request.startDate,
+            endDate: request.endDate,
+          });
+        }
       } else {
         const user = users.find((u) => u.userId === request.userId);
         if (user) {
@@ -81,15 +81,14 @@ export default function VacationRequestList({
           request.totalVacationDays
         );
 
-        // Send rejection email
-        // if (result.success) {
-        //   await sendRejectedEmail({
-        //     to: request.userEmail,
-        //     name: request.userName,
-        //     startDate: request.startDate,
-        //     endDate: request.endDate,
-        //   });
-        // }
+        if (result.success) {
+          await sendRejectedEmail({
+            to: request.userEmail,
+            name: request.userName,
+            startDate: request.startDate,
+            endDate: request.endDate,
+          });
+        }
       }
 
       if (result.success) {

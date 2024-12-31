@@ -91,12 +91,12 @@ export async function bookVacation(formData: FormData) {
       updatedAt: new Date().toISOString(),
     };
 
-    // await sendRequestEmail({
-    //   to: user.data.email,
-    //   name: user.data.name,
-    //   startDate: formData.startDate,
-    //   endDate: formData.endDate,
-    // });
+    await sendRequestEmail({
+      to: user.data.email,
+      name: user.data.name,
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+    });
 
     await dynamoDb.send(
       new PutCommand({

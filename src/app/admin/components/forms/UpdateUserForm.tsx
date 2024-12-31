@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { updateUser } from "../../../lib/actions/users/updateUser";
 import { toast } from "react-toastify";
 import { User } from "../../../types/api";

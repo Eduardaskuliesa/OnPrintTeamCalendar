@@ -62,6 +62,7 @@ export default function CreateUserForm({
       toast.success("Vartotojas sėkmingai sukurtas");
     } catch (error: any) {
       toast.error("Šis elpaštas jau yra užimtas");
+      console.log(error);
     } finally {
       setLoading(false);
     }
