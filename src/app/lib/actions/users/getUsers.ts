@@ -13,13 +13,6 @@ async function queryUsers() {
 
   const getAllUsers = new ScanCommand({
     TableName: dynamoName || "",
-    ProjectionExpression:
-      "email, #name, #role, #userId, color, createdAt, updatedAt, useGlobal, vacationDays",
-    ExpressionAttributeNames: {
-      "#name": "name",
-      "#userId": "userId",
-      "#role": "role",
-    },
   });
 
   const response = await dynamoDb.send(getAllUsers);

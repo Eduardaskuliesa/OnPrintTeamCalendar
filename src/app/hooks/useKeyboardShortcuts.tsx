@@ -1,51 +1,44 @@
-import { useEffect } from "react";
+import { useEffect, RefObject } from "react";
 
-interface UseKeyboardShortcutsProps {
-  isOpen: boolean;
-  onSubmit: (e: React.FormEvent) => Promise<void>; // Keep it required
-  onClose: () => void;
-  disabled?: boolean;
-  formRef?: React.RefObject<HTMLFormElement>;
-}
-
-export const useKeyboardShortcuts = ({
-  isOpen,
-  onSubmit,
-  onClose,
-  disabled = false,
-  formRef,
-}: UseKeyboardShortcutsProps) => {
+export const useKeyboardShortcuts = (
+  isEditing: boolean,
+  onCancel: () => void,
+  onSave?: () => void,
+  ref?: RefObject<HTMLElement>
+) => {
   useEffect(() => {
-    const handleKeyDown = async (event: KeyboardEvent) => {
-      if (!isOpen || disabled) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isEditing) return;
 
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && onSave) {
         event.preventDefault();
-        // Always provide the event since the type requires it
-        const fakeEvent = {
-          preventDefault: () => {},
-        } as React.FormEvent;
-        await onSubmit(fakeEvent);
+        onSave();
       } else if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        onCancel();
       }
     };
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (!formRef?.current) return;
-
-      if (isOpen && !formRef.current.contains(event.target as Node)) {
-        onClose();
+      if (
+        ref?.current &&
+        !ref.current.contains(event.target as Node) &&
+        isEditing
+      ) {
+        onCancel();
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("mousedown", handleClickOutside);
+    if (ref) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleClickOutside);
+      if (ref) {
+        document.removeEventListener("mousedown", handleClickOutside);
+      }
     };
-  }, [isOpen, onSubmit, onClose, disabled, formRef]);
+  }, [isEditing, onSave, onCancel, ref]);
 };

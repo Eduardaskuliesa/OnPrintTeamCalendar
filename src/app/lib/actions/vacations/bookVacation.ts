@@ -12,6 +12,7 @@ import { getUserSettings } from "../settings/user/getUserSettings";
 import { vacationsAction } from ".";
 import { User } from "@/app/types/api";
 import { sanitizeSettings } from "../settings/sanitizeSettings";
+import { sendRequestEmail } from "../emails/sendRequestEmail";
 
 interface FormData {
   startDate: string;
@@ -89,6 +90,13 @@ export async function bookVacation(formData: FormData) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
+
+    // await sendRequestEmail({
+    //   to: user.data.email,
+    //   name: user.data.name,
+    //   startDate: formData.startDate,
+    //   endDate: formData.endDate,
+    // });
 
     await dynamoDb.send(
       new PutCommand({

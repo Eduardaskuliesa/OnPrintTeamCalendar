@@ -213,11 +213,7 @@ const OverlapRulesCard = ({
     }
   };
 
-  useKeyboardShortcuts({
-    isOpen: isEditing,
-    onSubmit: handleSave,
-    onClose: handleCancel,
-  });
+  useKeyboardShortcuts(isEditing, onCancel, handleSave);
 
   return (
     <>

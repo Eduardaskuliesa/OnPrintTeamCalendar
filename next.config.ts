@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
     VACATION_DYNAMODB_TABLE_NAME: process.env.VACATION_DYNAMODB_TABLE_NAME,
     SALT_ROUNDS: process.env.SALT_ROUNDS,
     SETTINGS_DYNAMODB_TABLE_NAME: process.env.SETTINGS_DYNAMODB_TABLE_NAME,
-    RESEND_API: process.env.RESEND_API,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
   },
 };
 

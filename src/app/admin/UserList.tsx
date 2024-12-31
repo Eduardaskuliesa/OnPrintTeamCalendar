@@ -7,7 +7,7 @@ import { UserActionButtons } from "./UserActionButtons";
 import DeleteUserConfirmation, {
   ConfirmationMessage,
 } from "../ui/DeleteUserConfirmation";
-import UpdateUserForm from "./UpdateUserForm";
+import UpdateUserForm from "./components/forms/UpdateUserForm";
 import { ShieldCheck, CalendarDays } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -105,7 +105,9 @@ export default function UserList({
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="font-medium text-gray-950">{user.name}</p>
+                      <p className="font-medium text-gray-950">
+                        {user.name} {user.surname}
+                      </p>
                       {user.role === "ADMIN" && (
                         <ShieldCheck size={16} className="text-blue-500" />
                       )}
@@ -151,6 +153,7 @@ export default function UserList({
 
       {showUpdateModal && userToUpdate && (
         <UpdateUserForm
+          isOpen={showUpdateModal}
           user={userToUpdate}
           onUserUpdated={handleUserUpdated}
           onCancel={() => {

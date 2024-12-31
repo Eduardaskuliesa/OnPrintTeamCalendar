@@ -525,11 +525,7 @@ const BookingRulesCard = ({
     }
   };
 
-  useKeyboardShortcuts({
-    isOpen: isEditing,
-    onSubmit: handleSave,
-    onClose: handleCancel,
-  });
+  useKeyboardShortcuts(isEditing, onCancel, handleSave);
 
   const getInputProps = (key: string) => {
     switch (key) {

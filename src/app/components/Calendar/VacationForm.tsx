@@ -73,7 +73,7 @@ const VacationForm = ({
         return;
       }
 
-      setError(result.error)
+      setError(result.error);
       toast.error("Nepavyko užregistruoti atostogų");
     } catch (err) {
       console.error(err);
@@ -83,13 +83,7 @@ const VacationForm = ({
       setLoading(false);
     }
   };
-
-  useKeyboardShortcuts({
-    isOpen,
-    onSubmit: handleSubmit,
-    onClose: handleClose,
-    formRef,
-  });
+  useKeyboardShortcuts(isOpen, handleClose, undefined, formRef);
 
   if (!isOpen) return null;
 

@@ -125,11 +125,7 @@ const AdminVacationForm = ({
     }
   };
 
-  useKeyboardShortcuts({
-    isOpen,
-    onSubmit: handleSubmit,
-    onClose: handleClose,
-  });
+  useKeyboardShortcuts(isOpen, handleClose, undefined);
 
   if (!isOpen) return null;
 
@@ -178,6 +174,7 @@ const AdminVacationForm = ({
               setFormData({ ...formData, endDate: date })
             }
             disabled={loading}
+            required={true}
           />
 
           {formData.endDate && (

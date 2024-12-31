@@ -1,0 +1,28 @@
+name: Update Vacation Balance
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs at midnight UTC
+  workflow_dispatch: # Allows manual trigger for testing
+
+jobs:
+  update-balance:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Update vacation balance
+        run: |
+          response=$(curl -X POST ${{ secrets.APP_URL }}/api/updateUserVacationBalance \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -w "\n%{http_code}")
+
+          http_code=$(echo "$response" | tail -n1)
+          content=$(echo "$response" | sed '$d')
+
+          if [ "$http_code" != "200" ]; then
+            echo "Error: $content"
+            exit 1
+          fi
+
+          echo "Success: $content"

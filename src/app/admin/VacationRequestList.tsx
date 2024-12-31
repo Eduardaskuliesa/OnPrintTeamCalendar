@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import DeleteConfirmation from "../ui/DeleteConfirmation";
 import { vacationsAction } from "../lib/actions/vacations";
 import { User } from "../types/api";
+import { sendRejectedEmail } from "../lib/actions/emails/sendRejectEmail";
+import { sendApprovedEmail } from "../lib/actions/emails/sendApprovalEmail";
 
 interface Vacation {
   id: string;
@@ -54,6 +56,15 @@ export default function VacationRequestList({
           status,
           request.userId
         );
+
+        // if (result.success) {
+        //   await sendApprovedEmail({
+        //     to: request.userEmail,
+        //     name: request.userName,
+        //     startDate: request.startDate,
+        //     endDate: request.endDate,
+        //   });
+        // }
       } else {
         const user = users.find((u) => u.userId === request.userId);
         if (user) {
@@ -69,6 +80,16 @@ export default function VacationRequestList({
           request.userId,
           request.totalVacationDays
         );
+
+        // Send rejection email
+        // if (result.success) {
+        //   await sendRejectedEmail({
+        //     to: request.userEmail,
+        //     name: request.userName,
+        //     startDate: request.startDate,
+        //     endDate: request.endDate,
+        //   });
+        // }
       }
 
       if (result.success) {

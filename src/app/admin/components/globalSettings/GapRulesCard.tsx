@@ -281,11 +281,7 @@ const GapRulesCard = ({
     }
   };
 
-  useKeyboardShortcuts({
-    isOpen: isEditing,
-    onSubmit: handleGlobalSave,
-    onClose: handleGlobalCancel,
-  });
+ useKeyboardShortcuts(isEditing, handleGlobalCancel, handleGlobalSave);
 
   return (
     <>

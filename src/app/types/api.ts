@@ -1,11 +1,13 @@
 export interface User {
   email: string;
   name: string;
+  surname: string;
   userId: string;
   role: string;
   color: string;
   useGlobal: boolean;
   vacationDays: number;
+  updateAmount: number;
   createdAt: string;
   birthday: string;
   updatedAt: string;

@@ -1,7 +1,7 @@
 "use client";
 import { User, Vacation } from "@/app/types/api";
 import { lazy, useState } from "react";
-import CreateUserForm from "./CreateUserForm";
+import CreateUserForm from "./components/forms/CreateUserForm";
 import UserList from "./UserList";
 import VacationRequestList from "./VacationRequestList";
 import AdminDashboardStats from "./AdminDashboardStats";
@@ -133,6 +133,7 @@ export default function AdminPage({
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-white rounded-lg max-w-2xl w-full mx-4">
               <CreateUserForm
+                isOpen={showCreateModal}
                 onUserCreated={handleUserCreated}
                 onCancel={() => setShowCreateModal(false)}
               />

@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
 import { dynamoName, settingsDynamoName } from "@/app/lib/dynamodb";
 import { dynamoDb } from "@/app/lib/dynamodb";
-import { FormData } from "@/app/admin/CreateUserForm";
+import { FormData } from "@/app/admin/components/forms/CreateUserForm";
 import bcrypt from "bcryptjs";
 import { PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
@@ -38,9 +38,11 @@ export async function createUser(formData: FormData) {
     const email = formData.email;
     const password = formData.password;
     const name = formData.name;
+    const surname = formData.surname;
     const birthday = formData.birthday || "";
     const color = formData.color;
     const vacationDays = formData.vacationDays;
+    const updateAmount = formData.updateAmount;
     const useGlobal = false;
     const role = "USER";
 
@@ -63,8 +65,10 @@ export async function createUser(formData: FormData) {
         birthday,
         password: hashedPassword,
         name,
+        surname,
         role,
-        vacationDays: vacationDays,
+        vacationDays,
+        updateAmount,
         useGlobal,
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -114,10 +118,12 @@ export async function createUser(formData: FormData) {
         userId,
         email,
         name,
+        surname,
         color,
         birthday,
         role,
-        vacationDays: vacationDays,
+        vacationDays,
+        updateAmount,
         useGlobal,
         createdAt: timestamp,
         updatedAt: timestamp,
