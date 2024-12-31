@@ -11,18 +11,20 @@ jobs:
 
     steps:
       - name: Update vacation balance
+        id: update
         run: |
-          response=$(curl -X POST ${{ secrets.APP_URL }}/api/updateUserVacationBalance \
+          ENDPOINT="${{ secrets.APP_URL }}/api/updateUserVacationBalance"
+          echo "Calling endpoint: $ENDPOINT"
+
+          response=$(curl -v -X POST "$ENDPOINT" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            -w "\n%{http_code}")
-
-          http_code=$(echo "$response" | tail -n1)
-          content=$(echo "$response" | sed '$d')
-
-          if [ "$http_code" != "200" ]; then
-            echo "Error: $content"
+            -w "\n%{http_code}" \
+            -f)
+            
+          if [ $? -ne 0 ]; then
+            echo "::error::Failed to call the API endpoint"
             exit 1
           fi
 
-          echo "Success: $content"
+          echo "Response: $response"
