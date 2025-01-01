@@ -12,6 +12,7 @@ import { ColorInput } from "./ColorInput";
 import { VacationDaysBalanceInput } from "./VacationDaysBalanceInput";
 import { BirthDayInput } from "./BirthdayInput";
 import { useKeyboardShortcuts } from "../../../hooks/useKeyboardShortcuts";
+import { sendWelcomeEmail } from "@/app/lib/actions/emails/sendWelcomeEmail";
 
 interface CreateUserFormProps {
   onUserCreated: (newUser: User) => void;
@@ -56,8 +57,17 @@ export default function CreateUserForm({
     e.preventDefault();
     try {
       setLoading(true);
+
       const response = await usersActions.createUser(formData);
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      const welcomeEmailData = {
+        to: formData.email,
+        name: formData.name,
+        surname: formData.surname,
+        password: formData.password,
+      };
+
+      await sendWelcomeEmail(welcomeEmailData);
       onUserCreated(response.user);
       toast.success("Vartotojas sėkmingai sukurtas");
     } catch (error: any) {

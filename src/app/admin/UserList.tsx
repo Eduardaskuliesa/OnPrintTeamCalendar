@@ -120,7 +120,12 @@ export default function UserList({
                   <div className="flex items-center text-gray-600">
                     <CalendarDays size={16} className="text-orange-500 mr-1" />
                     <span className="text-sm">
-                      <span className="font-semibold">{user.vacationDays}</span>{" "}
+                      <span className="font-semibold">
+                        {" "}
+                        {Number(user.vacationDays) % 1 === 0
+                          ? user.vacationDays
+                          : Number(user.vacationDays).toFixed(3)}
+                      </span>{" "}
                       d.
                     </span>
                   </div>

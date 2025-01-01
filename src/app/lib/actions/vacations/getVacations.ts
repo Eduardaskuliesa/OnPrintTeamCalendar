@@ -91,7 +91,7 @@ export const getVacations = unstable_cache(
   fetchVacationsData,
   ["vacations-list"],
   {
-    revalidate: 604800,
+    revalidate: 36000,
     tags: ["vacations"],
   }
 );

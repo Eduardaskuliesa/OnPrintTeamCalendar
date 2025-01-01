@@ -8,7 +8,7 @@ interface UserStatsProps {
   nextVacation: string | null;
 }
 
-export default function UserStats({
+export default async function UserStats({
   totalVacationDays,
   usedVacationDays,
   pendingRequests,
@@ -28,10 +28,14 @@ export default function UserStats({
         </div>
         <div className="flex items-center space-x-2">
           <p className="text-3xl font-bold text-green-800">
-            {totalVacationDays}
+            {Number(totalVacationDays) % 1 === 0
+              ? totalVacationDays
+              : Number(totalVacationDays).toFixed(3)}
           </p>
           {totalPendingVacationDays > 0 && (
-            <span className="text-green-800 text-2xl mb-1 font-semibold">({totalPendingVacationDays})</span>
+            <span className="text-green-800 text-2xl mb-1 font-semibold">
+              ({totalPendingVacationDays})
+            </span>
           )}
         </div>
       </div>

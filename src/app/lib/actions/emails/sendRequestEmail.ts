@@ -95,7 +95,7 @@ export async function sendRequestEmail(data: EmailData) {
   try {
     const response = await resend.emails.send({
       from: `Atostogos@${resendDomain}`,
-      to: data.to,
+      to: 'kuliesaeduardas@gmail.com',
       subject: subject,
       html: htmlContent,
     });

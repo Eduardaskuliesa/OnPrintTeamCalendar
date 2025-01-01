@@ -1,5 +1,3 @@
-"use client";
-
 import { User } from "../types/api";
 
 export const UserSkeleton = () => {
@@ -17,7 +15,7 @@ export const UserSkeleton = () => {
 interface UserInfoProps {
   userData: User;
 }
-const UserInfo = ({ userData }: UserInfoProps) => {
+const UserInfo = async ({ userData }: UserInfoProps) => {
   return (
     <div className="flex items-center space-x-4 mb-8">
       <div

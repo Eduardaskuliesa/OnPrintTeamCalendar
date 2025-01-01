@@ -7,9 +7,7 @@ export default async function UserPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="">
-        <UserPageWrapper userId={session?.user.userId}></UserPageWrapper>
-      </div>
+      <UserPageWrapper userId={session?.user.userId}></UserPageWrapper>
     </div>
   );
 }

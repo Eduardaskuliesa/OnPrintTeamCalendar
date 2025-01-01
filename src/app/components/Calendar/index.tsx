@@ -29,7 +29,6 @@ interface CalendarProps {
   user: User;
   isGlobalSettings: boolean;
   settings: GlobalSettingsType;
-  initialFetchTimestamp: string;
 }
 
 const CalendarToolbar: React.FC<CalendarToolbarProps> = ({

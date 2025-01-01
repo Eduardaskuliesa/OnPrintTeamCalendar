@@ -18,16 +18,13 @@ export async function POST() {
 
     const updatePromises = response.Items.map(async (user) => {
       if (!user.updateAmount) return;
-
       const newVacationDays =
         (user.vacationDays || 0) + (user.updateAmount || 0);
 
-      return dynamoDb.send(
+      const result = await dynamoDb.send(
         new UpdateCommand({
           TableName: dynamoName || "",
-          Key: {
-            userId: user.userId,
-          },
+          Key: { userId: user.userId },
           UpdateExpression:
             "SET vacationDays = :vacationDays, updatedAt = :updatedAt",
           ExpressionAttributeValues: {
@@ -37,6 +34,9 @@ export async function POST() {
           ReturnValues: "ALL_NEW",
         })
       );
+
+      revalidateTag(`user-${user.userId}`);
+      return result;
     });
 
     await Promise.all(updatePromises);

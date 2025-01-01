@@ -48,7 +48,7 @@ const Sidebar = () => {
   const { isCollapsed, setIsCollapsed } = useSidebar();
   const router = useRouter();
    const handleLogout = async () => {
-    router.push("/login");
+    router.replace("/login");
     try {
       await signOut({ redirect: false });
       toast.success("Successfully logged out!");
@@ -64,7 +64,7 @@ const Sidebar = () => {
     ...(session?.user?.role === "ADMIN"
       ? [{ href: "/admin", icon: <User size={20} />, text: "Admin" }]
       : []),
-    { href: "/", icon: <Calendar size={20} />, text: "Calendar" },
+    { href: "/calendar", icon: <Calendar size={20} />, text: "Calendar" },
     { href: "/account", icon: <Settings size={20} />, text: "Account" },
   ];
 

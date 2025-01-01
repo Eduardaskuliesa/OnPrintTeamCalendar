@@ -86,6 +86,10 @@ export default function UpdateUserForm({
     }
   }
 
+  const formatVacationDays = (value: number) => {
+    return value % 1 === 0 ? Number(value) : Number(Number(value).toFixed(10));
+  };
+
   useKeyboardShortcuts(isOpen, onCancel, undefined, formRef);
 
   return (
@@ -95,7 +99,12 @@ export default function UpdateUserForm({
           <h2 className="text-xl font-semibold text-gray-900">
             Atnaujinti Vartotoją
           </h2>
-          <Button className="bg-gray-100 hover:bg-gray-200" variant="ghost" size="icon" onClick={onCancel}>
+          <Button
+            className="bg-gray-100 hover:bg-gray-200"
+            variant="ghost"
+            size="icon"
+            onClick={onCancel}
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -127,10 +136,13 @@ export default function UpdateUserForm({
           />
 
           <VacationDaysBalanceInput
-            vacationDays={formData.vacationDays}
+            vacationDays={formatVacationDays(formData.vacationDays)}
             updateAmount={formData.updateAmount}
             onChange={(field, value) =>
-              setFormData((prev) => ({ ...prev, [field]: value }))
+              setFormData((prev) => ({
+                ...prev,
+                [field]: formatVacationDays(Number(value)),
+              }))
             }
           />
           <div className="grid grid-cols-2 gap-4">
