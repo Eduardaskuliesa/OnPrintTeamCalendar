@@ -8,8 +8,21 @@ import DeleteUserConfirmation, {
   ConfirmationMessage,
 } from "../ui/DeleteUserConfirmation";
 import UpdateUserForm from "./components/forms/UpdateUserForm";
-import { ShieldCheck, CalendarDays } from "lucide-react";
+import {
+  ShieldCheck,
+  CalendarDays,
+  Loader,
+  Pencil,
+  Settings,
+  Trash2,
+} from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface UserListProps {
   users: User[];
@@ -86,17 +99,17 @@ export default function UserList({
   return (
     <>
       <div className="bg-slate-50 rounded-lg shadow-md border border-blue-50">
-        <div className="p-6">
+        <div className="p-2 sm:p-4 md:p-6">
           <h3 className="text-lg font-semibold mb-4">Mano darbuotojai</h3>
           <div className="space-y-3">
             {users.map((user) => (
               <div
                 key={user.email}
-                className="flex items-center border-b border-slate-300 py-3 last:border-0"
+                className="flex justify-between items-center border-b border-slate-300 py-3 last:border-0"
               >
-                <div className="flex items-center space-x-4 w-[250px]">
+                <div className="flex items-center space-x-2 sm:space-x-4">
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: user.color }}
                   >
                     <span className="text-white font-medium">
@@ -104,7 +117,7 @@ export default function UserList({
                     </span>
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="hidden  sm:flex  items-center gap-2">
                       <p className="font-medium text-gray-950">
                         {user.name} {user.surname}
                       </p>
@@ -112,16 +125,14 @@ export default function UserList({
                         <ShieldCheck size={16} className="text-blue-500" />
                       )}
                     </div>
-                    <p className="text-sm text-gray-800">{user.email}</p>
+                    <p className=" sm:block text-sm text-gray-800">
+                      {user.email}
+                    </p>
                   </div>
-                </div>
-
-                <div className="flex-1 ">
-                  <div className="flex items-center text-gray-600">
+                  <div className=" hidden sm:flex items-center text-gray-600">
                     <CalendarDays size={16} className="text-orange-500 mr-1" />
                     <span className="text-sm">
                       <span className="font-semibold">
-                        {" "}
                         {Number(user.vacationDays) % 1 === 0
                           ? user.vacationDays
                           : Number(user.vacationDays).toFixed(3)}
@@ -131,7 +142,7 @@ export default function UserList({
                   </div>
                 </div>
 
-                <div className="flex items-center">
+                <div className="hidden sm:flex items-center gap-4">
                   <UserActionButtons
                     onSettings={() => handleSettings(user)}
                     onEdit={() => handleUpdate(user)}
@@ -139,6 +150,46 @@ export default function UserList({
                     isDeleting={deletingEmail === user.email}
                     isAdmin={user.role === "ADMIN"}
                   />
+                </div>
+
+                <div className="sm:hidden">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="p-2 text-slate-800 bg-slate-200 rounded-md hover:bg-slate-300 transition-colors">
+                        <Settings size={18} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem
+                        onClick={() => handleSettings(user)}
+                        className="flex items-center"
+                      >
+                        <Settings size={18} className="mr-2 text-slate-800" />
+                        Settings
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleUpdate(user)}
+                        className="flex items-center"
+                      >
+                        <Pencil size={18} className="mr-2 text-teal-800" />
+                        Edit
+                      </DropdownMenuItem>
+                      {!user.role.includes("ADMIN") && (
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(user)}
+                          className="flex items-center text-rose-700"
+                          disabled={deletingEmail === user.email}
+                        >
+                          {deletingEmail === user.email ? (
+                            <Loader className="animate-spin mr-2" size={18} />
+                          ) : (
+                            <Trash2 size={18} className="mr-2" />
+                          )}
+                          Delete
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             ))}

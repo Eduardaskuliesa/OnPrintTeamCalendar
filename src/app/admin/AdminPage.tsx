@@ -101,7 +101,7 @@ export default function AdminPage({
 
   return (
     <div className="">
-      <div className="py-4 max-w-5xl lg:ml-[10%]">
+      <div className="py-4 min-w-[300px] max-w-5xl lg:ml-[5%]">
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">
             Admin Dashboard

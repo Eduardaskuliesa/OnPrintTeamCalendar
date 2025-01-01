@@ -1,13 +1,12 @@
 "use client";
-import { useSidebar } from "../context/SidebarContext";
 
 export function Main({ children }: { children: React.ReactNode }) {
-  const { isCollapsed } = useSidebar();
   return (
     <main
-      className={`transition-all duration-300  ${
-        isCollapsed ? "ml-16" : "ml-44"
-      } p-8`}
+      className="transition-all duration-300 
+        md:mt-0 
+        md:ml-44 
+        p-4 sm:p-8"
     >
       {children}
     </main>

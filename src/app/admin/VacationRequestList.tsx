@@ -1,5 +1,5 @@
 "use client";
-import { Clock, RefreshCcw } from "lucide-react";
+import { Clock, RefreshCcw, Check, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import DeleteConfirmation from "../ui/DeleteConfirmation";
@@ -19,6 +19,7 @@ interface Vacation {
   totalVacationDays: number;
   status: "PENDING" | "APPROVED" | "REJECTED";
 }
+
 interface Props {
   initialRequests: Vacation[];
   onUserUpdated: (user: User) => void;
@@ -149,99 +150,116 @@ export default function VacationRequestList({
   return (
     <>
       <div className="bg-slate-50 rounded-lg shadow-md border border-blue-50">
-        <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Atostogų prašymai</h3>
+        <div className="p-2 sm:p-4 md:p-6">
+          <h3 className="text-lg font-semibold mb-4 px-2 py-2 sm:px-0 sm:py-0">
+            Atostogų prašymai
+          </h3>
           <div className="space-y-3">
             {requests.length === 0 ? (
               <p className="text-gray-600 text-center py-4">
                 Nera jokiu prašymu
               </p>
             ) : (
-              requests.map((request) => (
-                <div
-                  key={request.id}
-                  className="flex items-center justify-between border-b border-slate-300 py-3 last:border-0"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div
-                      className={`w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center`}
-                    >
-                      <span className="text-white font-medium">
-                        {request.userName.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-medium">{request.userName}</p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <span className="text-sm text-gray-600">
-                          Nuo{" "}
-                          <span className="font-semibold">
-                            {new Date(request.startDate).toLocaleDateString(
-                              "lt-LT"
-                            )}{" "}
-                          </span>
-                          iki{" "}
-                          <span className="font-semibold">
-                            {new Date(request.endDate).toLocaleDateString(
-                              "lt-LT"
-                            )}
-                          </span>
+              requests.map((request) => {
+                // Calculate days difference inside the map
+                const daysDiff =
+                  Math.ceil(
+                    (new Date(request.endDate).getTime() -
+                      new Date(request.startDate).getTime()) /
+                      (1000 * 60 * 60 * 24)
+                  ) + 1;
+
+                return (
+                  <div
+                    key={request.id}
+                    className="flex items-center justify-between border-b border-slate-300 py-3 last:border-0"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-orange-500 flex items-center justify-center">
+                        <span className="text-white font-medium">
+                          {request.userName.charAt(0)}
                         </span>
-                        <span className="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-700">
-                          Laukiama
-                        </span>
-                        <div className="flex items-center bg-blue-100 text-db px-2 py-0.5 rounded-full">
-                          <Clock size={14} className="mr-1" />
-                          <span className="text-sm font-medium">
-                            {new Date(request.endDate).getDate() -
-                              new Date(request.startDate).getDate() +
-                              1}{" "}
-                            d.
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <p className="font-medium">{request.userName}</p>
+                          <span className="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-700">
+                            Laukiama
                           </span>
+                        </div>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="text-sm text-gray-600">
+                            Nuo{" "}
+                            <span className="font-semibold">
+                              {new Date(request.startDate).toLocaleDateString(
+                                "lt-LT"
+                              )}{" "}
+                            </span>
+                            iki{" "}
+                            <span className="font-semibold">
+                              {new Date(request.endDate).toLocaleDateString(
+                                "lt-LT"
+                              )}
+                            </span>
+                          </span>
+                          <div className="hidden md:flex items-center bg-blue-100 text-db px-2 py-0.5 rounded-full">
+                            <Clock size={14} className="mr-1" />
+                            <span className="text-sm font-medium">
+                              {daysDiff} d.
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() =>
+                          handleStatusUpdate(request.id, "APPROVED", request)
+                        }
+                        disabled={
+                          loadingApproveIds.has(request.id) ||
+                          loadingRejectIds.has(request.id)
+                        }
+                        className="flex items-center px-2 md:px-4 py-1 md:py-2 bg-emerald-200 text-green-800 rounded-md text-sm shadow-sm hover:bg-emerald-300 transition-colors disabled:opacity-50"
+                      >
+                        {loadingApproveIds.has(request.id) ? (
+                          <div className="flex items-center">
+                            <RefreshCcw className="w-3 h-3 mr-2 animate-spin" />
+                            <span className="hidden md:inline">Tvirtinama</span>
+                          </div>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4 md:hidden" />
+                            <span className="hidden md:inline">
+                              Patvirtinti
+                            </span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleRejectClick(request)}
+                        disabled={
+                          loadingRejectIds.has(request.id) ||
+                          loadingApproveIds.has(request.id)
+                        }
+                        className="flex items-center px-2 md:px-4 py-2 md:py-2 bg-rose-200 text-red-800 rounded-md text-sm shadow-sm hover:bg-rose-300 transition-colors disabled:opacity-50"
+                      >
+                        {loadingRejectIds.has(request.id) ? (
+                          <div className="flex items-center">
+                            <RefreshCcw className="w-3 h-3 mr-2 animate-spin" />
+                            <span className="hidden md:inline">Atmetama</span>
+                          </div>
+                        ) : (
+                          <>
+                            <X className="w-4 h-4 md:hidden" />
+                            <span className="hidden md:inline">Atmesti</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() =>
-                        handleStatusUpdate(request.id, "APPROVED", request)
-                      }
-                      disabled={
-                        loadingApproveIds.has(request.id) ||
-                        loadingRejectIds.has(request.id)
-                      }
-                      className="px-4 py-2 bg-emerald-200 text-green-800 rounded-md text-sm shadow-sm hover:bg-emerald-300 transition-colors disabled:opacity-50"
-                    >
-                      {loadingApproveIds.has(request.id) ? (
-                        <div className="flex items-center">
-                          <RefreshCcw className="w-3 h-3 mr-2 animate-spin" />
-                          <span>Tvirtinama</span>
-                        </div>
-                      ) : (
-                        "Patvirtinti"
-                      )}
-                    </button>
-                    <button
-                      onClick={() => handleRejectClick(request)}
-                      disabled={
-                        loadingRejectIds.has(request.id) ||
-                        loadingApproveIds.has(request.id)
-                      }
-                      className="px-4 py-2 bg-rose-200 text-red-800 rounded-md text-sm shadow-sm hover:bg-rose-300 transition-colors disabled:opacity-50"
-                    >
-                      {loadingRejectIds.has(request.id) ? (
-                        <div className="flex items-center">
-                          <RefreshCcw className="w-3 h-3 mr-2 animate-spin" />
-                          <span>Atmetama</span>
-                        </div>
-                      ) : (
-                        "Atmesti"
-                      )}
-                    </button>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

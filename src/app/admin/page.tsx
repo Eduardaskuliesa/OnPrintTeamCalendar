@@ -3,10 +3,8 @@ import { vacationsAction } from "../lib/actions/vacations";
 import { User, Vacation } from "../types/api";
 import AdminPage from "./AdminPage";
 
-
 export default async function AdminPageWrapper() {
   try {
-    console.log('Rendered')
     const { data: users } = await usersActions.getUsers();
     const initialVacations = await vacationsAction.getAdminVacations();
 

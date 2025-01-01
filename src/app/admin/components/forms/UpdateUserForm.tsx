@@ -109,7 +109,7 @@ export default function UpdateUserForm({
           </Button>
         </div>
 
-        <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
+        <form ref={formRef} onSubmit={handleSubmit} className="min-w-[250px] sm:space-y-4">
           <SettingsToggle
             enabled={formData.useGlobal}
             onToggle={(value) =>
@@ -145,7 +145,7 @@ export default function UpdateUserForm({
               }))
             }
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 xsm:grid-cols-2 gap-4">
             <ColorInput
               color={formData.color}
               onColorSelect={(color) =>

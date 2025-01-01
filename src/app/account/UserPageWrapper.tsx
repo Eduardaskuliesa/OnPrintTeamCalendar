@@ -59,7 +59,7 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
   };
 
   return (
-    <div className="py-4 max-w-6xl ml-[10%]">
+    <div className="py-4 max-w-6xl ml-[5%]">
       <Suspense fallback={<UserSkeleton />}>
         <UserInfo userData={userData.data as User} />
       </Suspense>

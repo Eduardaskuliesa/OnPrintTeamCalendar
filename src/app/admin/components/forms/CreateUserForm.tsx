@@ -96,7 +96,7 @@ export default function CreateUserForm({
         </Button>
       </div>
 
-      <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-3 min-w-[250px] sm:space-y-5">
         <NameSurnameInput
           name={formData.name}
           surname={formData.surname}
@@ -120,7 +120,7 @@ export default function CreateUserForm({
             setFormData((prev) => ({ ...prev, [field]: value }))
           }
         />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <ColorInput
             color={formData.color}
             onColorSelect={(color) =>

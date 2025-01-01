@@ -198,13 +198,13 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
             }}
             views={{
               multiMonthYear: {
-                multiMonthMaxColumns: 3,
-                multiMonthMinWidth: 250,
+                multiMonthMaxColumns: 2,
+                multiMonthMinWidth: 300,
                 multiMonthMinHeight: 200,
                 eventDisplay: "auto",
                 displayEventEnd: true,
                 displayEventTime: true,
-                eventMinHeight: 25,
+                eventMinHeight: 10,
                 multiMonthTitleFormat: { month: "long", year: "numeric" },
                 dayMaxEvents: true,
                 moreLinkClick: "popover",
