@@ -145,12 +145,12 @@ const RestrictedDaysModal: React.FC<RestrictedDaysModalProps> = ({
   }, []);
 
   const renderDateList = (dates: Date[], type: "holiday" | "custom") => (
-    <ScrollArea className="h-[400px] w-full pr-4">
-      <div className="space-y-2">
+    <ScrollArea className="h-[400px]  w-full pr-4">
+      <div className="space-y-2 ">
         {dates.map((date) => (
           <div
             key={date.toString()}
-            className="flex items-center justify-between p-2 bg-slate-100 rounded-lg border border-gray-200 hover:bg-opacity-80 transition-colors duration-200"
+            className="flex items-center  justify-between p-2 bg-slate-100 rounded-lg border border-gray-200 hover:bg-opacity-80 transition-colors duration-200"
           >
             <div className="flex items-center space-x-2 text-gray-800">
               <CalendarIcon className="w-4 h-4" />
@@ -174,7 +174,7 @@ const RestrictedDaysModal: React.FC<RestrictedDaysModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] bg-white text-gray-800">
+      <DialogContent className="max-w-3xl overflow-auto custom-scrollbar max-h-[90vh] bg-white text-gray-800">
         <DialogHeader className="border-b border-gray-300 pb-2">
           <DialogTitle className="text-xl font-bold text-black flex items-center gap-2">
             <CalendarIcon className="h-5 w-5" />
