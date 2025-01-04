@@ -16,12 +16,14 @@ export async function POST() {
       throw new Error("Failed to fetch users");
     }
 
+    const userIds = response.Items.map((user) => user.userId);
+
     const updatePromises = response.Items.map(async (user) => {
       if (!user.updateAmount) return;
       const newVacationDays =
         (user.vacationDays || 0) + (user.updateAmount || 0);
 
-      const result = await dynamoDb.send(
+      return dynamoDb.send(
         new UpdateCommand({
           TableName: dynamoName || "",
           Key: { userId: user.userId },
@@ -34,17 +36,20 @@ export async function POST() {
           ReturnValues: "ALL_NEW",
         })
       );
-
-      revalidateTag(`user-${user.userId}`);
-      return result;
     });
 
     await Promise.all(updatePromises);
+
+    userIds.forEach((userId) => {
+      revalidateTag(`user-${userId}`);
+    });
     revalidateTag("users");
 
     return NextResponse.json({
       success: true,
       message: "Successfully updated vacation days for all users",
+      revalidated: true,
+      userCount: userIds.length,
     });
   } catch (error) {
     console.error("Error updating vacation days:", error);
