@@ -188,13 +188,13 @@ const GapRulesModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] bg-white text-gray-800">
+      <DialogContent className="max-w-2xl max-h-[90vh] bg-white text-gray-800 overflow-y-auto custom-scrollbar">
         <DialogHeader className="border-b border-gray-300 pb-2">
           <DialogTitle className="text-xl font-bold text-black">
             Configure Gap Rules
           </DialogTitle>
         </DialogHeader>
-        <div className="space-y-6 overflow-y-auto custom-scrollbar">
+        <div className="space-y-6 ">
           <div className="space-y-4 bg-slate-50 p-4 rounded-lg border-2 shadow-md border-blue-50">
             <div className="grid grid-cols-2 gap-10">
               {/* Gap Days Input */}
@@ -314,7 +314,7 @@ const GapRulesModal = ({
               <label className="text-sm font-medium text-gray-800">
                 Users That Can Be Ignored
               </label>
-              <div className="bg-white border rounded-lg p-4 max-h-[250px] relative">
+              <div className="bg-white border rounded-lg  overflow-y-auto custom-scrollbar p-4 max-h-[250px] relative">
                 {gapRules.bypassGapRules && (
                   <div className="absolute inset-0 bg-gray-50/90 flex items-center justify-center">
                     <p className="text-gray-700 font-medium">

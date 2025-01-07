@@ -138,7 +138,7 @@ const OverlapRulesModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] bg-white text-gray-800">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar bg-white text-gray-800">
         <DialogHeader className="border-b border-gray-300 pb-2">
           <DialogTitle className="text-xl font-bold text-black">
             Configure Overlap Rules
@@ -207,7 +207,7 @@ const OverlapRulesModal = ({
               <label className="text-sm font-medium text-gray-800">
                 Users That Can Be Ignored
               </label>
-              <div className="bg-white border rounded-lg p-4 max-h-[250px] relative">
+              <div className="bg-white border rounded-lg p-4 max-h-[250px] overflow-y-auto custom-scrollbar relative">
                 {overlapRules.bypassOverlapRules && (
                   <div className="absolute inset-0 bg-gray-50/90 flex items-center justify-center">
                     <p className="text-gray-700 font-medium">
