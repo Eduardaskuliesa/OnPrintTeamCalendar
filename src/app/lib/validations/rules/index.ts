@@ -42,8 +42,7 @@ export function checkGapRuleConflict(
   startDate: Date,
   endDate: Date,
   settings: GlobalSettingsType,
-  existingVacations: any,
-  userEmail: string
+  existingVacations: any
 ): { hasConflict: boolean; totalGapDays: number } {
   // 1. Early return if gap rules are disabled or globally bypassed
   if (!settings.gapRules.enabled || settings.gapRules.bypassGapRules) {
