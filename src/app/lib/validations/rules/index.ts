@@ -42,7 +42,7 @@ export function checkGapRuleConflict(
   startDate: Date,
   endDate: Date,
   settings: GlobalSettingsType,
-  existingVacations: Vacation[],
+  existingVacations: any,
   userEmail: string
 ): { hasConflict: boolean; totalGapDays: number } {
   // 1. Early return if gap rules are disabled or globally bypassed
@@ -63,7 +63,7 @@ export function checkGapRuleConflict(
   // Filter out (skip) any existing vacations belonging to users in `canIgnoreGapsof`
   // because we do NOT want to enforce gap for those users.
   const canIgnoreEmails = settings.gapRules.canIgnoreGapsof ?? [];
-  const vacationsToCheck = existingVacations.filter((vac) => {
+  const vacationsToCheck = existingVacations.filter((vac: any) => {
     // If the existing vacation belongs to an email we can ignore, skip it
     if (canIgnoreEmails.includes(vac.userEmail)) {
       return false;
