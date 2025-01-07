@@ -39,6 +39,7 @@ export function checkSeasonalConflict(
 }
 
 
+
 export function checkGapRuleConflict(
   startDate: Date,
   endDate: Date,
@@ -51,8 +52,18 @@ export function checkGapRuleConflict(
     return { hasConflict: false };
   }
 
+  // Bypass all gap rules if the setting is enabled
+  if (settings.gapRules.bypassGapRules) {
+    return { hasConflict: false };
+  }
+
   // Filter out vacations that should be checked
   const vacationsToCheck = existingVacations.filter((vacation) => {
+    // Skip self bookings if gap rules are bypassed
+    if (vacation.userEmail === userEmail) {
+      return !settings.gapRules.bypassGapRules;
+    }
+
     // Skip vacations from users in the ignore list
     if (settings.gapRules.canIgnoreGapsof?.includes(userEmail)) {
       return false;
@@ -61,25 +72,34 @@ export function checkGapRuleConflict(
     return true;
   });
 
+  // Calculate minimum duration for gap rules to apply
+  const minimumDaysForGap = settings.gapRules.minimumDaysForGap.days;
+  const newBookingDuration = Math.ceil(
+    (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
   // Check each existing vacation for conflicts
   for (const vacation of vacationsToCheck) {
     const vacationStartDate = new Date(vacation.startDate);
     const vacationEndDate = new Date(vacation.endDate);
-    
-    // Calculate the gap end date for this vacation
-    const gapEndDate = new Date(vacationEndDate);
-    let workingDaysAdded = 0;
-    let daysToAdd = 0;
 
-    while (workingDaysAdded < vacation.gapDays) {
-      daysToAdd++;
-      const currentDate = new Date(vacationEndDate);
-      currentDate.setDate(currentDate.getDate() + daysToAdd);
-      if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
-        workingDaysAdded++;
-      }
+    // Calculate existing vacation duration
+    const existingVacationDuration = Math.ceil(
+      (vacationEndDate.getTime() - vacationStartDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    // Skip gap check if both vacations are shorter than minimum duration
+    if (existingVacationDuration < minimumDaysForGap && newBookingDuration < minimumDaysForGap) {
+      continue;
     }
-    gapEndDate.setDate(gapEndDate.getDate() + daysToAdd);
+
+    // Calculate the gap period based on vacation's gap days setting
+    const { gapEndDate, totalGapDays } = calculateGapDays(vacationEndDate, settings, vacationStartDate);
+
+    // If vacation's gap days is 0, skip the check
+    if (totalGapDays === 0) {
+      continue;
+    }
 
     // Check if new booking overlaps with gap period
     const overlapsGap = (
@@ -95,12 +115,34 @@ export function checkGapRuleConflict(
       return {
         hasConflict: true,
         conflictingVacation: vacation,
-        totalGapDays: vacation.gapDays
+        totalGapDays: totalGapDays
       };
+    }
+
+    // Calculate working days between end of vacation and start of new booking
+    if (startDate > vacationEndDate) {
+      let workingDays = 0;
+      const currentDate = new Date(vacationEndDate);
+
+      while (currentDate <= startDate) {
+        const dayOfWeek = currentDate.getDay();
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Not Sunday and not Saturday
+          workingDays++;
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      // If working days is less than required gap, return conflict
+      if (workingDays < vacation.gapDays) {
+        return {
+          hasConflict: true,
+          conflictingVacation: vacation,
+          totalGapDays: vacation.gapDays
+        };
+      }
     }
   }
 
-  // No conflicts found
   return { hasConflict: false };
 }
 export function checkCustomRestrictedDays(
