@@ -42,85 +42,80 @@ export function checkGapRuleConflict(
   startDate: Date,
   endDate: Date,
   settings: GlobalSettingsType,
-  existingVacations: any[],
+  existingVacations: Vacation[],
   userEmail: string
-): { hasConflict: boolean; conflictingVacation?: any; totalGapDays?: number } {
-  // Early returns for disabled rules
+): { hasConflict: boolean; totalGapDays: number } {
+  // 1. Early return if gap rules are disabled or globally bypassed
   if (!settings.gapRules.enabled || settings.gapRules.bypassGapRules) {
-    return { hasConflict: false };
+    return { hasConflict: false, totalGapDays: 0 };
   }
 
-  // Filter vacations
-  const vacationsToCheck = existingVacations.filter((vacation) => {
-    if (vacation.userEmail === userEmail) {
-      return !settings.gapRules.bypassGapRules;
-    }
+  // 2. Calculate the total gap days for THIS new vacation
+  //    (You mentioned you only want them so you can return/ display them.)
+  //    Assume your `calculateGapDays` uses gapRules.daysForGap and 
+  //    gapRules.minimumDaysForGap and returns { totalGapDays } or something similar.
+  //    If your `calculateGapDays` helper requires endDate, you can pass your new booking’s end.
+  const { totalGapDays } = calculateGapDays(endDate, settings, startDate);
 
-    if (settings.gapRules.canIgnoreGapsof?.includes(vacation.userEmail)) {
+  // 3. If totalGapDays is purely for “showing,” we keep it. 
+  //    Next, we must check if your NEW vacation overlaps the gap range of ANY existing vacation.
+
+  // Filter out (skip) any existing vacations belonging to users in `canIgnoreGapsof`
+  // because we do NOT want to enforce gap for those users.
+  const canIgnoreEmails = settings.gapRules.canIgnoreGapsof ?? [];
+  const vacationsToCheck = existingVacations.filter((vac) => {
+    // If the existing vacation belongs to an email we can ignore, skip it
+    if (canIgnoreEmails.includes(vac.userEmail)) {
       return false;
     }
-
-    return vacation.userEmail !== userEmail;
+    // Otherwise, keep it
+    return true;
   });
 
+  // 4. Loop through the filtered vacations to see if our NEW booking
+  //    starts inside their “gap range”.
   for (const vacation of vacationsToCheck) {
-    const vacationStartDate = new Date(vacation.startDate);
-    const vacationEndDate = new Date(vacation.endDate);
+    // Convert string to Date if needed
+    const vacationEnd = new Date(vacation.endDate);
 
-    // Calculate gap days including the vacation's start date
-    const { gapEndDate, totalGapDays } = calculateGapDays(
-      vacationEndDate,
+    // Example “gap range”: from day after vacationEnd to `vacationEnd + <someNumber> of days`.
+    // For demonstration, let’s say we always want to use `daysForGap.days` 
+    // or whichever your logic is for that existing user’s gap. 
+    // If you want to do the same logic as `calculateGapDays`, you can also call it again 
+    // to figure out that existing user’s total gap. It depends on your business logic.
+
+    // A very simple approach: 
+    //   let gap = settings.gapRules.daysForGap.days; // e.g. 4
+    //   let gapStart = addDays(vacationEnd, 1);
+    //   let gapEnd   = addDays(vacationEnd, gap);
+
+    // But if you want “working days”, your `calculateGapDays` might handle it. 
+    // In that case, we can do something like:
+    const { totalGapDays: existingVacationGap } = calculateGapDays(
+      vacationEnd,
       settings,
-      vacationStartDate // Pass the vacation's start date
+      // Possibly pass vacation.startDate or the same vacationEnd 
+      // if your function only needs one range for that user. 
+      new Date(vacation.startDate) 
     );
+    // In your example, if this returns 4, that means 4-day gap after vacationEnd.
 
-    // If there are no gap days required, skip this vacation
-    if (totalGapDays === 0) {
-      continue;
-    }
+    // gap range => from vacationEnd+1 day up to vacationEnd + existingVacationGap
+    const gapStartDate = new Date(vacationEnd);
+    gapStartDate.setDate(gapStartDate.getDate() + 1); // day after vacation ends
 
-    // Check if new booking conflicts with the gap period
-    if (
-      (startDate <= gapEndDate && startDate >= vacationEndDate) ||
-      (endDate <= gapEndDate && endDate >= vacationEndDate) ||
-      (startDate <= vacationEndDate && endDate >= gapEndDate)
-    ) {
-      return {
-        hasConflict: true,
-        conflictingVacation: vacation,
-        totalGapDays,
-      };
-    }
+    const gapEndDate = new Date(vacationEnd);
+    gapEndDate.setDate(gapEndDate.getDate() + existingVacationGap);
 
-    // Check if existing vacation conflicts with the new booking's gap period
-    const newBookingGap = calculateGapDays(
-      endDate,
-      settings,
-      startDate // Pass the start date for the new booking
-    );
-
-    // Skip if no gap days are required for the new booking
-    if (newBookingGap.totalGapDays === 0) {
-      continue;
-    }
-
-    if (
-      (vacationStartDate >= endDate &&
-        vacationStartDate <= newBookingGap.gapEndDate) ||
-      (vacationEndDate >= endDate &&
-        vacationEndDate <= newBookingGap.gapEndDate) ||
-      (vacationStartDate <= endDate &&
-        vacationEndDate >= newBookingGap.gapEndDate)
-    ) {
-      return {
-        hasConflict: true,
-        conflictingVacation: vacation,
-        totalGapDays: newBookingGap.totalGapDays,
-      };
+    // Now check if the new vacation’s start is within that range
+    // i.e., startDate >= gapStartDate and startDate <= gapEndDate
+    if (startDate >= gapStartDate && startDate <= gapEndDate) {
+      return { hasConflict: true, totalGapDays };
     }
   }
 
-  return { hasConflict: false };
+  // 5. If we got here, no conflict => return
+  return { hasConflict: false, totalGapDays };
 }
 
 export function checkCustomRestrictedDays(
