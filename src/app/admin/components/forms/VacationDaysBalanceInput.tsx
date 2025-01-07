@@ -32,11 +32,10 @@ export const VacationDaysBalanceInput = ({
         <Input
           type="number"
           name="vacationDays"
-          value={vacationDays || ""} // Convert 0 to empty string
+          value={vacationDays || ""}
           onChange={(e) => handleInputChange("vacationDays", e.target.value)}
           step="0.00000001"
-          min="0"
-          max="365"
+          max="1000"
           className="w-full h-10 rounded-lg"
         />
       </div>
@@ -48,7 +47,7 @@ export const VacationDaysBalanceInput = ({
         <Input
           type="number"
           name="updateAmount"
-          value={updateAmount || ""} // Convert 0 to empty string
+          value={updateAmount || ""} 
           onChange={(e) => handleInputChange("updateAmount", e.target.value)}
           step="0.00000001"
           min="0"
