@@ -64,7 +64,6 @@ export async function checkVacationConflicts(
     endDateObj,
     settings,
     existingVacations,
-    userEmail
   );
 
   if (overlapConflict.hasConflict) {
