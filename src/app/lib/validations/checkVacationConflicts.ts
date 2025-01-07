@@ -80,7 +80,7 @@ export async function checkVacationConflicts(
     endDateObj,
     settings,
     existingVacations,
-    userEmail,
+    userEmail
   );
 
   if (gapConflict.hasConflict) {
