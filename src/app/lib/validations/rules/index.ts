@@ -56,7 +56,7 @@ export function checkGapRuleConflict(
   endDate: Date,
   settings: GlobalSettingsType,
   existingVacations: any[],
-  userEmail: string
+  
 ): { hasConflict: boolean; conflictingVacation?: any; totalGapDays?: number } {
   // Early returns for disabled rules
   if (!settings.gapRules.enabled) {
