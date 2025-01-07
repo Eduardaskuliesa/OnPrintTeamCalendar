@@ -2,6 +2,20 @@
 
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 
+function calculateWorkingDays(start: Date, end: Date): number {
+  let workingDays = 0;
+  const current = new Date(start);
+
+  while (current <= end) {
+    const dayOfWeek = current.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      workingDays++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+
+  return workingDays;
+}
 
 export function checkSeasonalConflict(
   startDate: Date,
@@ -51,27 +65,19 @@ export function checkGapRuleConflict(
 
   // Calculate minimum duration for gap rules to apply
   const minimumDaysForGap = settings.gapRules.minimumDaysForGap.days;
-  const newBookingDuration = Math.ceil(
-    (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const newBookingDuration = calculateWorkingDays(startDate, endDate);
 
   // Check each existing vacation for conflicts
   for (const vacation of existingVacations) {
-    // Skip if the requesting user can bypass this vacation's gap rules
-    if (settings.gapRules.canIgnoreGapsof?.includes(userEmail)) {
-      continue;
-    }
-
     const vacationStartDate = new Date(vacation.startDate);
     const vacationEndDate = new Date(vacation.endDate);
 
     // Calculate existing vacation duration
-    const existingVacationDuration = Math.ceil(
-      (vacationEndDate.getTime() - vacationStartDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const existingVacationDuration = calculateWorkingDays(vacationStartDate, vacationEndDate);
 
     // Skip gap check if both vacations are shorter than minimum duration
-    if (existingVacationDuration < minimumDaysForGap && newBookingDuration < minimumDaysForGap) {
+    if (existingVacationDuration < minimumDaysForGap && 
+        newBookingDuration < minimumDaysForGap) {
       continue;
     }
 
@@ -97,25 +103,29 @@ export function checkGapRuleConflict(
 
     // Check if new booking overlaps with gap period
     const overlapsGap = (
-      // New booking starts during gap period
       (startDate <= gapEndDate && startDate > vacationEndDate) ||
-      // New booking ends during gap period
       (endDate <= gapEndDate && endDate > vacationEndDate) ||
-      // New booking completely spans gap period
       (startDate <= vacationEndDate && endDate >= gapEndDate)
     );
 
     if (overlapsGap) {
-      return {
-        hasConflict: true,
-        conflictingVacation: vacation,
-        totalGapDays: vacation.gapDays
-      };
+      // Check if booking user can bypass this vacation's gap
+      const userCanBypass = settings.gapRules.canIgnoreGapsof?.includes(vacation.userEmail);
+      
+      if (!userCanBypass) {
+        return {
+          hasConflict: true,
+          conflictingVacation: vacation,
+          totalGapDays: vacation.gapDays
+        };
+      }
     }
   }
 
   return { hasConflict: false };
 }
+
+// Helper function to calculate working days
 
 
 
