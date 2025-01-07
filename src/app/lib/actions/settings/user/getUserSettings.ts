@@ -18,7 +18,6 @@ async function fetchUserSettings(email: string) {
   );
 
   if (!result.Item) {
-    // If no user settings exist, get global settings
     const globalSettings = await dynamoDb.send(
       new GetCommand({
         TableName: settingsDynamoName,
@@ -34,13 +33,11 @@ async function fetchUserSettings(email: string) {
 
 const getCachedUserSettings = (email: string) =>
   unstable_cache(() => fetchUserSettings(email), [`user-settings-${email}`], {
-    revalidate: 604800, // 7 days
+    revalidate: 604800,
     tags: [`user-settings-${email}`],
   });
 
 export async function getUserSettings(email: string) {
- 
-
   const result = await getCachedUserSettings(email)();
   return { data: result };
 }

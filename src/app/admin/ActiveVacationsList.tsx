@@ -19,6 +19,19 @@ interface ActiveVacationsListProps {
 export default function ActiveVacationsList({
   vacations,
 }: ActiveVacationsListProps) {
+  const currentlyActive = vacations.filter((vacation) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startDate = new Date(vacation.startDate);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(vacation.endDate);
+    endDate.setHours(0, 0, 0, 0);
+
+    return today >= startDate && today <= endDate;
+  });
+
   return (
     <div className="bg-slate-50 rounded-lg shadow-md border border-blue-50">
       <div className="p-2 sm:p-4 md:p-6">
@@ -26,13 +39,12 @@ export default function ActiveVacationsList({
           Atostogaujantys darbuotojai
         </h3>
         <div className="space-y-3">
-          {vacations.length === 0 ? (
+          {currentlyActive.length === 0 ? (
             <p className="text-gray-600 text-center py-4">
               Šiuo metu niekas neatostogauja
             </p>
           ) : (
-            vacations.map((vacation) => {
-              // Calculate days difference inside the map
+            currentlyActive.map((vacation) => {
               const daysDiff =
                 Math.ceil(
                   (new Date(vacation.endDate).getTime() -

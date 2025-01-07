@@ -1,7 +1,5 @@
-// src/app/validations/rules/index.ts
-
 import { GlobalSettingsType } from "@/app/types/bookSettings";
-import { calculateGapDays } from "../helpers";
+import { Vacation } from "@/app/types/api";
 
 export function checkSeasonalConflict(
   startDate: Date,
@@ -23,7 +21,11 @@ export function checkSeasonalConflict(
         hasConflict: true,
         error: {
           type: "BLACKOUT_PERIOD",
-          message: `Cannot book vacation during blackout period: ${period.name} (${period.start} to ${period.end})`,
+          message: `Booking not allowed during blackout period: ${
+            period.name
+          } (${new Date(period.start).toLocaleDateString()} to ${new Date(
+            period.end
+          ).toLocaleDateString()})`,
           details: {
             periodName: period.name,
             periodReason: period.reason,
@@ -42,80 +44,45 @@ export function checkGapRuleConflict(
   startDate: Date,
   endDate: Date,
   settings: GlobalSettingsType,
-  existingVacations: any[],
+  existingVacations: Vacation[],
   userEmail: string
-): { hasConflict: boolean; conflictingVacation?: any; totalGapDays?: number } {
-  // Early returns for disabled rules
+): {
+  hasConflict: boolean;
+  conflictingVacation?: Vacation;
+  totalGapDays?: number;
+} {
   if (!settings.gapRules.enabled || settings.gapRules.bypassGapRules) {
     return { hasConflict: false };
   }
 
-  // Filter vacations
-  const vacationsToCheck = existingVacations.filter((vacation) => {
-    if (vacation.userEmail === userEmail) {
-      return !settings.gapRules.bypassGapRules;
-    }
-
-    if (settings.gapRules.canIgnoreGapsof?.includes(vacation.userEmail)) {
-      return false;
-    }
-
-    return vacation.userEmail !== userEmail;
-  });
+  const vacationsToCheck = existingVacations
+    .filter(
+      (vacation) =>
+        vacation.userEmail !== userEmail &&
+        !settings.gapRules.canIgnoreGapsof?.includes(vacation.userId)
+    )
+    .map((vacation) => ({
+      ...vacation,
+      totalGapDays: vacation.gapDays,
+    }));
 
   for (const vacation of vacationsToCheck) {
-    const vacationStartDate = new Date(vacation.startDate);
     const vacationEndDate = new Date(vacation.endDate);
 
-    // Calculate gap days including the vacation's start date
-    const { gapEndDate, totalGapDays } = calculateGapDays(
-      vacationEndDate,
-      settings,
-      vacationStartDate // Pass the vacation's start date
-    );
-
-    // If there are no gap days required, skip this vacation
-    if (totalGapDays === 0) {
+    if (!vacation.totalGapDays) {
       continue;
     }
 
-    // Check if new booking conflicts with the gap period
-    if (
-      (startDate <= gapEndDate && startDate >= vacationEndDate) ||
-      (endDate <= gapEndDate && endDate >= vacationEndDate) ||
-      (startDate <= vacationEndDate && endDate >= gapEndDate)
-    ) {
+    const gapEndDate = addDays(vacationEndDate, vacation.totalGapDays);
+    const isStartInGap = startDate > vacationEndDate && startDate <= gapEndDate;
+    const isEndInGap = endDate > vacationEndDate && endDate <= gapEndDate;
+    const isSpanningGap = startDate <= vacationEndDate && endDate >= gapEndDate;
+
+    if (isStartInGap || isEndInGap || isSpanningGap) {
       return {
         hasConflict: true,
         conflictingVacation: vacation,
-        totalGapDays,
-      };
-    }
-
-    // Check if existing vacation conflicts with the new booking's gap period
-    const newBookingGap = calculateGapDays(
-      endDate,
-      settings,
-      startDate // Pass the start date for the new booking
-    );
-
-    // Skip if no gap days are required for the new booking
-    if (newBookingGap.totalGapDays === 0) {
-      continue;
-    }
-
-    if (
-      (vacationStartDate >= endDate &&
-        vacationStartDate <= newBookingGap.gapEndDate) ||
-      (vacationEndDate >= endDate &&
-        vacationEndDate <= newBookingGap.gapEndDate) ||
-      (vacationStartDate <= endDate &&
-        vacationEndDate >= newBookingGap.gapEndDate)
-    ) {
-      return {
-        hasConflict: true,
-        conflictingVacation: vacation,
-        totalGapDays: newBookingGap.totalGapDays,
+        totalGapDays: vacation.totalGapDays,
       };
     }
   }
@@ -143,7 +110,9 @@ export function checkCustomRestrictedDays(
         hasConflict: true,
         error: {
           type: "CUSTOM_RESTRICTED_DAY",
-          message: `Cannot book vacation including restricted date: ${restrictedDay}`,
+          message: `Selected period includes a restricted date: ${new Date(
+            restrictedDay
+          ).toLocaleDateString()}`,
           restrictedDate: restrictedDay,
         },
       };
@@ -157,7 +126,7 @@ export function checkOverlapConflict(
   startDate: Date,
   endDate: Date,
   settings: GlobalSettingsType,
-  existingVacations: any[],
+  existingVacations: Vacation[],
   userEmail: string
 ): { hasConflict: boolean; error?: any } {
   const userVacations = existingVacations.filter(
@@ -179,32 +148,22 @@ export function checkOverlapConflict(
       hasConflict: true,
       error: {
         type: "SELF_OVERLAP",
-        message:
-          "Cannot book vacation that overlaps with your existing vacations",
+        message: "Selected dates overlap with one of your existing vacations",
       },
     };
   }
 
-  if (!settings.overlapRules.enabled) {
-    return { hasConflict: false };
-  }
-
-  if (settings.overlapRules.bypassOverlapRules) {
+  if (
+    !settings.overlapRules.enabled ||
+    settings.overlapRules.bypassOverlapRules
+  ) {
     return { hasConflict: false };
   }
 
   const vacationsToCheck = existingVacations.filter((vacation) => {
-    if (
-      settings.overlapRules.canIgnoreOverlapRulesOf?.includes(
-        vacation.userEmail
-      )
-    ) {
-      return false;
-    }
-    if (vacation.userEmail === userEmail) {
-      return false;
-    }
-    return true;
+    const canIgnoreUser =
+      settings.overlapRules.canIgnoreOverlapRulesOf?.includes(vacation.userId);
+    return !canIgnoreUser && vacation.userEmail !== userEmail;
   });
 
   if (settings.overlapRules.maxSimultaneousBookings === 0) {
@@ -224,7 +183,7 @@ export function checkOverlapConflict(
         hasConflict: true,
         error: {
           type: "MAX_OVERLAP_EXCEEDED",
-          message: `Cannot exceed ${settings.overlapRules.maxSimultaneousBookings} simultaneous bookings`,
+          message: `Maximum number of simultaneous vacations ${settings.overlapRules.maxSimultaneousBookings} exceeded`,
         },
       };
     }
@@ -233,4 +192,10 @@ export function checkOverlapConflict(
   }
 
   return { hasConflict: false };
+}
+
+function addDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
 }

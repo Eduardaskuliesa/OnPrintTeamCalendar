@@ -35,6 +35,7 @@ export interface Vacation {
   id: string;
   userId: string;
   userName: string;
+  gapDays?: number;
   startDate: string;
   userEmail: string;
   endDate: string;

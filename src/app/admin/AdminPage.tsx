@@ -47,9 +47,20 @@ export default function AdminPage({
     (r) => r.status === "PENDING"
   ).length;
 
-  const activeVacationsCount = initialVacations.filter(
-    (r) => r.status === "APPROVED"
-  ).length;
+  const activeVacationsCount = initialVacations.filter((vacation) => {
+    if (vacation.status !== "APPROVED") return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startDate = new Date(vacation.startDate);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(vacation.endDate);
+    endDate.setHours(0, 0, 0, 0);
+
+    return today >= startDate && today <= endDate;
+  }).length;
 
   const handleNavigate = (tab: string, user?: User) => {
     if (activeTab === "settings") {

@@ -207,7 +207,13 @@ const OverlapRulesModal = ({
               <label className="text-sm font-medium text-gray-800">
                 Users That Can Be Ignored
               </label>
-              <div className="bg-white border rounded-lg p-4 max-h-[250px] overflow-y-auto custom-scrollbar relative">
+              <div
+                className={`bg-white border rounded-lg p-4 max-h-[250px] relative ${
+                  overlapRules.bypassOverlapRules
+                    ? "overflow-hidden"
+                    : "overflow-y-auto custom-scrollbar"
+                }`}
+              >
                 {overlapRules.bypassOverlapRules && (
                   <div className="absolute inset-0 bg-gray-50/90 flex items-center justify-center">
                     <p className="text-gray-700 font-medium">
