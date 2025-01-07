@@ -77,7 +77,6 @@ export async function checkVacationConflicts(
 
   const gapConflict = checkGapRuleConflict(
     startDateObj,
-    endDateObj,
     settings,
     existingVacations,
   );
