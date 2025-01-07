@@ -42,42 +42,34 @@ export function checkGapRuleConflict(
   startDate: Date,
   endDate: Date,
   bookingUserSettings: GlobalSettingsType,
-  existingVacations: Array<{
-    startDate: string;
-    endDate: string;
-    userEmail: string;
-    userSettings: GlobalSettingsType;
-  }>,
+  existingVacations: any,
   userEmail: string
 ): { hasConflict: boolean; conflictingVacation?: any; totalGapDays?: number } {
-  // Early return if gap rules are disabled
   if (!bookingUserSettings.gapRules.enabled) {
     return { hasConflict: false };
   }
 
-  // Filter vacations - FIXED bypass logic
-  const vacationsToCheck = existingVacations.filter((vacation) => {
+  const vacationsToCheck = existingVacations.filter((vacation : any) => {
     // Skip user's own vacations
     if (vacation.userEmail === userEmail) {
       return false;
     }
 
-    // Skip if vacation owner has the booking user in their canIgnoreGapsof list
-    if (vacation.userSettings.gapRules.canIgnoreGapsof?.includes(userEmail)) {
+    // Skip if we can bypass this user's gap rules
+    if (bookingUserSettings.gapRules.canIgnoreGapsof?.includes(vacation.userEmail)) {
       return false;
     }
 
-    return vacation.userSettings.gapRules.enabled;
+    return true;
   });
 
   for (const vacation of vacationsToCheck) {
     const vacationStartDate = new Date(vacation.startDate);
     const vacationEndDate = new Date(vacation.endDate);
 
-    // Calculate gap using the vacation owner's settings
     const { gapEndDate, totalGapDays } = calculateGapDays(
       vacationEndDate,
-      vacation.userSettings,
+      bookingUserSettings,
       vacationStartDate
     );
 
@@ -87,8 +79,8 @@ export function checkGapRuleConflict(
 
     // Check if new booking conflicts with the gap period
     if (
-      (startDate >= vacationEndDate && startDate <= gapEndDate) ||
-      (endDate >= vacationEndDate && endDate <= gapEndDate)
+      (startDate > vacationEndDate && startDate < gapEndDate) ||
+      (endDate > vacationEndDate && endDate < gapEndDate)
     ) {
       return {
         hasConflict: true,
