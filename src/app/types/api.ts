@@ -42,3 +42,15 @@ export interface Vacation {
   totalVacationDays: number;
   status: "PENDING" | "APPROVED" | "REJECTED";
 }
+
+export interface WorkRecord {
+  userId: string;
+  date: string;
+  type: "overtime" | "absence" | "vacation";
+  hours: number;
+  yearMonth: string;
+  reason: string;
+  createdAt: string;
+  updatedAt: string;
+  approvedBy?: string;
+}

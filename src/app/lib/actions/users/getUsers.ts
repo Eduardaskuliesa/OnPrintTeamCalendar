@@ -1,12 +1,10 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use server";
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
 import { unstable_cache } from "next/cache";
-import { dynamoName } from "../../dynamodb";
-import { dynamoDb } from "../../dynamodb";
+import { dynamoName, dynamoDb } from "../../dynamodb";
 
 async function queryUsers() {
   console.log("Fetching all Users:", new Date().toISOString());
@@ -24,11 +22,6 @@ async function queryUsers() {
   return response.Items;
 }
 
-async function getUserCacheKey() {
-  const session = await getServerSession(authOptions);
-  return `users-${session?.user?.email}-${session?.user?.role}`;
-}
-
 export async function getUsers() {
   try {
     const session = await getServerSession(authOptions);
@@ -37,9 +30,7 @@ export async function getUsers() {
       throw new Error("Unauthorized");
     }
 
-    const cacheKey = await getUserCacheKey();
-
-    const cachedUsers = await unstable_cache(queryUsers, [cacheKey], {
+    const cachedUsers = await unstable_cache(queryUsers, ["all-users"], {
       revalidate: 36000,
       tags: ["users"],
     })();

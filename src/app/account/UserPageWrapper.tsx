@@ -8,7 +8,6 @@ import UserStats from "./UserStats";
 import { UserStatsSkeleton } from "./LoadingSkeletons";
 
 export async function UserPageWrapper({ userId }: { userId: string }) {
-
   const [userData, vacationsData] = await Promise.all([
     usersActions.getUser(userId),
     getUserVacations(userId),

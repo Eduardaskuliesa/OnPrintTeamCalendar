@@ -1,5 +1,4 @@
 "use server";
-
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { dynamoDb } from "@/app/lib/dynamodb";
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";

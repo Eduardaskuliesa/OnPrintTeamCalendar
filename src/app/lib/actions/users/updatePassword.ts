@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth";
 import { dynamoName } from "../../dynamodb";
 import { dynamoDb } from "../../dynamodb";
 import bcrypt from "bcryptjs";
+import { revalidateTag } from "next/cache";
 
 export async function updatePassword(userId: string, newPassword: string) {
   try {
@@ -27,6 +28,8 @@ export async function updatePassword(userId: string, newPassword: string) {
     });
 
     await dynamoDb.send(updateCommand);
+    
+    revalidateTag(`user-${userId}`)
     return { message: "Password updated successfully" };
   } catch (error: any) {
     throw new Error(error.message);
