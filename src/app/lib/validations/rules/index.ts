@@ -56,28 +56,23 @@ export function checkGapRuleConflict(
   endDate: Date,
   settings: GlobalSettingsType,
   existingVacations: any[],
-  
+
 ): { hasConflict: boolean; conflictingVacation?: any; totalGapDays?: number } {
-  // Early returns for disabled rules
   if (!settings.gapRules.enabled) {
     return { hasConflict: false };
   }
 
-  // Calculate minimum duration for gap rules to apply
   const minimumDaysForGap = settings.gapRules.minimumDaysForGap.days;
-  const newBookingDuration = calculateWorkingDays(startDate, endDate);
 
-  // Check each existing vacation for conflicts
   for (const vacation of existingVacations) {
     const vacationStartDate = new Date(vacation.startDate);
     const vacationEndDate = new Date(vacation.endDate);
 
-    // Calculate existing vacation duration
+    // Only check existing vacation duration
     const existingVacationDuration = calculateWorkingDays(vacationStartDate, vacationEndDate);
 
-    // Skip gap check if both vacations are shorter than minimum duration
-    if (existingVacationDuration < minimumDaysForGap && 
-        newBookingDuration < minimumDaysForGap) {
+    // Skip if existing vacation is too short to create gap
+    if (existingVacationDuration < minimumDaysForGap) {
       continue;
     }
 
@@ -86,7 +81,7 @@ export function checkGapRuleConflict(
       continue;
     }
 
-    // Calculate the gap end date for this vacation
+    // Calculate gap period
     const gapEndDate = new Date(vacationEndDate);
     let workingDaysAdded = 0;
     let daysToAdd = 0;
@@ -101,7 +96,7 @@ export function checkGapRuleConflict(
     }
     gapEndDate.setDate(gapEndDate.getDate() + daysToAdd);
 
-    // Check if new booking overlaps with gap period
+    // Check for overlap with gap period
     const overlapsGap = (
       (startDate <= gapEndDate && startDate > vacationEndDate) ||
       (endDate <= gapEndDate && endDate > vacationEndDate) ||
