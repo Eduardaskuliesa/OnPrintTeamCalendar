@@ -90,7 +90,7 @@ export async function checkVacationConflicts(
       error: {
         type: "GAP_RULE_CONFLICT",
         message: `Cannot book within ${gapConflict.totalGapDays} days of another team member's vacation`,
-        conflictingVacation: gapConflict.conflictingVacation,
+        conflictingVacation: gapConflict.hasConflict,
       },
     };
   }
