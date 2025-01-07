@@ -1,7 +1,7 @@
 // src/app/validations/rules/index.ts
 
 import { GlobalSettingsType } from "@/app/types/bookSettings";
-import { calculateGapDays } from "../helpers";
+
 
 export function checkSeasonalConflict(
   startDate: Date,
