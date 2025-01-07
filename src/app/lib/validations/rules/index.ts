@@ -50,72 +50,45 @@ export function checkGapRuleConflict(
     return { hasConflict: false };
   }
 
-  // Filter vacations
+  // Filter vacations - FIXED: Correct bypass logic
   const vacationsToCheck = existingVacations.filter((vacation) => {
-    if (vacation.userEmail === userEmail) {
-      return !settings.gapRules.bypassGapRules;
+    // Skip vacations if the current user can ignore their gaps
+    if (settings.gapRules.canIgnoreGapsof?.includes(userEmail)) {
+      return false;
     }
-
-    if (settings.gapRules.canIgnoreGapsof?.includes(vacation.userEmail)) {
+    
+    // Skip user's own vacations
+    if (vacation.userEmail === userEmail) {
       return false;
     }
 
-    return vacation.userEmail !== userEmail;
+    return true;
   });
 
+  // Check each vacation's gap period
   for (const vacation of vacationsToCheck) {
     const vacationStartDate = new Date(vacation.startDate);
     const vacationEndDate = new Date(vacation.endDate);
 
-    // Calculate gap days including the vacation's start date
+    // Calculate gap days for the existing vacation
     const { gapEndDate, totalGapDays } = calculateGapDays(
       vacationEndDate,
       settings,
-      vacationStartDate // Pass the vacation's start date
+      vacationStartDate
     );
 
-    // If there are no gap days required, skip this vacation
+    // If no gap days required, skip this vacation
     if (totalGapDays === 0) {
       continue;
     }
 
     // Check if new booking conflicts with the gap period
-    if (
-      (startDate <= gapEndDate && startDate >= vacationEndDate) ||
-      (endDate <= gapEndDate && endDate >= vacationEndDate) ||
-      (startDate <= vacationEndDate && endDate >= gapEndDate)
-    ) {
+    // FIXED: Simplified overlap check
+    if (startDate <= gapEndDate && endDate >= vacationEndDate) {
       return {
         hasConflict: true,
         conflictingVacation: vacation,
         totalGapDays,
-      };
-    }
-
-    // Check if existing vacation conflicts with the new booking's gap period
-    const newBookingGap = calculateGapDays(
-      endDate,
-      settings,
-      startDate // Pass the start date for the new booking
-    );
-
-    // Skip if no gap days are required for the new booking
-    if (newBookingGap.totalGapDays === 0) {
-      continue;
-    }
-
-    if (
-      (vacationStartDate >= endDate &&
-        vacationStartDate <= newBookingGap.gapEndDate) ||
-      (vacationEndDate >= endDate &&
-        vacationEndDate <= newBookingGap.gapEndDate) ||
-      (vacationStartDate <= endDate &&
-        vacationEndDate >= newBookingGap.gapEndDate)
-    ) {
-      return {
-        hasConflict: true,
-        conflictingVacation: vacation,
-        totalGapDays: newBookingGap.totalGapDays,
       };
     }
   }
