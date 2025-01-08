@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="lt-LT">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased custom-scrollbar`}
       >
         <Providers>
           <LayoutWrapper>{children}</LayoutWrapper>

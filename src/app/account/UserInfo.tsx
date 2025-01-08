@@ -1,4 +1,14 @@
+"use client";
 import { User } from "../types/api";
+
+import { FaHandPeace } from "react-icons/fa6";
+import { Fredoka } from "next/font/google";
+
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  display: "swap",
+});
 
 export const UserSkeleton = () => {
   return (
@@ -15,18 +25,40 @@ export const UserSkeleton = () => {
 interface UserInfoProps {
   userData: User;
 }
-const UserInfo = async ({ userData }: UserInfoProps) => {
+
+const UserInfo = ({ userData }: UserInfoProps) => {
+  const getTimeBasedGreeting = () => {
+    const hour = new Date().getHours();
+
+    if (hour >= 5 && hour < 12) {
+      return {
+        text: "Labas rytas",
+        icon: <FaHandPeace className="text-[#E9A362] h-7 w-7" />,
+      };
+    } else if (hour >= 12 && hour < 18) {
+      return {
+        text: "Labas",
+        icon: <FaHandPeace className="text-[#E9A362] h-7 w-7" />,
+      };
+    } else {
+      return {
+        text: "Labas vakaras",
+        icon: <FaHandPeace className="text-[#E9A362] h-7 w-7" />,
+      };
+    }
+  };
+
+  const { text, icon } = getTimeBasedGreeting();
+
   return (
-    <div className="flex items-center space-x-4 mb-8">
-      <div
-        className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white"
-        style={{ backgroundColor: userData.color || "#000" }}
-      >
-        {userData.name[0].toUpperCase()}
-      </div>
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{userData.name}</h1>
-        <p className="text-gray-600">{userData.email}</p>
+    <div className="flex items-center justify-start w-full max-w-2xl mb-8 px-4">
+      <div className="flex items-center gap-4">
+        <h1
+          className={`text-3xl font-bold text-gray-800 tracking-wide ${fredoka.className}`}
+        >
+          {text},<span className="ml-2">{userData.name}</span>
+        </h1>
+        <div className="flex items-center justify-center">{icon}</div>
       </div>
     </div>
   );

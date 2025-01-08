@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { usersActions } from "../lib/actions/users";
 import { getUserVacations } from "../lib/actions/users/getUsersVacations";
 import PasswordForm from "./PasswordForm";
-import UserInfo, { UserSkeleton } from "./UserInfo";
+import UserInfo from "./UserInfo";
 import UserStats from "./UserStats";
 import { UserStatsSkeleton } from "./LoadingSkeletons";
 
@@ -59,9 +59,7 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
 
   return (
     <div className="py-4 max-w-6xl ml-[5%]">
-      <Suspense fallback={<UserSkeleton />}>
-        <UserInfo userData={userData.data as User} />
-      </Suspense>
+      <UserInfo userData={userData.data as User} />
 
       <Suspense fallback={<UserStatsSkeleton />}>
         <UserStats {...statsData} />
