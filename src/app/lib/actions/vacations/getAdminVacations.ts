@@ -1,4 +1,4 @@
-"use server"
+"use server";
 import { QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { unstable_cache } from "next/cache";
 import { dynamoDb } from "../../dynamodb";
@@ -40,7 +40,7 @@ export const getAdminVacations = unstable_cache(
   fetchAdminVacations,
   ["admin-vacations"],
   {
-    revalidate: 86000,
+    revalidate: 36000,
     tags: ["admin-vacations"],
   }
 );

@@ -72,7 +72,7 @@ const Sidebar = () => {
   return (
     <>
       {/* Mobile Navbar */}
-      <div className="fixed top-0 left-0 right-0 h-16 bg-[#EADBC8] border-b border-blue-100 shadow-sm md:hidden">
+      <div className="fixed top-0 z-[100] left-0 right-0 h-16 bg-[#EADBC8] border-b border-blue-100 shadow-sm md:hidden">
         <div className="flex items-center h-full px-4">
           <div className="font-bold text-[#102C57]">Calendar App</div>
           <button
@@ -87,14 +87,14 @@ const Sidebar = () => {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/30  md:hidden"
+          className="fixed inset-0 bg-black/30 z-[49]  md:hidden"
           onClick={closeMobileMenu}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed h-full w-44 bg-[#EADBC8] border-r border-blue-100 shadow-sm
+        className={`fixed h-full w-44 z-50 bg-[#EADBC8] border-r border-blue-100 shadow-sm
           transition-all duration-300
           md:left-0 
           ${isMobileMenuOpen ? "left-0" : "-left-full"}

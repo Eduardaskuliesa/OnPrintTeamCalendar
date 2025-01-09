@@ -108,6 +108,7 @@ export async function bookVacation(formData: FormData) {
 
     revalidateTag("vacations");
     revalidateTag("admin-vacations");
+    revalidateTag(`user-${user.data.userId}`);
     revalidateTag(`user-vacations-${user.data.userId}`);
 
     return {

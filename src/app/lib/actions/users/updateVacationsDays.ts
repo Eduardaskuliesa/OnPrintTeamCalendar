@@ -31,7 +31,7 @@ export async function updateUserVacationDays(
     );
 
     revalidateTag(`user-${userId}`);
-    revalidateTag("users");
+    revalidateTag(`users`);
 
     return {
       success: true,
