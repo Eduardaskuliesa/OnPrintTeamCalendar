@@ -3,7 +3,6 @@ import {
   Clock,
   CalendarCheck,
   CalendarX,
-  Users,
   Activity,
 } from "lucide-react";
 
@@ -52,7 +51,6 @@ export default function UserStats({
   pendingRequests,
   nextVacation,
   totalPendingVacationDays,
-  teamOnVacation,
   yearlyUsagePercentage,
 }: any) {
   return (
@@ -62,7 +60,7 @@ export default function UserStats({
       </h2>
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-auto">
         <StatCard
-          title="Likusios dienos"
+          title="Likutis šiai dienai"
           value={Number(totalVacationDays).toFixed(1)}
           subtitle={
             totalPendingVacationDays > 0
@@ -73,7 +71,6 @@ export default function UserStats({
           iconBg="bg-green-100"
           iconColor="text-green-800"
           textColor="text-green-800"
-          width="wide"
         />
         <StatCard
           title="Panaudotos"
@@ -85,13 +82,13 @@ export default function UserStats({
           textColor="text-db"
         />
         <StatCard
-          title="Laukia tvirtinimo"
-          value={pendingRequests}
-          subtitle="prašymai nepatvirtinti"
-          icon={Clock}
-          iconBg="bg-orange-100"
-          iconColor="text-orange-700"
-          textColor="text-orange-700"
+          title="Metinis balansas"
+          value={`${yearlyUsagePercentage}`}
+          subtitle="Iki šiu metu paskutinės dienos"
+          icon={Activity}
+          iconBg="bg-pink-100"
+          iconColor="text-pink-700"
+          textColor="text-pink-700"
         />
         <StatCard
           title="Kitos atostogos"
@@ -107,22 +104,13 @@ export default function UserStats({
           textColor="text-purple-800"
         />
         <StatCard
-          title="Komandos atostogos"
-          value={teamOnVacation}
-          subtitle="šiuo metu atostogauja"
-          icon={Users}
-          iconBg="bg-indigo-100"
-          iconColor="text-indigo-700"
-          textColor="text-indigo-700"
-        />
-        <StatCard
-          title="Metinis balansas"
-          value={`${yearlyUsagePercentage}%`}
-          subtitle="atostogų panaudojimas"
-          icon={Activity}
-          iconBg="bg-pink-100"
-          iconColor="text-pink-700"
-          textColor="text-pink-700"
+          title="Laukia tvirtinimo"
+          value={pendingRequests}
+          subtitle="prašymai nepatvirtinti"
+          icon={Clock}
+          iconBg="bg-orange-100"
+          iconColor="text-orange-700"
+          textColor="text-orange-700"
         />
       </div>
     </div>

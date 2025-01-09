@@ -45,7 +45,17 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
       )[0],
   };
 
+  const yearlyUsagePercentage = userData.data.updateAmount * 365;
+  const remainingVacationDays =
+    yearlyUsagePercentage - processedVacations.usedVacationDays;
+  function formatPercentage(value: number) {
+    const withThreeDecimals = Number(value).toFixed(3);
+    const formatted = withThreeDecimals.replace(/\.?0+$/, "");
+    return formatted;
+  }
+
   const statsData = {
+    yearlyUsagePercentage: formatPercentage(remainingVacationDays),
     totalVacationDays: userData.data.vacationDays,
     usedVacationDays: processedVacations.usedVacationDays,
     pendingRequests: processedVacations.pendingVacations.length,
