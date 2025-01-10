@@ -36,7 +36,7 @@ export async function getUserVacations(userId: string) {
     },
     [`user-vacations-${userId}`],
     {
-      revalidate: 604800, 
+      revalidate: 3600, 
       tags: [`user-vacations-${userId}`],
     }
   )();

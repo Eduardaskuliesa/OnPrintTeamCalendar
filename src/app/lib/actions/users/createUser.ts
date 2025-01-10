@@ -133,7 +133,7 @@ export async function createUser(formData: FormData) {
   } catch (error: any) {
     console.error("Error creating user:", error);
     if (error.name === "ConditionalCheckFailedException") {
-      throw new Error("Vartotojas su šiuo ID jau egzistuoja"); // Updated error message
+      throw new Error("Vartotojas su šiuo ID jau egzistuoja");
     }
     throw new Error(error.message);
   }

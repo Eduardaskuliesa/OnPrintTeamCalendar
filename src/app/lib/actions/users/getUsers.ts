@@ -31,7 +31,7 @@ export async function getUsers() {
     }
 
     const cachedUsers = await unstable_cache(queryUsers, ["all-users"], {
-      revalidate: 36000,
+      revalidate: 3600,
       tags: ["users"],
     })();
 

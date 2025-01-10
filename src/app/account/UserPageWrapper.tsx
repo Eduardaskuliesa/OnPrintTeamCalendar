@@ -57,14 +57,24 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
         (a, b) =>
           new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
       )[0],
+
+    futureVacationsList: vacationsData.data
+      .filter(
+        (vacation) =>
+          (vacation.status === "APPROVED" || vacation.status === "PENDING") &&
+          new Date(vacation.startDate) > now
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+      ),
   };
+
   const currentVacationDays = userData.data.vacationDays;
-  // Real current balance = DB balance + all future vacations
+
   const realCurrentBalance =
     userData.data.vacationDays + processedVacations.futureVacations;
-  const totalFutureVacationDays =
-    processedVacations.usedVacationDays +
-    processedVacations.totalPendingVacationDays;
+  const totalFutureVacationDays = processedVacations.totalPendingVacationDays;
 
   const yearlyUsagePercentage = userData.data.updateAmount * 365;
   const remainingVacationDays =
@@ -76,7 +86,13 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
     return formatted;
   }
 
+  function formatDate(date: string | undefined | null) {
+    if (!date) return null;
+    return new Date(date).toISOString().split("T")[0];
+  }
+
   const statsData = {
+    futureVacationsList: processedVacations.futureVacationsList,
     yearlyUsagePercentage: formatPercentage(remainingVacationDays),
     realCurrentBalance: realCurrentBalance,
     totalFutureVacationDays: totalFutureVacationDays,
@@ -84,13 +100,10 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
     usedVacationDays: processedVacations.usedVacationDays,
     pendingRequests: processedVacations.pendingVacations.length,
     totalPendingVacationDays: processedVacations.totalPendingVacationDays,
-    nextVacation: processedVacations.nextVacation?.startDate
-      ? new Date(processedVacations.nextVacation.startDate)
-          .toISOString()
-          .split("T")[0]
-      : null,
+    nextVacationEnd: formatDate(processedVacations.nextVacation?.endDate),
+    nextVacation: formatDate(processedVacations.nextVacation?.startDate),
   };
-  console.log();
+
   return (
     <div className="py-4 max-w-6xl ml-[5%]">
       <UserInfo userData={userData.data as User} />

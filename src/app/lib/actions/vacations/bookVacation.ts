@@ -29,7 +29,7 @@ export async function bookVacation(formData: FormData) {
       };
     }
 
-    const user = await usersActions.getUser(session.user.userId);
+    const user = await usersActions.getFreshUser(session.user.userId);
 
     const globalSettings = await getGlobalSettings();
     const userSettings = await getUserSettings(session.user.userId);
@@ -40,7 +40,7 @@ export async function bookVacation(formData: FormData) {
       user.data.useGlobal
     );
 
-    const vacations = await vacationsAction.getAdminVacations();
+    const vacations = await vacationsAction.getFreshAdminVacations();
 
     const userEmail = session.user.email;
 

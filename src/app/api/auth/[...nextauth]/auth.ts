@@ -1,6 +1,6 @@
 import { AuthOptions}  from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { QueryCommand } from "@aws-sdk/lib-dynamodb"; // We only need QueryCommand now
+import { QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { dynamoDb } from "@/app/lib/dynamodb";
 import bcrypt from "bcryptjs";
 

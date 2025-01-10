@@ -40,7 +40,11 @@ export const getAdminVacations = unstable_cache(
   fetchAdminVacations,
   ["admin-vacations"],
   {
-    revalidate: 36000,
+    revalidate: 3600,
     tags: ["admin-vacations"],
   }
 );
+
+export async function getFreshAdminVacations() {
+  return fetchAdminVacations();
+}

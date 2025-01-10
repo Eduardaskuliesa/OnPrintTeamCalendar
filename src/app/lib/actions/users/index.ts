@@ -5,6 +5,7 @@ import { createUser } from "./createUser";
 import { deleteUser } from "./deleteUser";
 import { updatePassword } from "./updatePassword";
 import { updateUserVacationDays } from "./updateVacationsDays";
+import { getFreshUser } from "./getFreshUser";
 
 export const usersActions = {
   getUser,
@@ -14,4 +15,5 @@ export const usersActions = {
   deleteUser,
   updatePassword,
   updateUserVacationDays,
+  getFreshUser,
 };

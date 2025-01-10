@@ -44,15 +44,15 @@ export async function POST() {
     await Promise.all(
       userIds.map(async (userId) => {
         console.log(`Revalidating user-${userId}`);
-        await revalidateTag(`user-${userId}`);
+        revalidateTag(`user-${userId}`);
       })
     );
 
     console.log("Revalidating users tag");
-    await revalidateTag("users");
+    revalidateTag("users");
 
     console.log("Waiting for propagation");
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     console.log("Propagation delay completed");
 
     return NextResponse.json({

@@ -17,7 +17,7 @@ export async function deleteVacation(
       return { success: false, error: "Unauthorized" };
     }
 
-    const user = await usersActions.getUser(userId);
+    const user = await usersActions.getFreshUser(userId);
     if (!user.data) {
       return { success: false, error: "Failed to fetch user data" };
     }
@@ -41,7 +41,8 @@ export async function deleteVacation(
     revalidateTag("vacations");
     revalidateTag("admin-vacations");
     revalidateTag(`users`);
-    revalidateTag(`user-vacations-${user.data.userId}`);
+    revalidateTag(`user-${userId}`);
+    revalidateTag(`user-vacations-${userId}`);
 
     return {
       success: true,

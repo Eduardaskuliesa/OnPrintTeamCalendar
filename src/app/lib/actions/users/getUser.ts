@@ -25,7 +25,7 @@ async function fetchUserFromDb(userId: string) {
 
 const getCachedUser = (userId: string) =>
   unstable_cache(() => fetchUserFromDb(userId), [`user-${userId}`], {
-    revalidate: 36000,
+    revalidate: 3600,
     tags: [`user-${userId}`],
   });
 
