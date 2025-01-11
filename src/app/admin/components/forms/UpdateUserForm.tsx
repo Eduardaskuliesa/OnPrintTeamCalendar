@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { updateUser } from "../../../lib/actions/users/updateUser";
 import { toast } from "react-toastify";
 import { User } from "../../../types/api";
@@ -13,39 +13,60 @@ import { EmailPasswordInput } from "./EmailPasswordInput";
 import { NameSurnameInput } from "./NameSurnameInput";
 import { VacationDaysBalanceInput } from "./VacationDaysBalanceInput";
 import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetFreshUser } from "../../../lib/actions/users/hooks/useGetFreshUser";
 
 interface UpdateUserFormProps {
-  user: User;
+  userId: string;
   isOpen: boolean;
   onUserUpdated: (updatedUser: User) => void;
   onCancel: () => void;
 }
 
 export default function UpdateUserForm({
-  user,
+  userId,
   onUserUpdated,
   onCancel,
   isOpen,
 }: UpdateUserFormProps) {
+  const { data: user, isFetching } = useGetFreshUser(userId);
   const [loading, setLoading] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
-    name: user.name,
-    surname: user.surname || "",
-    email: user.email,
-    color: user.color,
-    useGlobal: user.useGlobal,
+    name: "",
+    surname: "",
+    email: "",
+    color: "",
+    useGlobal: false,
     password: "",
-    vacationDays: user.vacationDays,
-    updateAmount: user.updateAmount || 0.05479452,
-    birthday: user.birthday || "",
+    vacationDays: 0,
+    updateAmount: 0.05479452,
+    birthday: "",
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name,
+        surname: user.surname || "",
+        email: user.email,
+        color: user.color,
+        useGlobal: user.useGlobal,
+        password: "",
+        vacationDays: user.vacationDays,
+        updateAmount: user.updateAmount || 0.05479452,
+        birthday: user.birthday || "",
+      });
+    }
+  }, [user]);
 
   async function handleSubmit(e: React.FormEvent<Element>) {
     e.preventDefault();
+    if (!formData || !user) return;
+
     const hasChanges =
       formData.name !== user.name ||
       formData.surname !== user.surname ||
@@ -65,8 +86,9 @@ export default function UpdateUserForm({
 
     try {
       setLoading(true);
-      const result = await updateUser(user.userId, formData);
+      const result = await updateUser(userId, formData);
       queryClient.invalidateQueries({ queryKey: ["users"] });
+    
 
       if (result.success) {
         toast.success("Vartotojas sėkmingai atnaujintas");
@@ -109,59 +131,87 @@ export default function UpdateUserForm({
           </Button>
         </div>
 
-        <form ref={formRef} onSubmit={handleSubmit} className="min-w-[250px] sm:space-y-4">
-          <SettingsToggle
-            enabled={formData.useGlobal}
-            onToggle={(value) =>
-              setFormData((prev) => ({ ...prev, useGlobal: value }))
-            }
-          />
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          className={`min-w-[250px] ${isFetching ? "space-y-8" : "space-y-4"}`}
+        >
+          {isFetching ? (
+            <>
+              <Skeleton className="h-8 w-1/2 " />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 ">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="grid grid-cols-1 xsm:grid-cols-2 gap-4 ">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="grid grid-cols-1 xsm:grid-cols-2 gap-4 ">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </>
+          ) : (
+            <>
+              <SettingsToggle
+                enabled={formData.useGlobal}
+                onToggle={(value) =>
+                  setFormData((prev) => ({ ...prev, useGlobal: value }))
+                }
+              />
 
-          <NameSurnameInput
-            name={formData.name}
-            surname={formData.surname}
-            onChange={(field, value) =>
-              setFormData((prev) => ({ ...prev, [field]: value }))
-            }
-          />
+              <NameSurnameInput
+                name={formData.name}
+                surname={formData.surname}
+                onChange={(field, value) =>
+                  setFormData((prev) => ({ ...prev, [field]: value }))
+                }
+              />
 
-          <EmailPasswordInput
-            email={formData.email}
-            password={formData.password}
-            onChange={(field, value) =>
-              setFormData((prev) => ({ ...prev, [field]: value }))
-            }
-            passwordRequired={false}
-            passwordPlaceholder="Palikite tuščią, jei nekeičiate"
-          />
+              <EmailPasswordInput
+                email={formData.email}
+                password={formData.password}
+                onChange={(field, value) =>
+                  setFormData((prev) => ({ ...prev, [field]: value }))
+                }
+                passwordRequired={false}
+                passwordPlaceholder="Palikite tuščią, jei nekeičiate"
+              />
 
-          <VacationDaysBalanceInput
-            vacationDays={formatVacationDays(formData.vacationDays)}
-            updateAmount={formData.updateAmount}
-            onChange={(field, value) =>
-              setFormData((prev) => ({
-                ...prev,
-                [field]: formatVacationDays(Number(value)),
-              }))
-            }
-          />
-          <div className="grid grid-cols-1 xsm:grid-cols-2 gap-4">
-            <ColorInput
-              color={formData.color}
-              onColorSelect={(color) =>
-                setFormData((prev) => ({ ...prev, color }))
-              }
-              showPicker={showColorPicker}
-              onTogglePicker={setShowColorPicker}
-            />
+              <VacationDaysBalanceInput
+                vacationDays={formatVacationDays(formData.vacationDays)}
+                updateAmount={formData.updateAmount}
+                onChange={(field, value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    [field]: formatVacationDays(Number(value)),
+                  }))
+                }
+              />
+              <div className="grid grid-cols-1 xsm:grid-cols-2 gap-4">
+                <ColorInput
+                  color={formData.color}
+                  onColorSelect={(color) =>
+                    setFormData((prev) => ({ ...prev, color }))
+                  }
+                  showPicker={showColorPicker}
+                  onTogglePicker={setShowColorPicker}
+                />
 
-            <BirthDayInput
-              value={formData.birthday}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, birthday: value }))
-              }
-            />
-          </div>
+                <BirthDayInput
+                  value={formData.birthday}
+                  onChange={(value) =>
+                    setFormData((prev) => ({ ...prev, birthday: value }))
+                  }
+                />
+              </div>
+            </>
+          )}
 
           <div className="flex justify-end space-x-3 pt-4">
             <Button
@@ -174,7 +224,7 @@ export default function UpdateUserForm({
             </Button>
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || !formData}
               className="bg-lcoffe rounded-lg text-db hover:bg-dcoffe h-10"
             >
               {loading ? "Atnaujinama..." : "Atnaujinti"}

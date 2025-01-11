@@ -1,10 +1,9 @@
 import {
-  Wallet, 
-  CalendarRange, 
-  Calculator, 
+  Wallet,
+  CalendarRange,
+  Calculator,
   Calendar,
-  Clock,
-  Trash2,
+  Clock
 } from "lucide-react";
 import { Vacation } from "../types/api";
 
@@ -166,7 +165,6 @@ export default function UserStats({
                       - {new Date(vacation.endDate).toLocaleDateString("lt-LT")}
                     </span>
                   </div>
-                  <Trash2 className="h-5 w-5 mr-2 text-red-700 hover:text-red-900 hover:cursor-pointer transition-colors" />
                 </div>
               ))}
             </div>

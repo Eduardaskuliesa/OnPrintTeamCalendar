@@ -7,6 +7,7 @@ import { dynamoName } from "../../dynamodb";
 import { dynamoDb } from "../../dynamodb";
 
 export async function getFreshUser(userId: string) {
+  console.log(`Fetching fresh user: ${userId}`, new Date().toISOString());
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "ADMIN" && session?.user?.userId !== userId) {
     throw new Error("Unauthorized");

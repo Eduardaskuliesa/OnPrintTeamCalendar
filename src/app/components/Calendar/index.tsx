@@ -165,6 +165,13 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
             plugins={[dayGridPlugin, multiMonthPlugin, interactionPlugin]}
             initialView="dayGridMonth"
             locale="lt"
+            expandRows={true}
+            contentHeight="200px"
+            handleWindowResize={true}
+            dayMaxEvents={0}
+            dayMaxEventRows={0}
+            height="auto"
+            moreLinkContent={null}
             firstDay={1}
             headerToolbar={{
               left: "prev,next today",
@@ -175,7 +182,7 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
               <div
                 className={`relative ${
                   arg.view.type === "multiMonthYear"
-                    ? "min-h-auto"
+                    ? "min-h-[auto]"
                     : "min-h-[48px]"
                 }`}
               >
@@ -200,10 +207,6 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
                 />
               </div>
             )}
-            height="100%"
-            contentHeight="auto"
-            dayMaxEvents={2}
-            handleWindowResize={true}
             stickyHeaderDates={true}
             select={handleSelect}
             selectable={true}
@@ -219,16 +222,16 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
                 multiMonthMinWidth: 300,
                 multiMonthMinHeight: 200,
                 eventDisplay: "auto",
-                displayEventEnd: true,
+                height: "auto",
+                stickyFooter: false,
+                fixedWeekCount: false,
+                dayMaxEvents: 4,
                 displayEventTime: true,
                 eventMinHeight: 10,
                 multiMonthTitleFormat: { month: "long", year: "numeric" },
-                dayMaxEvents: true,
-                moreLinkClick: "popover",
               },
               dayGridMonth: {
                 dayMaxEvents: true,
-                moreLinkClick: "popover",
               },
             }}
             eventContent={(arg) => {

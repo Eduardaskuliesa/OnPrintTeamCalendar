@@ -209,8 +209,8 @@ export default function UserList({
 
       {showUpdateModal && userToUpdate && (
         <UpdateUserForm
+          userId={userToUpdate.userId}
           isOpen={showUpdateModal}
-          user={userToUpdate}
           onUserUpdated={handleUserUpdated}
           onCancel={() => {
             setShowUpdateModal(false);

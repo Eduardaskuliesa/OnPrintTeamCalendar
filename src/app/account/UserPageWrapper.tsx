@@ -1,11 +1,9 @@
 import { User } from "../types/api";
-import { Suspense } from "react";
 import { usersActions } from "../lib/actions/users";
 import { getUserVacations } from "../lib/actions/users/getUsersVacations";
 import PasswordForm from "./PasswordForm";
 import UserInfo from "./UserInfo";
 import UserStats from "./UserStats";
-import { UserStatsSkeleton } from "./LoadingSkeletons";
 
 export async function UserPageWrapper({ userId }: { userId: string }) {
   const [userData, vacationsData] = await Promise.all([
@@ -37,7 +35,6 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
       )
       .reduce((total, vacation) => total + vacation.totalVacationDays, 0),
 
-    // All future vacations (both APPROVED and PENDING)
     futureVacations: vacationsData.data
       .filter(
         (vacation) =>
@@ -74,7 +71,7 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
 
   const realCurrentBalance =
     userData.data.vacationDays + processedVacations.futureVacations;
-  const totalFutureVacationDays = processedVacations.totalPendingVacationDays;
+  const totalFutureVacationDays = processedVacations.futureVacations;
 
   const yearlyUsagePercentage = userData.data.updateAmount * 365;
   const remainingVacationDays =
@@ -108,9 +105,7 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
     <div className="py-4 max-w-6xl ml-[5%]">
       <UserInfo userData={userData.data as User} />
 
-      <Suspense fallback={<UserStatsSkeleton />}>
-        <UserStats {...statsData} userData={userData} />
-      </Suspense>
+      <UserStats {...statsData} userData={userData} />
 
       <PasswordForm />
     </div>
