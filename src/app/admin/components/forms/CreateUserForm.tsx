@@ -81,7 +81,7 @@ export default function CreateUserForm({
   useKeyboardShortcuts(isOpen, onCancel, undefined, formRef);
 
   return (
-    <div className="bg-white p-6 rounded-xl">
+    <div className="bg-white p-6  rounded-xl">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-900">
           Naujas Vartotojas

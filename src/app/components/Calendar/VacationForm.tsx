@@ -83,13 +83,29 @@ const VacationForm = ({
       setLoading(false);
     }
   };
+
   useKeyboardShortcuts(isOpen, handleClose, undefined, formRef);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md relative">
+    <div
+      className={`fixed inset-0 transition-all duration-200 ease-out flex items-center justify-center z-50 ${
+        isOpen
+          ? "bg-black/50 opacity-100 visible"
+          : "bg-black/0 opacity-0 invisible"
+      }`}
+    >
+      <div
+        className={`bg-white rounded-lg shadow-xl w-full max-w-md relative 
+          transition-all duration-200 ease-out 
+          motion-safe:transition-[transform,opacity] 
+          motion-safe:duration-300
+          motion-safe:cubic-bezier(0.34, 1.56, 0.64, 1) 
+          ${
+            isOpen
+              ? "transform scale-100 opacity-100 translate-y-0"
+              : "transform scale-95 opacity-0 -translate-y-2"
+          }`}
+      >
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center gap-2">
             <CalendarIcon className="w-5 h-5 text-vdcoffe" />
@@ -115,9 +131,7 @@ const VacationForm = ({
             onStartDateChange={(date) =>
               setFormData({ ...formData, startDate: date })
             }
-            onEndDateChange={(date) =>
-              setFormData({ ...formData, endDate: date })
-            }
+            onEndDateChange={(date) => setFormData({ ...formData, endDate: date })}
             disabled={loading}
             startLabel="Pradžios data"
             endLabel="Pabaigos data"

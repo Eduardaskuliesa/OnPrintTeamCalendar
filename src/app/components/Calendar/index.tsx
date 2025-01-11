@@ -226,8 +226,12 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
                 stickyFooter: false,
                 fixedWeekCount: false,
                 dayMaxEvents: 4,
+                dayCellMinHeight: 100,
+                eventMinHeight: 15,
+                eventShortHeight: 15,
+                eventOverlap: false,
                 displayEventTime: true,
-                eventMinHeight: 10,
+
                 multiMonthTitleFormat: { month: "long", year: "numeric" },
               },
               dayGridMonth: {
