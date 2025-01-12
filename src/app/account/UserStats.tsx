@@ -3,7 +3,7 @@ import {
   CalendarRange,
   Calculator,
   Calendar,
-  Clock
+  Clock,
 } from "lucide-react";
 import { Vacation } from "../types/api";
 
@@ -63,20 +63,23 @@ export default function UserStats({
     (vacation: Vacation) => vacation.status === "PENDING"
   );
 
+  const dailyUpdate = userData.data.updateAmount.toFixed(3);
+  const todayDate = new Date().toLocaleDateString("lt-LT");
+
   return (
     <div className="px-6 py-6 mb-4 bg-[#EADBC8] border-blue-50 border-2 rounded-3xl">
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
-          title="Likutis šiai dienai"
+          title={`Atostogų dienos (+${dailyUpdate} /d)`}
           value={formatNumber(realCurrentBalance)}
           icon={Wallet}
-          subtitle={`+${userData.data.updateAmount.toFixed(3)} kasdien`}
+          subtitle={todayDate}
           iconBg="bg-green-100"
           iconColor="text-green-800"
           textColor="text-green-800"
         />
         <StatCard
-          title="Suplanuota dienų"
+          title="Rezervuotos dienos"
           value={formatNumber(totalFutureVacationDays)}
           icon={CalendarRange}
           subtitle="Būsimos atostogos"
@@ -85,10 +88,10 @@ export default function UserStats({
           textColor="text-db"
         />
         <StatCard
-          title="Galutinis likutis"
+          title={`Likutis / Trukumas (+${dailyUpdate} /d)`}
           value={formatNumber(currentVacationDays)}
           icon={Calculator}
-          subtitle="Po visų atostogų"
+          subtitle={todayDate}
           iconBg="bg-pink-100"
           iconColor="text-pink-700"
           textColor="text-pink-700"
@@ -111,7 +114,9 @@ export default function UserStats({
               {approvedFutureVacations.length > 0
                 ? `${new Date(
                     approvedFutureVacations[0].startDate
-                  ).toLocaleDateString("lt-LT")}  `
+                  ).toLocaleDateString("lt-LT")} - ${new Date(
+                    approvedFutureVacations[0].endDate
+                  ).toLocaleDateString("lt-LT")}`
                 : "Nėra"}
             </p>
           </div>

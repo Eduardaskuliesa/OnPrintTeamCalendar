@@ -189,10 +189,10 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
                 <div
                   className={`text justify-start ${
                     arg.view.type === "multiMonthYear"
-                      ? `text-sm ${
+                      ? ` ${
                           isHoliday(arg.date)
-                            ? "font-bold text-red-600"
-                            : "font-medium"
+                            ? "font-bold text-sm text-red-600"
+                            : "text-sm"
                         }`
                       : ""
                   }`}
