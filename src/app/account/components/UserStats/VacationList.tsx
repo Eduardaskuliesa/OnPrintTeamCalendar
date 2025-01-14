@@ -2,7 +2,6 @@ import { LucideIcon } from 'lucide-react';
 import { Vacation } from '@/app/types/api';
 import { formatDate } from '@/app/utils/formatters';
 
-
 interface VacationListProps {
   vacations: Vacation[];
   icon: LucideIcon;
@@ -27,26 +26,47 @@ const VacationList = ({
     </div>
     <div className="flex items-baseline space-x-2">
       <p className={`text-3xl font-bold ${iconColor}`}>
-        {vacations.length > 0
-          ? `${formatDate(vacations[0].startDate)} - ${formatDate(vacations[0].endDate)}`
+        {vacations.length > 0 
+          ? vacations[0].status === "APPROVED"
+            ? `${formatDate(vacations[0].startDate)} - ${formatDate(vacations[0].endDate)}`
+            : vacations.length
           : "Nėra"}
       </p>
     </div>
     <div className="mt-4 max-h-[10rem] overflow-auto custom-scrollbar space-y-3">
-      {vacations.slice(1).map((vacation) => (
-        <div
-          key={vacation.id}
-          className={`bg-slate-50 border-2 rounded-md border-l-4 p-2 shadow-sm border-blue-50 font-medium text-base text-db flex justify-between items-center ${
-            vacation.status === "APPROVED" ? "border-l-purple-800" : "border-l-orange-700"
-          }`}
-        >
-          <div className="flex items-center space-x-2">
-            <span>
-              {formatDate(vacation.startDate)} - {formatDate(vacation.endDate)}
-            </span>
+      {vacations
+        .filter(vacation => vacation.status === "APPROVED")
+        .slice(1) 
+        .map((vacation) => (
+          <div
+            key={vacation.id}
+            className={`bg-slate-50 border-2 rounded-md border-l-4 p-2 shadow-sm border-blue-50 font-medium text-base text-db flex justify-between items-center ${
+              vacation.status === "APPROVED" ? "border-l-purple-800" : "border-l-orange-700"
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <span>
+                {formatDate(vacation.startDate)} - {formatDate(vacation.endDate)}
+              </span>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      {vacations
+        .filter(vacation => vacation.status === "PENDING")
+        .map((vacation) => (
+          <div
+            key={vacation.id}
+            className={`bg-slate-50 border-2 rounded-md border-l-4 p-2 shadow-sm border-blue-50 font-medium text-base text-db flex justify-between items-center ${
+              vacation.status === "APPROVED" ? "border-l-purple-800" : "border-l-orange-700"
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <span>
+                {formatDate(vacation.startDate)} - {formatDate(vacation.endDate)}
+              </span>
+            </div>
+          </div>
+        ))}
     </div>
   </div>
 );

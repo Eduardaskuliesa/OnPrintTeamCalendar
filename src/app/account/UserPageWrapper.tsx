@@ -105,7 +105,7 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
     <div className="py-4 max-w-6xl ml-[5%]">
       <UserInfo userData={userData.data as User} />
 
-      <UserStats {...statsData} userData={userData} />
+      <UserStats {...statsData} />
 
       <PasswordForm />
     </div>

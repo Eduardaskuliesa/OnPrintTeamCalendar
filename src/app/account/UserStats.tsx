@@ -37,7 +37,6 @@ interface UserStatsProps {
   totalFutureVacationDays: number;
   currentVacationDays: number;
   futureVacationsList: Vacation[];
-  userData: any;
 }
 
 const UserStats = ({
@@ -45,7 +44,6 @@ const UserStats = ({
   totalFutureVacationDays,
   currentVacationDays,
   futureVacationsList,
-  userData,
 }: UserStatsProps) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [direction, setDirection] = useState(0);
@@ -88,7 +86,6 @@ const UserStats = ({
     };
   }, [activeTab]);
 
-  const dailyUpdate = userData.data.updateAmount.toFixed(3);
   const todayDate = new Date().toLocaleDateString("lt-LT");
 
   const approvedFutureVacations = futureVacationsList.filter(
@@ -103,7 +100,7 @@ const UserStats = ({
 
   const stats = {
     balance: {
-      title: <>Atostogų dienos<br />(+{dailyUpdate} /d)</>,
+      title: <>Atostogų dienos</>,
       value: formatNumber(realCurrentBalance),
       icon: Wallet,
       subtitle: todayDate,
@@ -121,7 +118,7 @@ const UserStats = ({
       textColor: "text-db"
     },
     remaining: {
-      title: <>Likutis / Trukumas<br />(+{dailyUpdate} /d)</>,
+      title: <>Likutis / Trukumas</>,
       value: formatNumber(currentVacationDays),
       icon: Calculator,
       subtitle: todayDate,
