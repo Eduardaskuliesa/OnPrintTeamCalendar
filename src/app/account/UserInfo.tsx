@@ -51,8 +51,8 @@ const UserInfo = ({ userData }: UserInfoProps) => {
   const { text, icon } = getTimeBasedGreeting();
 
   return (
-    <div className="flex items-center justify-start w-full max-w-2xl mb-6 px-4">
-      <div className="flex items-center gap-4">
+    <div className="flex items-center justify-between w-full  pl-4">
+      <div className="flex items-center gap-4 mb-2">
         <h1
           className={`text-4xl font-bold text-gray-800 tracking-wide ${fredoka.className}`}
         >
@@ -60,6 +60,7 @@ const UserInfo = ({ userData }: UserInfoProps) => {
         </h1>
         <div className="flex items-center justify-center">{icon}</div>
       </div>
+    
     </div>
   );
 };

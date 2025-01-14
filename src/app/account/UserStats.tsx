@@ -1,181 +1,191 @@
-import {
-  Wallet,
-  CalendarRange,
-  Calculator,
-  Calendar,
-  Clock,
-} from "lucide-react";
-import { Vacation } from "../types/api";
+"use client"
+import { useEffect, useRef, useState } from 'react';
+import { Wallet, CalendarRange, Calculator } from 'lucide-react';
+import { Fredoka } from 'next/font/google';
 
-interface StatCardProps {
-  title: string;
-  value: string | number;
-  subtitle: string | React.ReactNode;
-  icon: any;
-  iconBg: string;
-  iconColor: string;
-  textColor: string;
+import { AnimatePresence, motion } from 'framer-motion';
+import { Vacation } from '../types/api';
+import { formatNumber } from '../utils/formatters';
+import { ActionContent, DashboardContent, SettingsContent } from './components/UserStats/tabs';
+import NavigationTabs from './components/UserStats/NavigationTabs';
+
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  display: "swap",
+});
+
+const slideVariants = {
+  enter: (direction: number) => ({
+    y: direction > 0 ? '100%' : '-100%',
+    opacity: 0.6,
+  }),
+  center: {
+    y: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    y: direction < 0 ? '100%' : '-100%',
+    opacity: 0.6,
+  })
+};
+
+const TABS = ['dashboard', 'calendar', 'documents'];
+
+interface UserStatsProps {
+  realCurrentBalance: number;
+  totalFutureVacationDays: number;
+  currentVacationDays: number;
+  futureVacationsList: Vacation[];
+  userData: any;
 }
 
-const StatCard = ({
-  title,
-  value,
-  subtitle,
-  icon: Icon,
-  iconBg,
-  iconColor,
-  textColor,
-}: StatCardProps) => (
-  <div className={"bg-[#fefaf6] p-6 rounded-2xl shadow-md"}>
-    <div className="flex items-center justify-between mb-4">
-      <h3 className="text-lg font-semibold text-db">{title}</h3>
-      <div className={`${iconBg} p-2 rounded-lg`}>
-        <Icon className={iconColor} size={20} />
-      </div>
-    </div>
-    <div className="flex items-baseline space-x-2">
-      <p className={`text-3xl font-bold ${textColor}`}>{value}</p>
-    </div>
-    {subtitle && (
-      <div className="text-sm font-medium text-db mt-1">{subtitle}</div>
-    )}
-  </div>
-);
-
-export default function UserStats({
+const UserStats = ({
   realCurrentBalance,
   totalFutureVacationDays,
   currentVacationDays,
   futureVacationsList,
   userData,
-}: any) {
-  function formatNumber(value: number) {
-    const withThreeDecimals = Number(value).toFixed(3);
-    const formatted = withThreeDecimals.replace(/\.?0+$/, "");
-    return formatted;
-  }
+}: UserStatsProps) => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [direction, setDirection] = useState(0);
+  const [contentHeight, setContentHeight] = useState("auto");
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [key, setKey] = useState(0);
+  const [heightAnimationSpeed, setHeightAnimationSpeed] = useState(0.5);
 
-  const approvedFutureVacations = futureVacationsList.filter(
-    (vacation: Vacation) => vacation.status === "APPROVED"
-  );
+  const paginate = (newTab: string) => {
+    const currentIndex = TABS.indexOf(activeTab);
+    const newIndex = TABS.indexOf(newTab);
+    if (currentIndex === newIndex) {
+      setActiveTab(newTab);
+    } else {
+      const isMovingToSmallerIndex = newIndex < currentIndex;
+      setDirection(newIndex > currentIndex ? 1 : -1);
+      setHeightAnimationSpeed(isMovingToSmallerIndex ? 0.3 : 0.4);
+      setActiveTab(newTab);
+      setKey(prevKey => prevKey + 1);
+    }
+  };
 
-  const pendingVacations = futureVacationsList.filter(
-    (vacation: Vacation) => vacation.status === "PENDING"
-  );
+  useEffect(() => {
+    const updateHeight = () => {
+      if (contentRef.current) {
+        const newHeight = contentRef.current.offsetHeight;
+        setContentHeight(`${newHeight}px`);
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(updateHeight);
+    if (contentRef.current) {
+      resizeObserver.observe(contentRef.current);
+    }
+
+    return () => {
+      if (contentRef.current) {
+        resizeObserver.unobserve(contentRef.current);
+      }
+    };
+  }, [activeTab]);
 
   const dailyUpdate = userData.data.updateAmount.toFixed(3);
   const todayDate = new Date().toLocaleDateString("lt-LT");
 
+  const approvedFutureVacations = futureVacationsList.filter(
+    (vacation) => vacation.status === "APPROVED"
+  );
+
+  const pendingVacations = futureVacationsList.filter(
+    (vacation) => vacation.status === "PENDING"
+  );
+
+  
+
+  const stats = {
+    balance: {
+      title: <>Atostogų dienos<br />(+{dailyUpdate} /d)</>,
+      value: formatNumber(realCurrentBalance),
+      icon: Wallet,
+      subtitle: todayDate,
+      iconBg: "bg-green-100",
+      iconColor: "text-green-800",
+      textColor: "text-green-800"
+    },
+    reserved: {
+      title: "Rezervuotos dienos",
+      value: formatNumber(totalFutureVacationDays),
+      icon: CalendarRange,
+      subtitle: "Būsimos atostogos",
+      iconBg: "bg-blue-100",
+      iconColor: "text-db",
+      textColor: "text-db"
+    },
+    remaining: {
+      title: <>Likutis / Trukumas<br />(+{dailyUpdate} /d)</>,
+      value: formatNumber(currentVacationDays),
+      icon: Calculator,
+      subtitle: todayDate,
+      iconBg: "bg-pink-100",
+      iconColor: "text-pink-700",
+      textColor: "text-pink-700"
+    }
+  };
+
   return (
-    <div className="px-6 py-6 mb-4 bg-[#EADBC8] border-blue-50 border-2 rounded-3xl">
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard
-          title={`Atostogų dienos (+${dailyUpdate} /d)`}
-          value={formatNumber(realCurrentBalance)}
-          icon={Wallet}
-          subtitle={todayDate}
-          iconBg="bg-green-100"
-          iconColor="text-green-800"
-          textColor="text-green-800"
-        />
-        <StatCard
-          title="Rezervuotos dienos"
-          value={formatNumber(totalFutureVacationDays)}
-          icon={CalendarRange}
-          subtitle="Būsimos atostogos"
-          iconBg="bg-blue-100"
-          iconColor="text-db"
-          textColor="text-db"
-        />
-        <StatCard
-          title={`Likutis / Trukumas (+${dailyUpdate} /d)`}
-          value={formatNumber(currentVacationDays)}
-          icon={Calculator}
-          subtitle={todayDate}
-          iconBg="bg-pink-100"
-          iconColor="text-pink-700"
-          textColor="text-pink-700"
-        />
-      </div>
-      <div className="grid gap-6 mt-6 grid-cols-1 lg:grid-cols-2 items-start">
-        {/* Approved Vacations Card */}
-        <div className="bg-[#fefaf6] p-6 rounded-2xl shadow-md h-fit">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-db">
-              Sekančios atostogos
-            </h3>
-            <div className="bg-purple-100 p-2 rounded-lg">
-              <Calendar className="text-purple-800" size={20} />
-            </div>
-          </div>
-
-          <div className="flex items-baseline space-x-2">
-            <p className="text-3xl font-bold text-purple-800">
-              {approvedFutureVacations.length > 0
-                ? `${new Date(
-                    approvedFutureVacations[0].startDate
-                  ).toLocaleDateString("lt-LT")} - ${new Date(
-                    approvedFutureVacations[0].endDate
-                  ).toLocaleDateString("lt-LT")}`
-                : "Nėra"}
-            </p>
-          </div>
-
-          <div className="text-sm font-medium text-db mt-1">
-            <div className="mt-4 max-h-[10rem] overflow-auto custom-scrollbar space-y-3">
-              {approvedFutureVacations.slice(1).map((vacation: Vacation) => (
-                <div
-                  key={vacation.id}
-                  className="bg-slate-50 border-2 rounded-md border-l-purple-800 border-l-4 p-2 shadow-sm border-blue-50 font-medium text-base text-db flex justify-between items-center"
-                >
-                  <div className="flex items-center space-x-2">
-                    <span>
-                      {new Date(vacation.startDate).toLocaleDateString("lt-LT")}{" "}
-                      - {new Date(vacation.endDate).toLocaleDateString("lt-LT")}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+    <div className="flex flex-row-reverse items-start justify-end gap-1 w-full relative">
+      <NavigationTabs activeTab={activeTab} setActiveTab={paginate} />
+      
+      <div className="flex-1 relative px-6 py-6 mb-4  bg-[#EADBC8] border-blue-50 border-2 rounded-b-3xl rounded-tl-3xl">
+        <div className="w-auto h-14 flex items-center bg-[#EADBC8] absolute rounded-t-2xl border-blue-50 top-0 -mt-14 -right-[2px] border-t-2 border-l-2 border-r-2">
+          <span className={`text-3xl px-4 py-3 block font-bold text-gray-800 tracking-wide ${fredoka.className}`}>
+            Šiandien melagio diena
+          </span>
         </div>
-
-        {/* Pending Vacations Card */}
-        <div className="bg-[#fefaf6] p-6 rounded-2xl shadow-md h-fit">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-db">
-              Laukia patvirtinimo
-            </h3>
-            <div className="bg-orange-100 p-2 rounded-lg">
-              <Clock className="text-orange-700" size={20} />
-            </div>
-          </div>
-
-          <div className="flex items-baseline space-x-2">
-            <p className="text-3xl font-bold text-orange-700">
-              {pendingVacations.length}
-            </p>
-          </div>
-
-          <div className="text-sm font-medium text-db mt-1">
-            <div className="mt-4 max-h-[10rem] overflow-auto custom-scrollbar space-y-3">
-              {pendingVacations.map((vacation: Vacation) => (
-                <div
-                  key={vacation.id}
-                  className="bg-slate-50 border-2 rounded-md border-l-orange-700 border-l-4 p-2 shadow-sm border-blue-50 font-medium text-base text-db flex justify-between items-center"
-                >
-                  <div className="flex items-center space-x-2">
-                    <span>
-                      {new Date(vacation.startDate).toLocaleDateString("lt-LT")}{" "}
-                      - {new Date(vacation.endDate).toLocaleDateString("lt-LT")}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        
+        <div className="overflow-hidden py-1">
+          <motion.div
+            animate={{ height: contentHeight }}
+            transition={{ duration: heightAnimationSpeed, ease: "easeOut" }}
+          >
+            <AnimatePresence initial={false} mode="wait" custom={direction}>
+              <motion.div
+                key={key}
+                ref={contentRef}
+                custom={direction}
+                variants={slideVariants}
+                initial={direction === 0 ? "center" : "enter"}
+                animate="center"
+                exit={direction === 0 ? "center" : "exit"}
+                transition={{
+                  y: { type: "tween", duration: 0.4, ease: "easeOut" }
+                }}
+              >
+                {activeTab === 'dashboard' && (
+                  <DashboardContent 
+                    stats={stats}
+                    approvedVacations={approvedFutureVacations}
+                    pendingVacations={pendingVacations}
+                  />
+                )}
+                {activeTab === 'calendar' && <ActionContent />}
+                {activeTab === 'documents' && <SettingsContent />}
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default UserStats;
+
+
+
+
+
+
+
+
+
+

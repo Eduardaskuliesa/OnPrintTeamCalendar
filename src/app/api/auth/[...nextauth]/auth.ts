@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 
 export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+ 
 
   providers: [
     CredentialsProvider({
@@ -14,6 +15,7 @@ export const authOptions: AuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
+      
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null;
