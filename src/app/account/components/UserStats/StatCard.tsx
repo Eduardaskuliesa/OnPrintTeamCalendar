@@ -1,8 +1,9 @@
 import { LucideIcon } from 'lucide-react';
+import React from 'react';
 
 interface StatCardProps {
   title: string | React.ReactNode;
-  value: string | number;
+  value: string | number | React.ReactNode;
   subtitle: string | React.ReactNode;
   icon: LucideIcon;
   iconBg: string;
@@ -27,7 +28,7 @@ const StatCard = ({
       </div>
     </div>
     <div className="flex items-baseline space-x-1">
-      <p className={`text-3xl font-bold ${textColor}`}>{value}</p>
+      <div className={`text-3xl font-bold ${textColor}`}>{value}</div>
     </div>
     {subtitle && (
       <div className="text-sm font-medium text-db mt-1">{subtitle}</div>

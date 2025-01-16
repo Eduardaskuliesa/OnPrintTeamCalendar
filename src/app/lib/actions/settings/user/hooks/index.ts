@@ -34,6 +34,7 @@ export const useCreateUserSettings = () => {
       queryClient.invalidateQueries({
         queryKey: ["getUserSettings", variables.userId],
       });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
@@ -65,6 +66,7 @@ export const useUpdateUserSettingEnabled = () => {
       queryClient.invalidateQueries({
         queryKey: ["getUserSettings", variables.userId],
       });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
@@ -90,6 +92,7 @@ export const useUpdateUserGapDays = () => {
       queryClient.invalidateQueries({
         queryKey: ["getUserSettings", variables.userId],
       });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
@@ -115,6 +118,7 @@ export const useUpdateUserOverlapRules = () => {
       queryClient.invalidateQueries({
         queryKey: ["getUserSettings", variables.userId],
       });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
@@ -146,6 +150,7 @@ export const useUpdateUserBookingRules = () => {
       queryClient.invalidateQueries({
         queryKey: ["getUserSettings", variables.userId],
       });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
@@ -175,6 +180,7 @@ export const useUpdateUserSeasonalRules = () => {
       queryClient.invalidateQueries({
         queryKey: ["getUserSettings", variables.userId],
       });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
@@ -200,6 +206,7 @@ export const useUpdateUserRestrictedDays = () => {
       queryClient.invalidateQueries({
         queryKey: ["getUserSettings", variables.userId],
       });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
@@ -244,6 +251,7 @@ export const useUpdateUserGlobalSettingsPreference = () => {
       queryClient.invalidateQueries({
         queryKey: ["getUserSettings", variables.userId],
       });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };

@@ -1,81 +1,81 @@
-import { FileText, Download, Upload, File } from 'lucide-react';
-import StatCard from '../StatCard';
+"use client";
+import { Calendar as CalendarIcon, Clock, Users } from "lucide-react";
+import StatCard from "../StatCard";
 
-
-const DocumentsContent = () => {
+const ActionContent = () => {
   const stats = {
-    documents: {
-      title: "Total Documents",
-      value: "156",
-      icon: FileText,
-      subtitle: "All documents",
-      iconBg: "bg-indigo-100",
-      iconColor: "text-indigo-800",
-      textColor: "text-indigo-800"
-    },
-    downloads: {
-      title: "Downloads",
-      value: "24",
-      icon: Download,
-      subtitle: "This month",
-      iconBg: "bg-emerald-100",
-      iconColor: "text-emerald-800",
-      textColor: "text-emerald-800"
-    },
-    uploads: {
-      title: "Recent Uploads",
+    meetings: {
+      title: "Team Meetings",
       value: "12",
-      icon: Upload,
-      subtitle: "Last 7 days",
-      iconBg: "bg-rose-100",
-      iconColor: "text-rose-800",
-      textColor: "text-rose-800"
-    }
+      icon: Users,
+      subtitle: "This week",
+      iconBg: "bg-purple-100",
+      iconColor: "text-purple-800",
+      textColor: "text-purple-800",
+    },
+    events: {
+      title: "Upcoming Events",
+      value: "8",
+      icon: CalendarIcon,
+      subtitle: "Next 30 days",
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-800",
+      textColor: "text-blue-800",
+    },
+    hours: {
+      title: "Hours Booked",
+      value: "24.5",
+      icon: Clock,
+      subtitle: "This month",
+      iconBg: "bg-green-100",
+      iconColor: "text-green-800",
+      textColor: "text-green-800",
+    },
   };
 
   return (
-    
-      <><div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-6">
-          <StatCard {...stats.documents} />
-          <StatCard {...stats.downloads} />
-          <StatCard {...stats.uploads} />
-      </div><div className="bg-[#fefaf6] p-6 rounded-2xl shadow-md">
-              <div className="grid gap-4 grid-cols-1">
-                  {[...Array(5)].map((_, i) => (
-                      <div
-                          key={i}
-                          className="bg-white p-4 rounded-lg border-2 border-blue-50 flex items-center justify-between"
-                      >
-                          <div className="flex items-center space-x-4">
-                              <div className="bg-gray-100 p-2 rounded-lg">
-                                  <File className="text-gray-600" size={24} />
-                              </div>
-                              <div>
-                                  <h4 className="font-semibold">
-                                      {[
-                                          'Annual_Report_2024.pdf',
-                                          'Vacation_Policy.docx',
-                                          'Team_Schedule.xlsx',
-                                          'Project_Timeline.pdf',
-                                          'Meeting_Notes.doc'
-                                      ][i]}
-                                  </h4>
-                                  <p className="text-sm text-gray-600">
-                                      {['2.4 MB', '856 KB', '1.2 MB', '3.1 MB', '645 KB'][i]}
-                                      {' • '}
-                                      {new Date(2024, 0, 20 - i).toLocaleDateString('lt-LT')}
-                                  </p>
-                              </div>
-                          </div>
-                          <button className="text-blue-600 hover:text-blue-800 transition-colors">
-                              <Download size={20} />
-                          </button>
-                      </div>
-                  ))}
+    <>
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+        <StatCard {...stats.meetings} />
+        <StatCard {...stats.events} />
+        <StatCard {...stats.hours} />
+      </div>
+      <div className="bg-[#fefaf6] p-6 rounded-2xl shadow-md">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="bg-white p-4 rounded-lg border-2 border-blue-50"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-600">
+                  {new Date(2024, 0, i + 15).toLocaleDateString("lt-LT")}
+                </span>
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                  {["Meeting", "Event", "Holiday"][i % 3]}
+                </span>
               </div>
-          </div></>
-  
+              <h4 className="font-semibold mb-1">
+                {
+                  [
+                    "Team Sync",
+                    "Product Review",
+                    "Company Event",
+                    "Planning Session",
+                    "Workshop",
+                    "Training",
+                  ][i]
+                }
+              </h4>
+              <p className="text-sm text-gray-600">
+                {["10:00 - 11:00", "14:00 - 15:30", "09:30 - 12:00"][i % 3]}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
   );
 };
 
-export default DocumentsContent;
+export default ActionContent;
