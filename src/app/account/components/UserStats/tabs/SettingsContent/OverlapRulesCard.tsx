@@ -19,7 +19,7 @@ const OverlapRulesCard: React.FC<OverlapRulesCardProps> = ({
 }) => {
   const getEmployeeWord = (count: number) => {
     if (count === 1) return "darbuotojas";
-    return "darbuotojų";
+    return "darbuotojai";
   };
   return (
     <div className="bg-[#fefaf6] p-6 rounded-2xl shadow-md">
