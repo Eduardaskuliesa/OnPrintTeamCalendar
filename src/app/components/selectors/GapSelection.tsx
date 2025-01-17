@@ -24,16 +24,16 @@ const GapSelection = ({
   disabled = false,
   required = true,
   className = "",
-  checkboxLabel = "Add gap days after vacation?",
-  startLabel = "Gap Start Date",
-  endLabel = "Gap End Date",
+  checkboxLabel = "Pridėti tarpą?",
+  startLabel = "Tarpo pradžios data",
+  endLabel = "Tarpo pabaigos data",
 }: GapSelectionProps) => {
   const gapStartDate = baseEndDate
     ? new Date(
-        new Date(baseEndDate).setDate(new Date(baseEndDate).getDate() + 1)
-      )
-        .toISOString()
-        .split("T")[0]
+      new Date(baseEndDate).setDate(new Date(baseEndDate).getDate() + 1)
+    )
+      .toISOString()
+      .split("T")[0]
     : "";
 
   return (

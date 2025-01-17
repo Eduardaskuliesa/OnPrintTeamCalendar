@@ -26,7 +26,7 @@ const UserSelection = ({
   onUserChange,
   users,
   isLoadingUsers,
-  label = "Select User",
+  label = "Pasirinkti vartotoją",
   className = "",
 }: UserSelectionProps) => {
   const selectedUser = users?.find((u) => u.userId === selectedUserId);
@@ -47,14 +47,13 @@ const UserSelection = ({
               <span className="text-sm">{selectedUser?.email}</span>
             </div>
           ) : (
-            <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
+            <SelectValue placeholder={`${label}`} />
           )}
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <SelectLabel>{label}s</SelectLabel>
             {isLoadingUsers ? (
-              <div className="p-2 text-sm text-gray-500">Loading users...</div>
+              <div className="p-2 text-sm text-gray-500">Kraunama...</div>
             ) : users ? (
               users.map((user) => (
                 <SelectItem key={user.userId} value={user.userId}>
@@ -70,7 +69,7 @@ const UserSelection = ({
               ))
             ) : (
               <div className="p-2 text-sm text-red-500">
-                Failed to load users
+                Nepavyko užkrauti vartotojų
               </div>
             )}
           </SelectGroup>

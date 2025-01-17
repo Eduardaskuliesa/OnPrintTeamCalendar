@@ -31,6 +31,7 @@ const VacationList = ({
     setSelectedVacation(vacation);
     setIsModalOpen(true);
   };
+  
 
   const handleConfirmCancellation = async (vacation: Vacation) => {
     if (!vacation) return;
@@ -69,7 +70,7 @@ const VacationList = ({
         <p className={`text-3xl font-bold ${iconColor}`}>
           {vacations.length > 0
             ? vacations[0].status === "APPROVED"
-              ? `${formatDate(vacations[0].startDate)} -> ${formatDate(vacations[0].endDate)}`
+              ? `${formatDate(vacations[0].startDate)} - ${formatDate(vacations[0].endDate)}`
               : vacations.length
             : "Nėra"}
         </p>
@@ -86,7 +87,11 @@ const VacationList = ({
             >
               <div className="flex items-center space-x-2">
                 <span>
-                  {formatDate(vacation.startDate)} - {formatDate(vacation.endDate)}
+                  {formatDate(vacation.startDate)}
+                </span>
+                <ArrowRight className="w-4 h-4 text-gray-500" />
+                <span>
+                  {formatDate(vacation.endDate)}
                 </span>
               </div>
             </div>

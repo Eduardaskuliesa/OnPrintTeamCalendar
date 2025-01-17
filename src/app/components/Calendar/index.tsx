@@ -59,7 +59,7 @@ const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
           size={18}
           className="transform transition-transform group-hover:rotate-90"
         />
-        Book Vacation
+        Registruoti atostogas
       </button>
     </div>
   </div>

@@ -1,4 +1,3 @@
-// components/shared/selectors/DateSelection.tsx
 "use client";
 
 interface DateSelectionProps {
@@ -24,8 +23,8 @@ const DateSelection = ({
   onEndDateChange,
   disabled = false,
   required = true,
-  startLabel = "Start Date",
-  endLabel = "End Date",
+  startLabel = "Pradžios data",
+  endLabel = "Pabaigos data",
   className = "",
   minStartDate,
   maxStartDate,

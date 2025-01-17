@@ -12,7 +12,7 @@ import { formatNumber } from "@/app/utils/formatters";
 
 interface SettingsContentProps {
   usersData: User[];
-  userData: User
+  userData: User;
 }
 
 const SettingsDisplay: React.FC<SettingsContentProps> = ({ usersData, userData }) => {
@@ -72,37 +72,45 @@ const SettingsDisplay: React.FC<SettingsContentProps> = ({ usersData, userData }
         </AlertDescription>
       </Alert>
 
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
-        <VacationRulesCard
-          maxDaysPerBooking={settings.bookingRules.maxDaysPerBooking}
-          maxDaysPerYear={settings.bookingRules.maxDaysPerYear}
-          maximumOverdraftDays={
-            settings.bookingRules.overdraftRules.maximumOverdraftDays
-          }
-          useStrict={settings.bookingRules.overdraftRules.useStrict}
-        />
+      {settings.bookingRules.enabled && (
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
+          <VacationRulesCard
+            maxDaysPerBooking={settings.bookingRules.maxDaysPerBooking}
+            maxDaysPerYear={settings.bookingRules.maxDaysPerYear}
+            maximumOverdraftDays={
+              settings.bookingRules.overdraftRules.maximumOverdraftDays
+            }
+            useStrict={settings.bookingRules.overdraftRules.useStrict}
+          />
 
-        <BookingTimeRulesCard
-          maxAdvanceBookingDays={settings.bookingRules.maxAdvanceBookingDays}
-          minDaysNotice={settings.bookingRules.minDaysNotice}
-        />
-      </div>
+          <BookingTimeRulesCard
+            maxAdvanceBookingDays={settings.bookingRules.maxAdvanceBookingDays}
+            minDaysNotice={settings.bookingRules.minDaysNotice}
+          />
+        </div>
+      )}
+
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <OverlapRulesCard
-          maxSimultaneousBookings={
-            settings.overlapRules.maxSimultaneousBookings
-          }
-          usersWhoCanBeOverlapped={usersWhoCanBeOverlapped}
-        />
+        {settings.overlapRules.enabled && (
+          <OverlapRulesCard
+            maxSimultaneousBookings={
+              settings.overlapRules.maxSimultaneousBookings
+            }
+            usersWhoCanBeOverlapped={usersWhoCanBeOverlapped}
+          />
+        )}
 
-        <GapRulesCard
-          daysForGapType={settings.gapRules.daysForGap.dayType}
-          minimumDaysType={settings.gapRules.minimumDaysForGap.dayType}
-          minimumDaysForGap={settings.gapRules.minimumDaysForGap.days}
-          daysForGap={settings.gapRules.daysForGap.days}
-          usersWhoseGapsCanBeIgnored={usersWhoseGapsCanBeIgnored}
-        />
+        {settings.gapRules.enabled && (
+          <GapRulesCard
+            daysForGapType={settings.gapRules.daysForGap.dayType}
+            minimumDaysType={settings.gapRules.minimumDaysForGap.dayType}
+            minimumDaysForGap={settings.gapRules.minimumDaysForGap.days}
+            daysForGap={settings.gapRules.daysForGap.days}
+            usersWhoseGapsCanBeIgnored={usersWhoseGapsCanBeIgnored}
+          />
+        )}
       </div>
+
       {settings.seasonalRules.enabled &&
         (settings.seasonalRules.blackoutPeriods.length > 0 ||
           settings.seasonalRules.preferredPeriods.length > 0) && (

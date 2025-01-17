@@ -90,7 +90,7 @@ const AdminVacationForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUserId) {
-      setError("Please select a user");
+      setError("Pasirinkti vartotoją");
       return;
     }
 
@@ -100,7 +100,7 @@ const AdminVacationForm = ({
     try {
       const selectedUser = users?.find((u) => u.userId === selectedUserId);
       if (!selectedUser) {
-        throw new Error("Selected user not found");
+        throw new Error("Pasirenktas vartotojas nerestas");
       }
 
       const result = await bookAsAdminVacation(formData, selectedUser as User);
@@ -109,7 +109,7 @@ const AdminVacationForm = ({
       if (result.success && result.data) {
         const events = createVacationEvents(result.data as VacationData);
         onVacationCreated?.(events);
-        toast.success("Vacation successfully registered");
+        toast.success("Atostogos užregistruotos");
         handleClose();
         return;
       }
@@ -154,7 +154,7 @@ const AdminVacationForm = ({
           <div className="flex items-center gap-2">
             <CalendarIcon className="w-5 h-5 text-vdcoffe" />
             <h2 className="text-xl font-semibold text-gray-900">
-              Register Admin Vacation
+              Registruoti kaip Admin
             </h2>
           </div>
           <button
@@ -209,7 +209,7 @@ const AdminVacationForm = ({
 
           {selectedUser && (
             <div className="text-sm text-gray-500">
-              Available vacation days: {formatNumber(selectedUser.vacationDays)}
+              Turimos dienos: {formatNumber(selectedUser.vacationDays)}
             </div>
           )}
 
@@ -223,8 +223,8 @@ const AdminVacationForm = ({
             <SubmitButton
               loading={loading}
               disabled={!selectedUserId}
-              text="Register Vacation"
-              loadingText="Registering..."
+              text="Registruoti"
+              loadingText="Registruojama..."
             />
           </div>
         </form>

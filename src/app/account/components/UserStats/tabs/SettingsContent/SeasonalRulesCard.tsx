@@ -7,6 +7,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { format } from "date-fns";
+import { lt } from "date-fns/locale";
 
 interface Period {
   name: string;
@@ -65,11 +66,11 @@ const SeasonalRulesCard = ({
                         {period.name}
                       </span>
                       <span className="text-sm text-gray-600">
-                        {format(new Date(period.start), "LLL d, yyyy")}
+                        {format(new Date(period.start), "LLL d, yyyy", { locale: lt })}
                       </span>
                       <ArrowRight className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-600">
-                        {format(new Date(period.end), "LLL d, yyyy")}
+                        {format(new Date(period.end), "LLL d, yyyy", { locale: lt })}
                       </span>
                       {period.reason && (
                         <span className="text-sm text-gray-600">
@@ -99,11 +100,11 @@ const SeasonalRulesCard = ({
                         {period.name}
                       </span>
                       <span className="text-sm text-gray-600">
-                        {format(new Date(period.start), "LLL d, yyyy")}
+                        {format(new Date(period.start), "LLL d, yyyy", { locale: lt })}
                       </span>
                       <ArrowRight className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-600">
-                        {format(new Date(period.end), "LLL d, yyyy")}
+                        {format(new Date(period.end), "LLL d, yyyy", { locale: lt })}
                       </span>
                       {period.reason && (
                         <span className="text-sm text-gray-600">
