@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Wallet, CalendarRange, Calculator } from "lucide-react";
-import { Fredoka } from "next/font/google";
+import { Outfit, } from "next/font/google";
 
 import { AnimatePresence, motion } from "framer-motion";
 import { User, Vacation } from "../types/api";
@@ -12,9 +12,9 @@ import NavigationTabs from "./components/UserStats/NavigationTabs";
 import DashboardContent from "./components/UserStats/tabs/DashboardContent";
 import SettingsContent from "./components/UserStats/tabs/SettingsContent";
 
-const fredoka = Fredoka({
+const fredoka = Outfit({
   subsets: ["latin"],
-  weight: ["400", "600"],
+  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -137,7 +137,7 @@ const UserStats = ({
     <div className="flex flex-row-reverse items-start justify-end gap-1 w-full relative">
       <NavigationTabs
         useGlobal={userData.useGlobal}
-        userId={userData.userId}
+        userData={userData}
         activeTab={activeTab}
         setActiveTab={paginate}
       />
@@ -147,7 +147,7 @@ const UserStats = ({
           <span
             className={`text-3xl px-4 py-3 block font-bold text-gray-800 tracking-wide ${fredoka.className}`}
           >
-            Šiandien melagio diena
+            Šiandien mėlagio diena
           </span>
         </div>
 
@@ -177,7 +177,7 @@ const UserStats = ({
                   />
                 )}
                 {activeTab === "settings" && (
-                  <SettingsContent usersData={usersData} />
+                  <SettingsContent usersData={usersData} userData={userData} />
                 )}
                 {/* {activeTab === "actions" && <ActionContent />} */}
               </motion.div>

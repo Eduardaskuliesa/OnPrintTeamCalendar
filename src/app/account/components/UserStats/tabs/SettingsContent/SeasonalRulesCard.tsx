@@ -38,7 +38,7 @@ const SeasonalRulesCard = ({
                   <HelpCircle className="w-4 h-4 text-db hidden group-hover:block" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Uždrausti ir rekomenduojami atostogų periodai</p>
+                  <p>Apriboti ir rekomenduojami atostogų periodai</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -52,7 +52,7 @@ const SeasonalRulesCard = ({
           {blackoutPeriods.length > 0 && (
             <div className="flex-1">
               <h4 className="text-base font-medium mb-3 text-db">
-                Uždrausti periodai:
+                Rezervacija apribota:
               </h4>
               <div className="space-y-2 max-h-[170px] overflow-y-auto custom-scrollbar pr-2">
                 {blackoutPeriods.map((period, index) => (
@@ -65,15 +65,15 @@ const SeasonalRulesCard = ({
                         {period.name}
                       </span>
                       <span className="text-sm text-gray-600">
-                        {format(new Date(period.start), "MMM d, yyyy")}
+                        {format(new Date(period.start), "LLL d, yyyy")}
                       </span>
                       <ArrowRight className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-600">
-                        {format(new Date(period.end), "MMM d, yyyy")}
+                        {format(new Date(period.end), "LLL d, yyyy")}
                       </span>
                       {period.reason && (
                         <span className="text-sm text-gray-600">
-                          - {period.reason}
+                          {period.reason}
                         </span>
                       )}
                     </div>
@@ -99,15 +99,15 @@ const SeasonalRulesCard = ({
                         {period.name}
                       </span>
                       <span className="text-sm text-gray-600">
-                        {format(new Date(period.start), "MMM d, yyyy")}
+                        {format(new Date(period.start), "LLL d, yyyy")}
                       </span>
                       <ArrowRight className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-600">
-                        {format(new Date(period.end), "MMM d, yyyy")}
+                        {format(new Date(period.end), "LLL d, yyyy")}
                       </span>
                       {period.reason && (
                         <span className="text-sm text-gray-600">
-                          - {period.reason}
+                          {period.reason}
                         </span>
                       )}
                     </div>

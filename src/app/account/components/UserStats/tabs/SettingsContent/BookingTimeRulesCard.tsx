@@ -78,7 +78,7 @@ const BookingTimeRulesCard: React.FC<BookingRules> = ({
               </Tooltip>
             </TooltipProvider>
             <span className="text-base font-medium text-db">
-              Minimalus įspėjimas
+              Rezervacijos pateikimo laikotarpis
             </span>
           </div>
           <span className="text-base font-semibold text-db">

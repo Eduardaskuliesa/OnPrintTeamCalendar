@@ -30,7 +30,7 @@ export function checkUserVacationBalance(
       hasConflict: true,
       error: {
         type: "INSUFFICIENT_VACATION_DAYS",
-        message: `Insufficient vacation days. Required: ${workingDays}, Available: ${
+        message: `Nepakankamas atostogų balansas. Reikia: ${workingDays}, Turitę: ${
           user.vacationDays - usedVacationDays
         }`,
         details: {

@@ -180,22 +180,19 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
             }}
             dayCellContent={(arg) => (
               <div
-                className={`relative ${
-                  arg.view.type === "multiMonthYear"
-                    ? "min-h-[auto]"
-                    : "min-h-[48px]"
-                }`}
+                className={`relative ${arg.view.type === "multiMonthYear"
+                  ? "min-h-[auto]"
+                  : "min-h-[48px]"
+                  }`}
               >
                 <div
-                  className={`text justify-start ${
-                    arg.view.type === "multiMonthYear"
-                      ? ` ${
-                          isHoliday(arg.date)
-                            ? "font-bold text-sm text-red-600"
-                            : "text-sm"
-                        }`
-                      : ""
-                  }`}
+                  className={`text justify-start ${arg.view.type === "multiMonthYear"
+                    ? ` ${isHoliday(arg.date)
+                      ? "font-bold text-sm text-red-600"
+                      : "text-sm"
+                    }`
+                    : ""
+                    }`}
                 >
                   {arg.dayNumberText}
                 </div>
@@ -207,6 +204,25 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
                 />
               </div>
             )}
+            dayCellDidMount={(arg) => {
+              if (settings.seasonalRules.enabled &&
+                settings.seasonalRules.blackoutPeriods.some(period => {
+                  const start = new Date(period.start);
+                  const end = new Date(period.end);
+                  start.setHours(0, 0, 0, 0);
+                  end.setHours(23, 59, 59, 999);
+
+                  const date = new Date(arg.date);
+                  date.setHours(0, 0, 0, 0);
+
+                  return date >= start && date <= end;
+                })) {
+                const dayFrame = arg.el.querySelector('.fc-daygrid-day-frame');
+                if (dayFrame) {
+                  dayFrame.classList.add('!bg-rose-100');
+                }
+              }
+            }}
             stickyHeaderDates={true}
             select={handleSelect}
             selectable={true}

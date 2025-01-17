@@ -8,12 +8,14 @@ import GapRulesCard from "./GapRulesCard";
 import OverlapRulesCard from "./OverlapRulesCard";
 import SeasonalRulesCard from "./SeasonalRulesCard";
 import VacationRulesCard from "./VacationRulesCard";
+import { formatNumber } from "@/app/utils/formatters";
 
 interface SettingsContentProps {
   usersData: User[];
+  userData: User
 }
 
-const SettingsDisplay: React.FC<SettingsContentProps> = ({ usersData }) => {
+const SettingsDisplay: React.FC<SettingsContentProps> = ({ usersData, userData }) => {
   const queryClient = useQueryClient();
   const settings = queryClient.getQueryData<GlobalSettingsType>([
     "sanitizedSettings",
@@ -58,6 +60,7 @@ const SettingsDisplay: React.FC<SettingsContentProps> = ({ usersData }) => {
               <strong>Darbo dienų skaičiavimas:</strong>{" "}
               {getWorkingDaysDescription()}
             </p>
+            <p><strong>+{formatNumber(userData.updateAmount)}</strong> Kasdien</p>
             <p>
               <strong>d.d - </strong>
               Darbo dienos

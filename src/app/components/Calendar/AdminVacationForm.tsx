@@ -133,11 +133,10 @@ const AdminVacationForm = ({
 
   return (
     <div
-      className={`fixed inset-0 transition-all duration-200 ease-out flex items-center justify-center z-50 ${
-        isOpen
+      className={`fixed inset-0 transition-all duration-200 ease-out flex items-center justify-center z-50 ${isOpen
           ? "bg-black/50 opacity-100 visible"
           : "bg-black/0 opacity-0 invisible"
-      }`}
+        }`}
     >
       <div
         className={`bg-white rounded-lg shadow-xl w-full max-w-md relative 
@@ -145,10 +144,9 @@ const AdminVacationForm = ({
           motion-safe:transition-[transform,opacity] 
           motion-safe:duration-300
           motion-safe:cubic-bezier(0.34, 1.56, 0.64, 1) 
-          ${
-            isOpen
-              ? "transform scale-100 opacity-100 translate-y-0"
-              : "transform scale-95 opacity-0 -translate-y-2"
+          ${isOpen
+            ? "transform scale-100 opacity-100 translate-y-0"
+            : "transform scale-95 opacity-0 -translate-y-2"
           }`}
       >
         {/* Header */}
@@ -209,11 +207,11 @@ const AdminVacationForm = ({
             />
           )}
 
-{selectedUser && (
-  <div className="text-sm text-gray-500">
-    Available vacation days: {formatNumber(selectedUser.vacationDays)}
-  </div>
-)}
+          {selectedUser && (
+            <div className="text-sm text-gray-500">
+              Available vacation days: {formatNumber(selectedUser.vacationDays)}
+            </div>
+          )}
 
           {error && (
             <p className="text-sm text-red-500 bg-red-50 p-2 rounded">

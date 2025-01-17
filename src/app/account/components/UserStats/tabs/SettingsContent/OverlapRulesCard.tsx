@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, AlertCircle, HelpCircle } from "lucide-react";
+import { AlertCircle, HelpCircle } from "lucide-react";
 import { User } from "@/app/types/api";
 import {
   TooltipProvider,
@@ -14,13 +14,12 @@ interface OverlapRulesCardProps {
 }
 
 const OverlapRulesCard: React.FC<OverlapRulesCardProps> = ({
-  maxSimultaneousBookings,
   usersWhoCanBeOverlapped,
 }) => {
-  const getEmployeeWord = (count: number) => {
-    if (count === 1) return "darbuotojas";
-    return "darbuotojai";
-  };
+  // const getEmployeeWord = (count: number) => {
+  //   if (count === 1) return "darbuotojas";
+  //   return "darbuotojai";
+  // };
   return (
     <div className="bg-[#fefaf6] p-6 rounded-2xl shadow-md">
       <div className="flex items-center justify-between mb-4">
@@ -30,31 +29,6 @@ const OverlapRulesCard: React.FC<OverlapRulesCardProps> = ({
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-vdcoffe">
-          <div className="flex items-center space-x-2">
-            <TooltipProvider delayDuration={0}>
-              <Tooltip>
-                <TooltipTrigger className="group">
-                  <Users className="w-4 h-4 text-db group-hover:hidden" />
-                  <HelpCircle className="w-4 h-4 text-db hidden group-hover:block" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>
-                    Maksimalus skaičius darbuotojų, kurie gali atostogauti vienu
-                    metu
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <span className="text-base font-medium text-db">
-              Vienu metu gali atostogauti
-            </span>
-          </div>
-          <span className="text-base font-semibold text-db">
-            {maxSimultaneousBookings} {getEmployeeWord(maxSimultaneousBookings)}
-          </span>
-        </div>
-
         {usersWhoCanBeOverlapped.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
@@ -67,13 +41,13 @@ const OverlapRulesCard: React.FC<OverlapRulesCardProps> = ({
                   <TooltipContent>
                     <p>
                       Vartotojai, su kuriais galiu atostogauti vienu metu
-                      nepaisant pirmos taisyklės
+                      
                     </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
               <span className="text-base font-medium text-db">
-                Galiu atostogauti kartu su:
+                Rezervuoti vienu metu galima:
               </span>
             </div>
             <div className="max-h-[150px]  w-full overflow-auto custom-scrollbar">

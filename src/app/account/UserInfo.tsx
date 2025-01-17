@@ -2,11 +2,11 @@
 import { User } from "../types/api";
 
 import { FaHandPeace } from "react-icons/fa6";
-import { Fredoka } from "next/font/google";
+import { Outfit } from "next/font/google";
 
-const fredoka = Fredoka({
+const fredoka = Outfit({
   subsets: ["latin"],
-  weight: ["400", "600"],
+  weight: ["400", "800"],
   display: "swap",
 });
 

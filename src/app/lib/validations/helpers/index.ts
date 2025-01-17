@@ -71,7 +71,6 @@ export function calculateDaysInAdvance(
   let daysInAdvance = 0;
   const currentDate = new Date(today);
 
-  // Include current day in the count
   if (dayType === "working") {
     if (isWorkingDay(currentDate, weekendRestriction)) {
       daysInAdvance++;
@@ -80,7 +79,7 @@ export function calculateDaysInAdvance(
     daysInAdvance++;
   }
 
-  // Then continue counting remaining days
+
   while (currentDate < bookingStart) {
     currentDate.setDate(currentDate.getDate() + 1);
 
@@ -161,7 +160,7 @@ export function calculateGapDays(
   }
 
   const currentDate = new Date(endDate);
-  currentDate.setDate(currentDate.getDate() + 1); // Start from the next day
+  currentDate.setDate(currentDate.getDate() + 1);
 
   let gapDaysCount = 0;
   let totalDays = 0;

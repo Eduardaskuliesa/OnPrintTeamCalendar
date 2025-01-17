@@ -1,5 +1,7 @@
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { Vacation } from "@/app/types/api";
+import { format } from "date-fns";
+import { lt } from "date-fns/locale";
 
 export function checkSeasonalConflict(
   startDate: Date,
@@ -15,17 +17,13 @@ export function checkSeasonalConflict(
   for (const period of blackoutPeriods) {
     const blackoutStart = new Date(period.start);
     const blackoutEnd = new Date(period.end);
-
     if (startDate <= blackoutEnd && endDate >= blackoutStart) {
       return {
         hasConflict: true,
         error: {
           type: "BLACKOUT_PERIOD",
-          message: `Booking not allowed during blackout period: ${
-            period.name
-          } (${new Date(period.start).toLocaleDateString()} to ${new Date(
-            period.end
-          ).toLocaleDateString()})`,
+          message: `Rezervacija apribota: ${period.name
+            } nuo ${format(new Date(period.start), "MMM d, yyyy",{ locale: lt })} iki ${format(new Date(period.end), "MMM d, yyyy", { locale: lt })}`,
           details: {
             periodName: period.name,
             periodReason: period.reason,
@@ -110,7 +108,7 @@ export function checkCustomRestrictedDays(
         hasConflict: true,
         error: {
           type: "CUSTOM_RESTRICTED_DAY",
-          message: `Selected period includes a restricted date: ${new Date(
+          message: `Pasirinktas laikotarpis įeina į apribotą datą: ${new Date(
             restrictedDay
           ).toLocaleDateString()}`,
           restrictedDate: restrictedDay,
@@ -148,7 +146,7 @@ export function checkOverlapConflict(
       hasConflict: true,
       error: {
         type: "SELF_OVERLAP",
-        message: "Selected dates overlap with one of your existing vacations",
+        message: "Pasirinkta data sutampa su viena iš jūsų esamų atostogų",
       },
     };
   }
@@ -183,7 +181,7 @@ export function checkOverlapConflict(
         hasConflict: true,
         error: {
           type: "MAX_OVERLAP_EXCEEDED",
-          message: `Maximum number of simultaneous vacations ${settings.overlapRules.maxSimultaneousBookings} exceeded`,
+          message: `Viršytas maksimalus vienu metu atostogaujančių skaičius: ${settings.overlapRules.maxSimultaneousBookings}.`,
         },
       };
     }

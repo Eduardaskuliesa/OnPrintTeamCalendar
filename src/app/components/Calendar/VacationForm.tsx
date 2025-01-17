@@ -68,7 +68,7 @@ const VacationForm = ({
       if (result.success && result.data) {
         const events = createVacationEvents(result.data as VacationData);
         onVacationCreated?.(events as Event[]);
-        toast.success("Atostogos sėkmingai užregistruotos");
+        toast.success("Rezervacija sėkmingai užregistruota.Laukite patvirtinimo.");
         handleClose();
         return;
       }

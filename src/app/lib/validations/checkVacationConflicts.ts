@@ -49,7 +49,8 @@ export async function checkVacationConflicts(
       vacationDaysUsed: 0,
       error: {
         type: "INSUFFICIENT_VACATION_DAYS",
-        message: `Not enough vacation days. Required: ${workingDays}, Available: ${availableBalance}, Allowed overdraft: ${maxOverdraftDays}`,
+        message: `Nepakanka atostogų dienų
+        Reikalinga: ${workingDays}, Turite: ${availableBalance}, Maksimalus kreditas: ${maxOverdraftDays}`,
       },
     };
   }
@@ -89,7 +90,7 @@ export async function checkVacationConflicts(
       vacationDaysUsed: 0,
       error: {
         type: "GAP_RULE_CONFLICT",
-        message: `Cannot book within ${gapConflict.totalGapDays} days of another team member's vacation`,
+        message: `Rezervacija negalima. Privalomas ${gapConflict.totalGapDays} dienų tarpas tarp atostogaujančių`,
         conflictingVacation: gapConflict.hasConflict,
       },
     };
@@ -109,12 +110,16 @@ export async function checkVacationConflicts(
     settings.bookingRules.maxDaysPerBooking.days > 0 &&
     totalVacationDays > settings.bookingRules.maxDaysPerBooking.days
   ) {
+    const dayTypeText = settings.bookingRules.maxDaysPerBooking.dayType === "working"
+      ? "darbo dienų"
+      : "kalendorinių dienų";
+
     return {
       hasConflict: true,
       vacationDaysUsed: totalVacationDays,
       error: {
         type: "MAX_DAYS_PER_BOOKING",
-        message: `Vacation cannot exceed ${settings.bookingRules.maxDaysPerBooking.days} ${settings.bookingRules.maxDaysPerBooking.dayType} days`,
+        message: `Atostogos negali viršyti ${settings.bookingRules.maxDaysPerBooking.days} ${dayTypeText}`,
       },
     };
   }
@@ -152,12 +157,16 @@ export async function checkVacationConflicts(
       }, 0);
 
       if (bookedDays + daysInYear > settings.bookingRules.maxDaysPerYear.days) {
+        const dayTypeText = settings.bookingRules.maxDaysPerYear.dayType === "working"
+          ? "darbo dienų"
+          : "kalendorinių dienų";
+
         return {
           hasConflict: true,
           vacationDaysUsed: totalVacationDays,
           error: {
             type: "MAX_BOOKINGS_PER_YEAR",
-            message: `Cannot exceed ${settings.bookingRules.maxDaysPerYear.days} vacation bookings for year ${year} (Current: ${bookedDays}, Attempting to book: ${daysInYear})`,
+            message: `Negalima viršyti ${settings.bookingRules.maxDaysPerYear.days} ${dayTypeText} per ${year} metus (Dabartinis: ${bookedDays}, Bandoma užregistruoti: ${daysInYear})`,
             year,
             currentBookedDays: bookedDays,
             attemptingToBook: daysInYear,
@@ -165,28 +174,34 @@ export async function checkVacationConflicts(
         };
       }
     }
-  }
 
-  if (settings.bookingRules.maxAdvanceBookingDays.days > 0) {
-    const maxDays = settings.bookingRules.maxAdvanceBookingDays.days;
+    if (settings.bookingRules.maxAdvanceBookingDays.days > 0) {
+      const maxDays = settings.bookingRules.maxAdvanceBookingDays.days;
+      const dayTypeText = settings.bookingRules.maxAdvanceBookingDays.dayType === "working"
+        ? "darbo dienų"
+        : "kalendorinių dienų";
 
-    if (daysInAdvance > maxDays) {
-      return {
-        hasConflict: true,
-        vacationDaysUsed: totalVacationDays,
-        error: {
-          type: "ADVANCE_BOOKING",
-          message: `Cannot book more than ${maxDays} ${settings.bookingRules.maxAdvanceBookingDays.dayType} days in advance (Current: ${daysInAdvance} days)`,
-          currentDays: daysInAdvance,
-          maxDays: maxDays,
-          dayType: settings.bookingRules.maxAdvanceBookingDays.dayType,
-        },
-      };
+      if (daysInAdvance > maxDays) {
+        return {
+          hasConflict: true,
+          vacationDaysUsed: totalVacationDays,
+          error: {
+            type: "ADVANCE_BOOKING",
+            message: `Negalima registruoti atostogų anksčiau nei ${maxDays} ${dayTypeText} į priekį (Dabartinis: ${daysInAdvance} dienų)`,
+            currentDays: daysInAdvance,
+            maxDays: maxDays,
+            dayType: settings.bookingRules.maxAdvanceBookingDays.dayType,
+          },
+        };
+      }
     }
   }
 
   if (settings.bookingRules.minDaysNotice.days > 0) {
     const minDays = settings.bookingRules.minDaysNotice.days;
+    const dayTypeText = settings.bookingRules.minDaysNotice.dayType === "working"
+      ? "darbo dienas"
+      : "kalendorines dienas";
 
     if (daysInAdvance < minDays) {
       return {
@@ -194,7 +209,7 @@ export async function checkVacationConflicts(
         vacationDaysUsed: totalVacationDays,
         error: {
           type: "MIN_NOTICE",
-          message: `Must book at least ${minDays} ${settings.bookingRules.minDaysNotice.dayType} days in advance (Current: ${daysInAdvance} days)`,
+          message: `Atostogas reikia registruoti bent prieš ${minDays} ${dayTypeText} (Dabartinis: ${daysInAdvance} dienų)`,
           currentDays: daysInAdvance,
           requiredDays: minDays,
           dayType: settings.bookingRules.minDaysNotice.dayType,

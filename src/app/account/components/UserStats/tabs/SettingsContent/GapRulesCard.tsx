@@ -25,7 +25,7 @@ const GapRulesCard: React.FC<GapRulesCardProps> = ({
   return (
     <div className="bg-[#fefaf6] p-6 rounded-2xl shadow-md">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-db">Tarpo taisyklės</h3>
+        <h3 className="text-lg font-semibold text-db">Tarpo tarp atostogaujančių taisyklės</h3>
       </div>
 
       <div className="space-y-4">
@@ -38,16 +38,16 @@ const GapRulesCard: React.FC<GapRulesCardProps> = ({
                   <HelpCircle className="w-4 h-4 text-db hidden group-hover:block" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Minimalus laikas, kad būtų sukurtas tarpas tarp atostogų periodų</p>
+                  <p>Rezervuojant iki nurodyto dienų skaičiaus, tarp atostogaujančių kalendoriuje nebus sukurtas tarpas.</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
             <span className="text-base font-medium text-db">
-              Min. laikas kad sukurti tarpą
+              {`Tarpas nebus sukurtas rezervuojant`}
             </span>
           </div>
           <span className="text-base font-semibold text-db">
-            {minimumDaysForGap} {getDayTypeLabel(minimumDaysType)}
+            {`≤ ${minimumDaysForGap} ${getDayTypeLabel(minimumDaysType)}`} 
           </span>
         </div>
 
