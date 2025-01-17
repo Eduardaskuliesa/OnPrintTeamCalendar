@@ -4,7 +4,7 @@ import { sanitizeSettings } from "@/app/lib/actions/settings/sanitizeSettings";
 import { getUserSettings } from "@/app/lib/actions/settings/user/getUserSettings";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { useQueryClient } from "@tanstack/react-query";
-import { Home, CalendarRange, ScrollText, Loader2 } from "lucide-react";
+import { Home, ScrollText, Loader2 } from "lucide-react";
 
 interface NavigationProps {
   activeTab: string;
@@ -74,7 +74,7 @@ const NavigationTabs = ({
           <ScrollText size={24} className="text-gray-800" />
         )}
       </button>
-      <button
+      {/* <button
         onClick={() => setActiveTab("actions")}
         className={`p-2 rounded-lg transition-colors ${
           activeTab === "actions"
@@ -83,7 +83,7 @@ const NavigationTabs = ({
         }`}
       >
         <CalendarRange size={24} className="text-gray-800" />
-      </button>
+      </button> */}
     </div>
   );
 };

@@ -9,7 +9,6 @@ import { User, Vacation } from "../types/api";
 import { formatNumber } from "../utils/formatters";
 
 import NavigationTabs from "./components/UserStats/NavigationTabs";
-import ActionContent from "./components/UserStats/tabs/ActionContent";
 import DashboardContent from "./components/UserStats/tabs/DashboardContent";
 import SettingsContent from "./components/UserStats/tabs/SettingsContent";
 
@@ -180,7 +179,7 @@ const UserStats = ({
                 {activeTab === "settings" && (
                   <SettingsContent usersData={usersData} />
                 )}
-                {activeTab === "actions" && <ActionContent />}
+                {/* {activeTab === "actions" && <ActionContent />} */}
               </motion.div>
             </AnimatePresence>
           </motion.div>
