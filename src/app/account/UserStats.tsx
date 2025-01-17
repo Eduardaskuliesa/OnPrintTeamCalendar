@@ -1,13 +1,17 @@
-"use client"
-import { useEffect, useRef, useState } from 'react';
-import { Wallet, CalendarRange, Calculator } from 'lucide-react';
-import { Fredoka } from 'next/font/google';
+/* eslint-disable react-hooks/exhaustive-deps */
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { Wallet, CalendarRange, Calculator } from "lucide-react";
+import { Fredoka } from "next/font/google";
 
-import { AnimatePresence, motion } from 'framer-motion';
-import { Vacation } from '../types/api';
-import { formatNumber } from '../utils/formatters';
-import { ActionContent, DashboardContent, SettingsContent } from './components/UserStats/tabs';
-import NavigationTabs from './components/UserStats/NavigationTabs';
+import { AnimatePresence, motion } from "framer-motion";
+import { User, Vacation } from "../types/api";
+import { formatNumber } from "../utils/formatters";
+
+import NavigationTabs from "./components/UserStats/NavigationTabs";
+import ActionContent from "./components/UserStats/tabs/ActionContent";
+import DashboardContent from "./components/UserStats/tabs/DashboardContent";
+import SettingsContent from "./components/UserStats/tabs/SettingsContent";
 
 const fredoka = Fredoka({
   subsets: ["latin"],
@@ -17,7 +21,7 @@ const fredoka = Fredoka({
 
 const slideVariants = {
   enter: (direction: number) => ({
-    y: direction > 0 ? '100%' : '-100%',
+    y: direction > 0 ? "100%" : "-100%",
     opacity: 0.6,
   }),
   center: {
@@ -25,27 +29,31 @@ const slideVariants = {
     opacity: 1,
   },
   exit: (direction: number) => ({
-    y: direction < 0 ? '100%' : '-100%',
+    y: direction < 0 ? "100%" : "-100%",
     opacity: 0.6,
-  })
+  }),
 };
 
-const TABS = ['dashboard', 'calendar', 'documents'];
+const TABS = ["dashboard", "settings", "actions"];
 
 interface UserStatsProps {
   realCurrentBalance: number;
   totalFutureVacationDays: number;
   currentVacationDays: number;
   futureVacationsList: Vacation[];
+  userData: User;
+  usersData: User[];
 }
 
 const UserStats = ({
   realCurrentBalance,
   totalFutureVacationDays,
   currentVacationDays,
+  userData,
+  usersData,
   futureVacationsList,
 }: UserStatsProps) => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [direction, setDirection] = useState(0);
   const [contentHeight, setContentHeight] = useState("auto");
   const contentRef = useRef<HTMLDivElement>(null);
@@ -62,7 +70,7 @@ const UserStats = ({
       setDirection(newIndex > currentIndex ? 1 : -1);
       setHeightAnimationSpeed(isMovingToSmallerIndex ? 0.3 : 0.4);
       setActiveTab(newTab);
-      setKey(prevKey => prevKey + 1);
+      setKey((prevKey) => prevKey + 1);
     }
   };
 
@@ -96,8 +104,6 @@ const UserStats = ({
     (vacation) => vacation.status === "PENDING"
   );
 
-  
-
   const stats = {
     balance: {
       title: <>Atostogų dienos</>,
@@ -106,7 +112,7 @@ const UserStats = ({
       subtitle: todayDate,
       iconBg: "bg-green-100",
       iconColor: "text-green-800",
-      textColor: "text-green-800"
+      textColor: "text-green-800",
     },
     reserved: {
       title: "Rezervuotos dienos",
@@ -115,7 +121,7 @@ const UserStats = ({
       subtitle: "Būsimos atostogos",
       iconBg: "bg-blue-100",
       iconColor: "text-db",
-      textColor: "text-db"
+      textColor: "text-db",
     },
     remaining: {
       title: <>Likutis / Trukumas</>,
@@ -124,21 +130,28 @@ const UserStats = ({
       subtitle: todayDate,
       iconBg: "bg-pink-100",
       iconColor: "text-pink-700",
-      textColor: "text-pink-700"
-    }
+      textColor: "text-pink-700",
+    },
   };
 
   return (
     <div className="flex flex-row-reverse items-start justify-end gap-1 w-full relative">
-      <NavigationTabs activeTab={activeTab} setActiveTab={paginate} />
-      
+      <NavigationTabs
+        useGlobal={userData.useGlobal}
+        userId={userData.userId}
+        activeTab={activeTab}
+        setActiveTab={paginate}
+      />
+
       <div className="flex-1 relative px-6 py-6 mb-4  bg-[#EADBC8] border-blue-50 border-2 rounded-b-3xl rounded-tl-3xl">
         <div className="w-auto h-14 flex items-center bg-[#EADBC8] absolute rounded-t-2xl border-blue-50 top-0 -mt-14 -right-[2px] border-t-2 border-l-2 border-r-2">
-          <span className={`text-3xl px-4 py-3 block font-bold text-gray-800 tracking-wide ${fredoka.className}`}>
+          <span
+            className={`text-3xl px-4 py-3 block font-bold text-gray-800 tracking-wide ${fredoka.className}`}
+          >
             Šiandien melagio diena
           </span>
         </div>
-        
+
         <div className="overflow-hidden py-1">
           <motion.div
             animate={{ height: contentHeight }}
@@ -154,18 +167,20 @@ const UserStats = ({
                 animate="center"
                 exit={direction === 0 ? "center" : "exit"}
                 transition={{
-                  y: { type: "tween", duration: 0.4, ease: "easeOut" }
+                  y: { type: "tween", duration: 0.4, ease: "easeOut" },
                 }}
               >
-                {activeTab === 'dashboard' && (
-                  <DashboardContent 
+                {activeTab === "dashboard" && (
+                  <DashboardContent
                     stats={stats}
                     approvedVacations={approvedFutureVacations}
                     pendingVacations={pendingVacations}
                   />
                 )}
-                {activeTab === 'calendar' && <ActionContent />}
-                {activeTab === 'documents' && <SettingsContent />}
+                {activeTab === "settings" && (
+                  <SettingsContent usersData={usersData} />
+                )}
+                {activeTab === "actions" && <ActionContent />}
               </motion.div>
             </AnimatePresence>
           </motion.div>
@@ -176,13 +191,3 @@ const UserStats = ({
 };
 
 export default UserStats;
-
-
-
-
-
-
-
-
-
-

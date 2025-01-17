@@ -9,7 +9,6 @@ import {
   updateSettingEnabled,
 } from "../updateGlobalSettings";
 
-// Hook for quick enable/disable toggles
 export const useUpdateSettingEnabled = () => {
   const queryClient = useQueryClient();
 
@@ -29,12 +28,14 @@ export const useUpdateSettingEnabled = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
 
 export const useUpdateGapDays = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (gapRules: {
       daysForGap: GlobalSettingsType["gapRules"]["daysForGap"];
@@ -46,15 +47,9 @@ export const useUpdateGapDays = () => {
       }
       return result;
     },
-    onSuccess: (result) => {
-      queryClient.setQueryData(
-        ["getGlobalSettings"],
-        (oldData: GlobalSettingsType) => ({
-          ...oldData.gapRules,
-          data: result.data,
-        })
-      );
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
@@ -70,16 +65,9 @@ export const useUpdateOverlapRules = () => {
       }
       return result;
     },
-
-    onSuccess: (result) => {
-      queryClient.setQueryData(
-        ["getGlobalSettings"],
-        (oldData: GlobalSettingsType) => ({
-          ...oldData,
-          data: result.data,
-        })
-      );
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
@@ -101,16 +89,9 @@ export const useUpdateBookingRules = () => {
       }
       return result;
     },
-
-    onSuccess: (result) => {
-      queryClient.setQueryData(
-        ["getGlobalSettings"],
-        (oldData: GlobalSettingsType) => ({
-          ...oldData,
-          data: result.data,
-        })
-      );
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
@@ -130,18 +111,9 @@ export const useUpdateSeasonalRules = () => {
       }
       return result;
     },
-
-    onSuccess: (result) => {
-      // Update the cached data optimistically
-      queryClient.setQueryData(
-        ["getGlobalSettings"],
-        (oldData: GlobalSettingsType) => ({
-          ...oldData,
-          data: result.data,
-        })
-      );
-      // Invalidate and refetch to ensure consistency
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };
@@ -159,13 +131,9 @@ export const useUpdateRestrictedDays = () => {
       }
       return result;
     },
-
-    onSuccess: (result) => {
-      queryClient.setQueryData(["getGlobalSettings"], (oldData: any) => ({
-        ...oldData,
-        data: result.data,
-      }));
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
     },
   });
 };

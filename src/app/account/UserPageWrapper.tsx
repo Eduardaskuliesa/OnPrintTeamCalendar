@@ -6,9 +6,10 @@ import UserInfo from "./UserInfo";
 import UserStats from "./UserStats";
 
 export async function UserPageWrapper({ userId }: { userId: string }) {
-  const [userData, vacationsData] = await Promise.all([
+  const [userData, vacationsData, usersData] = await Promise.all([
     usersActions.getUser(userId),
     getUserVacations(userId),
+    usersActions.getUsers(),
   ]);
 
   const currentYear = new Date().getFullYear();
@@ -105,7 +106,11 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
     <div className="py-4 max-w-6xl ml-[5%]">
       <UserInfo userData={userData.data as User} />
 
-      <UserStats {...statsData} />
+      <UserStats
+        {...statsData}
+        userData={userData.data as User}
+        usersData={usersData.data as User[]}
+      />
 
       <PasswordForm />
     </div>
