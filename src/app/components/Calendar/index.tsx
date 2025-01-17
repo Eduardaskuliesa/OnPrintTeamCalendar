@@ -110,7 +110,6 @@ const Calendar = ({ initialVacations, settings }: CalendarProps) => {
       const result = await vacationsAction.deleteVacation(
         selectedEvent.id,
         selectedEvent.extendedProps.userId,
-        selectedEvent.extendedProps.totalVacationDays
       );
       queryClient.invalidateQueries({ queryKey: ["users"] });
 

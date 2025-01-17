@@ -12,6 +12,7 @@ import {
   checkOverlapConflict,
   checkCustomRestrictedDays,
 } from "./rules";
+import { formatNumber } from "@/app/utils/formatters";
 
 export async function checkVacationConflicts(
   startDate: string,
@@ -50,11 +51,10 @@ export async function checkVacationConflicts(
       error: {
         type: "INSUFFICIENT_VACATION_DAYS",
         message: `Nepakanka atostogų dienų
-        Reikalinga: ${workingDays}, Turite: ${availableBalance}, Maksimalus kreditas: ${maxOverdraftDays}`,
+        Reikalinga: ${workingDays}, Turite: ${formatNumber(availableBalance)}, Maksimalus kreditas: ${maxOverdraftDays}`,
       },
     };
   }
-
   const newBalance = Math.max(
     availableBalance - workingDays,
     -maxOverdraftDays

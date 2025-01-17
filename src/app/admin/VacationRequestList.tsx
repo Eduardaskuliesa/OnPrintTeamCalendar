@@ -79,7 +79,6 @@ export default function VacationRequestList({
         result = await vacationsAction.deleteVacation(
           id,
           request.userId,
-          request.totalVacationDays
         );
 
         if (result.success) {
@@ -166,7 +165,7 @@ export default function VacationRequestList({
                   Math.ceil(
                     (new Date(request.endDate).getTime() -
                       new Date(request.startDate).getTime()) /
-                      (1000 * 60 * 60 * 24)
+                    (1000 * 60 * 60 * 24)
                   ) + 1;
 
                 return (

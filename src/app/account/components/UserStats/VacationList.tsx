@@ -40,9 +40,6 @@ const VacationList = ({
       const result = await vacationsAction.cancelVacation(
         vacation.id,
         vacation.userId,
-        vacation.totalVacationDays,
-        vacation.startDate,
-        vacation.endDate
       );
 
       if (result.success) {

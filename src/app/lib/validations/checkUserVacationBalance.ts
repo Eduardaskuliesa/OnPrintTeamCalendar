@@ -1,7 +1,11 @@
-// src/app/validations/checkUserVacationBalance.ts
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { User } from "@/app/types/api";
 import { calculateVacationDays } from "./helpers";
+
+const formatNumber = (value: number) => {
+  const withThreeDecimals = Number(value).toFixed(3);
+  return withThreeDecimals.replace(/\.?0+$/, "");
+};
 
 export function checkUserVacationBalance(
   startDate: Date,
@@ -30,14 +34,14 @@ export function checkUserVacationBalance(
       hasConflict: true,
       error: {
         type: "INSUFFICIENT_VACATION_DAYS",
-        message: `Nepakankamas atostogų balansas. Reikia: ${workingDays}, Turitę: ${
-          user.vacationDays - usedVacationDays
+        message: `Nepakankamas atostogų balansas. Reikia: ${formatNumber(workingDays)}, Turitę: ${
+          formatNumber(user.vacationDays - usedVacationDays)
         }`,
         details: {
-          required: workingDays,
-          available: user.vacationDays - usedVacationDays,
-          totalBalance: user.vacationDays,
-          used: usedVacationDays,
+          required: formatNumber(workingDays),
+          available: formatNumber(user.vacationDays - usedVacationDays),
+          totalBalance: formatNumber(user.vacationDays),
+          used: formatNumber(usedVacationDays),
         },
       },
     };
