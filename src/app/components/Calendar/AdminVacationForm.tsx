@@ -12,7 +12,7 @@ import { UserSelection, GapSelection, DateSelection } from "../selectors";
 import SubmitButton from "../buttons/SubmitButton";
 import { Event, VacationData } from "@/app/types/event";
 import { createVacationEvents } from "@/app/utils/eventUtils";
-
+import { formatNumber } from "@/app/utils/formatters";
 import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 
 interface AdminVacationFormProps {
@@ -130,6 +130,7 @@ const AdminVacationForm = ({
 
   const selectedUser = users?.find((u) => u.userId === selectedUserId);
 
+
   return (
     <div
       className={`fixed inset-0 transition-all duration-200 ease-out flex items-center justify-center z-50 ${
@@ -208,11 +209,11 @@ const AdminVacationForm = ({
             />
           )}
 
-          {selectedUser && (
-            <div className="text-sm text-gray-500">
-              Available vacation days: {selectedUser.vacationDays}
-            </div>
-          )}
+{selectedUser && (
+  <div className="text-sm text-gray-500">
+    Available vacation days: {formatNumber(selectedUser.vacationDays)}
+  </div>
+)}
 
           {error && (
             <p className="text-sm text-red-500 bg-red-50 p-2 rounded">
