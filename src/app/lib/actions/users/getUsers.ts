@@ -26,7 +26,7 @@ export async function getUsers() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (session?.user?.role !== "ADMIN") {
+    if (session?.user?.role !== "ADMIN" || session?.user?.role !== "USER" ) {
       throw new Error("Unauthorized");
     }
 

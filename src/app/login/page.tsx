@@ -27,7 +27,7 @@ export default function LoginPage() {
       const response = await signIn("credentials", {
         email: formData.get("email"),
         password: formData.get("password"),
-        redirect: false, // Keep this false so we can handle redirect
+        redirect: false, 
       });
 
       if (response?.error) {
