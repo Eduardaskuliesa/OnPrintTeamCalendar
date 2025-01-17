@@ -124,7 +124,7 @@ const UserStats = ({
       textColor: "text-db",
     },
     remaining: {
-      title: <>Likutis / Trukumas</>,
+      title: <>Likutis / Trūkumas</>,
       value: formatNumber(currentVacationDays),
       icon: Calculator,
       subtitle: todayDate,
