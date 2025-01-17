@@ -1,13 +1,10 @@
-// components/shared/selectors/UserSelection.tsx
 "use client";
-
 import { User } from "@/app/types/api";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
