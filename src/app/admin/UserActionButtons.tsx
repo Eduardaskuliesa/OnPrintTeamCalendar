@@ -1,4 +1,4 @@
-import { Pencil, Trash2, Loader, Settings} from "lucide-react";
+import { Pencil, Trash2, Loader, Settings, Briefcase } from "lucide-react";
 
 interface UserActionButtonsProps {
   onEdit: () => void;
@@ -6,12 +6,14 @@ interface UserActionButtonsProps {
   onSettings: () => void;
   isDeleting: boolean;
   isAdmin: boolean;
+  onWorkRecords: () => void;
 }
 
 export function UserActionButtons({
   onEdit,
   onDelete,
   onSettings,
+  onWorkRecords,
   isDeleting,
   isAdmin,
 }: UserActionButtonsProps) {
@@ -23,6 +25,13 @@ export function UserActionButtons({
         title="User settings"
       >
         <Settings size={18} />
+      </button>
+      <button
+        onClick={onWorkRecords}
+        className="p-2 text-sky-800 bg-sky-100 rounded-md hover:bg-sky-200 transition-colors"
+        title="User work records"
+      >
+        <Briefcase size={18} />
       </button>
       <button
         onClick={onEdit}

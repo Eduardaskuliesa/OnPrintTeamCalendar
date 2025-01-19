@@ -26,7 +26,7 @@ interface Props {
   users: User[];
 }
 
-export default function VacationRequestList({
+export default function VacationRequestListContent({
   initialRequests,
   onUserUpdated,
   users,
@@ -76,10 +76,7 @@ export default function VacationRequestList({
           onUserUpdated(updatedUser);
         }
 
-        result = await vacationsAction.deleteVacation(
-          id,
-          request.userId,
-        );
+        result = await vacationsAction.deleteVacation(id, request.userId);
 
         if (result.success) {
           await sendRejectedEmail({
@@ -160,12 +157,11 @@ export default function VacationRequestList({
               </p>
             ) : (
               requests.map((request) => {
-                // Calculate days difference inside the map
                 const daysDiff =
                   Math.ceil(
                     (new Date(request.endDate).getTime() -
                       new Date(request.startDate).getTime()) /
-                    (1000 * 60 * 60 * 24)
+                      (1000 * 60 * 60 * 24)
                   ) + 1;
 
                 return (

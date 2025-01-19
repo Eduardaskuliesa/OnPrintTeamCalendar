@@ -2,13 +2,14 @@
 import { User, Vacation } from "@/app/types/api";
 import { lazy, useState } from "react";
 import CreateUserForm from "./components/forms/CreateUserForm";
-import UserList from "./UserList";
-import VacationRequestList from "./VacationRequestList";
 import AdminDashboardStats from "./AdminDashboardStats";
 import AdminTabs from "./AdminTabs";
 import AddUserButton from "./AddUserButton";
-import ActiveVacationsList from "./ActiveVacationsList";
-const GlobalSettings = lazy(() => import("./GlobalSettings"));
+import ActiveVacationsListContent from "./ActiveVacationsListContent";
+import VacationRequestListContent from "./VacationRequestListContent";
+import UserListContent from "./UserListContent";
+const GlobalSettingsContent = lazy(() => import("./GlobalSettingsContent"));
+const WorkRecordContent = lazy(() => import("./WorkRecordContent"));
 
 export default function AdminPage({
   initialUsers,
@@ -19,7 +20,7 @@ export default function AdminPage({
 }) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [activeTab, setActiveTab] = useState<
-    "dashboard" | "pending" | "active" | "settings"
+    "dashboard" | "pending" | "active" | "settings" | "workrecords"
   >("dashboard");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -66,7 +67,9 @@ export default function AdminPage({
     if (activeTab === "settings") {
       setSelectedUser(null);
     }
-    setActiveTab(tab as "dashboard" | "pending" | "active" | "settings");
+    setActiveTab(
+      tab as "dashboard" | "pending" | "active" | "settings" | "workrecords"
+    );
     if (user) {
       setSelectedUser(user);
     }
@@ -76,7 +79,7 @@ export default function AdminPage({
     switch (activeTab) {
       case "dashboard":
         return (
-          <UserList
+          <UserListContent
             onNavigate={handleNavigate}
             users={users}
             onUserDeleted={handleUserDeleted}
@@ -85,7 +88,7 @@ export default function AdminPage({
         );
       case "pending":
         return (
-          <VacationRequestList
+          <VacationRequestListContent
             initialRequests={initialVacations.filter(
               (v) => v.status === "PENDING"
             )}
@@ -95,18 +98,20 @@ export default function AdminPage({
         );
       case "active":
         return (
-          <ActiveVacationsList
+          <ActiveVacationsListContent
             vacations={initialVacations.filter((v) => v.status === "APPROVED")}
           />
         );
       case "settings":
         return (
-          <GlobalSettings
+          <GlobalSettingsContent
             users={users}
             selectedUser={selectedUser}
             onUserUpdated={handleUserUpdated}
           />
         );
+      case "workrecords":
+        return <WorkRecordContent users={users} selectedUser={selectedUser} />;
     }
   };
 
@@ -129,7 +134,7 @@ export default function AdminPage({
           </div>
         </div>
 
-        {activeTab !== "settings" && (
+        {activeTab !== "settings" && activeTab !== "workrecords" && (
           <AdminDashboardStats
             usersCount={users.length}
             pendingVacations={pendingVacationsCount}

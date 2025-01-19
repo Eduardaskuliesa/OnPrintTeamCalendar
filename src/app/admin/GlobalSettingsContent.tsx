@@ -12,17 +12,7 @@ import RestrictedDaysCard from "./components/globalSettings/RestrictedDaysCard";
 import SeasonalRulesCard from "./components/globalSettings/SeasonalRules";
 import GlobalSettingsLoader from "./GlobalSettingsLoader";
 import { User } from "@/app/types/api";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { SettingHeader } from "./SettingsHeader";
 
 interface GlobalSettingsProps {
   users: User[];
@@ -30,7 +20,7 @@ interface GlobalSettingsProps {
   onUserUpdated: (updatedUser: User) => void;
 }
 
-const GlobalSettings = ({
+const GlobalSettingsContent = ({
   users: initialUsers,
   selectedUser,
 }: GlobalSettingsProps) => {
@@ -47,7 +37,6 @@ const GlobalSettings = ({
     };
   }>({});
 
-  const users = initialUsers;
   const { data: globalData, isLoading: isGlobalLoading } = useGlobalSettings();
   const { data: userData, isLoading: isUserLoading } = useUserSettings(
     selectedUserId !== "global" ? selectedUserId : null
@@ -147,91 +136,20 @@ const GlobalSettings = ({
     setSelectedUserId(value);
   };
 
-  const currentUser = users.find((user) => user.userId === selectedUserId);
-  const isGlobalSettings = selectedUserId === "global";
-
   return (
     <div key={selectedUserId} className="space-y-6">
-      <Card>
-        <CardHeader className="flex flex-row bg-slate-50 border-2 border-blue-50 shadow-md items-center rounded-lg  justify-between space-y-0 pb-4">
-          <div className="flex items-center space-x-4">
-            <div className="space-y-1">
-              <CardTitle>Atostogų Nustatymai</CardTitle>
-              <div className="flex items-center">
-                <Badge
-                  variant={!isGlobalSettings ? "outline" : "default"}
-                  className={
-                    !isGlobalSettings
-                      ? `bg-white px-0 py-0 border-0`
-                      : "bg-neutral-700 text-white border-neutral-200"
-                  }
-                >
-                  {selectedUserId === "global" && "Global Settings"}
-                </Badge>
-
-                {currentUser && (
-                  <Badge
-                    variant="outline"
-                    className="flex items-center gap-1 bg-white"
-                  >
-                    <div
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: currentUser.color }}
-                    />
-                    {currentUser.name}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <Select onValueChange={handleUserChange} value={selectedUserId}>
-            <SelectTrigger className="w-[280px] bg-white border-dcoffe focus:ring-1 focus:ring-vdcoffe border outline-none focus:outline-none ring-lcoffe">
-              {selectedUserId ? (
-                selectedUserId === "global" ? (
-                  <span className="text-sm font-medium">Global Settings</span>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-2 h-2 rounded-full"
-                      style={{
-                        backgroundColor: users.find(
-                          (u) => u.userId === selectedUserId
-                        )?.color,
-                      }}
-                    />
-                    <span className="text-sm">
-                      {" "}
-                      {users.find((u) => u.userId === selectedUserId)?.email}
-                    </span>
-                  </div>
-                )
-              ) : (
-                <SelectValue placeholder="Select user settings to manage" />
-              )}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup className="">
-                <SelectLabel>Global</SelectLabel>
-                <SelectItem value="global">Global Settings</SelectItem>
-                <SelectLabel className="mt-2">Users</SelectLabel>
-                {users.map((user) => (
-                  <SelectItem key={user.userId} value={user.userId}>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: user.color }}
-                      />
-                      <span className="text-sm font-medium">{user.name}</span> -{" "}
-                      <span className="">{user.email}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </CardHeader>
-      </Card>
+      <SettingHeader
+        users={initialUsers}
+        selectedUserId={selectedUserId}
+        onUserChange={handleUserChange}
+        title="Atostogų Nustatymai"
+        defaultOption={{
+          id: "global",
+          label: "Global Settings",
+          badgeText: "Global Settings",
+        }}
+        usersLabel="Users"
+      />
 
       {isLoading ? (
         <GlobalSettingsLoader></GlobalSettingsLoader>
@@ -331,4 +249,4 @@ const GlobalSettings = ({
   );
 };
 
-export default GlobalSettings;
+export default GlobalSettingsContent;

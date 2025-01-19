@@ -1,48 +1,121 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createWorkRecord } from "../createWorkRecord";
-import { getAllMonthlyWorkRecords } from "../getAllMonthlyWorkRecords";
-import { WorkRecord } from "@/app/types/api";
+import { useQuery } from "@tanstack/react-query";
 import { getUserMonthlyWorkRecords } from "../getUserMonthlyWorkRecords";
-
-export const useUserWorkRecords = (userId: string, yearMonth: string) => {
-  return useQuery({
-    queryKey: ["workRecords", userId, yearMonth],
-    queryFn: async () => {
-      const result = await getUserMonthlyWorkRecords(userId, yearMonth);
-      return result.data;
-    },
-  });
-};
+import { useState } from "react";
+import { getAllUserMonthlyWorkRecords } from "../getAllUserMonthlyWorkRecords";
+import { getAllMonthlyWorkRecords } from "../getAllMonthlyWorkRecords";
 
 export const useMonthlyWorkRecords = (yearMonth: string) => {
-  return useQuery({
-    queryKey: ["monthlyWorkRecords", yearMonth],
-    queryFn: async () => {
-      const result = await getAllMonthlyWorkRecords(yearMonth);
-      return result.data;
-    },
+  const [currentKey, setCurrentKey] = useState<string | undefined>();
+  const [pageKeys, setPageKeys] = useState<(string | undefined)[]>([undefined]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  console.log(yearMonth.slice(0, 7));
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["monthlyWorkRecords", yearMonth.slice(0, 7), currentKey],
+    queryFn: () => getAllMonthlyWorkRecords(yearMonth, currentKey),
   });
+
+  const { data: nextPageData, isLoading: isCheckingNextPage } = useQuery({
+    queryKey: ["monthlyWorkRecords", yearMonth.slice(0, 7), currentKey, "peek"],
+    queryFn: async () => {
+      if (!data?.lastEvaluatedKey) return { hasMore: false };
+      return getAllMonthlyWorkRecords(yearMonth, data.lastEvaluatedKey, true);
+    },
+    enabled: !!data?.lastEvaluatedKey && data.data?.length === 10,
+  });
+
+  const handleNextPage = () => {
+    if (data?.lastEvaluatedKey && nextPageData?.hasMore) {
+      setCurrentKey(data.lastEvaluatedKey);
+      setPageKeys((prev) => [...prev, data.lastEvaluatedKey]);
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      const previousKey = pageKeys[currentPage - 2];
+      setCurrentKey(previousKey);
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  return {
+    data: data?.data,
+    isLoading: isLoading || isCheckingNextPage,
+    currentPage,
+    hasMore: !!nextPageData?.hasMore,
+    handleNextPage,
+    handlePreviousPage,
+  };
 };
 
-export const useCreateWorkRecord = () => {
-  const queryClient = useQueryClient();
+export const useUserWorkRecords = (userId: string, yearMonth: string) => {
+  const [currentKey, setCurrentKey] = useState<string | undefined>();
+  const [pageKeys, setPageKeys] = useState<(string | undefined)[]>([undefined]);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  return useMutation({
-    mutationFn: async (workRecord: WorkRecord) => {
-      const result = await createWorkRecord(workRecord);
-      if (result) {
-        throw new Error("Failed to create work record");
-      }
-      return result;
+  const { data, isLoading } = useQuery({
+    queryKey: ["userWorkRecords", userId, yearMonth.slice(0, 7), currentKey],
+    queryFn: async () => {
+      return getUserMonthlyWorkRecords(userId, yearMonth, currentKey);
     },
-    onSuccess: (_, variables) => {
-      // Invalidate relevant queries
-      queryClient.invalidateQueries({
-        queryKey: ["workRecords", variables.userId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["monthlyWorkRecords"],
-      });
+  });
+
+  const { data: nextPageData, isLoading: isCheckingNextPage } = useQuery({
+    queryKey: [
+      "userWorkRecords",
+      userId,
+      yearMonth.slice(0, 7),
+      currentKey,
+      "peek",
+    ],
+    queryFn: async () => {
+      if (!data?.lastEvaluatedKey) return { hasMore: false };
+      return getUserMonthlyWorkRecords(
+        userId,
+        yearMonth,
+        data.lastEvaluatedKey,
+        true
+      );
     },
+    enabled: !!data?.lastEvaluatedKey && data.data?.length === 10,
+  });
+
+  const handleNextPage = () => {
+    if (data?.lastEvaluatedKey && nextPageData?.hasMore) {
+      setCurrentKey(data.lastEvaluatedKey);
+      setPageKeys((prev) => [...prev, data.lastEvaluatedKey]);
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      const previousKey = pageKeys[currentPage - 2];
+      setCurrentKey(previousKey);
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  return {
+    data: data?.data,
+    isLoading: isLoading || isCheckingNextPage,
+    currentPage,
+    hasMore: !!nextPageData?.hasMore,
+    handleNextPage,
+    handlePreviousPage,
+  };
+};
+
+export const useGetAllUserMonthlyWorkRecordsNotFiltered = (
+  userId: string,
+  yearMonth: string
+) => {
+  const trueYearMonth = yearMonth.slice(0, 7);
+  return useQuery({
+    queryKey: ["userWorkRecords", userId, trueYearMonth],
+    queryFn: () => getAllUserMonthlyWorkRecords(userId, yearMonth),
   });
 };

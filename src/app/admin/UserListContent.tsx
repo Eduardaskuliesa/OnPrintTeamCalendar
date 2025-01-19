@@ -31,7 +31,7 @@ interface UserListProps {
   onNavigate: (tab: string, user: User) => void;
 }
 
-export default function UserList({
+export default function UserListContent({
   users,
   onNavigate,
   onUserDeleted,
@@ -46,6 +46,10 @@ export default function UserList({
 
   const handleSettings = (user: User) => {
     onNavigate("settings", user);
+  };
+
+  const handleWorkRecords = (user: User) => {
+    onNavigate("workrecords", user);
   };
 
   const handleDelete = (user: User) => {
@@ -146,6 +150,7 @@ export default function UserList({
                   <UserActionButtons
                     onSettings={() => handleSettings(user)}
                     onEdit={() => handleUpdate(user)}
+                    onWorkRecords={() => handleWorkRecords(user)}
                     onDelete={() => handleDelete(user)}
                     isDeleting={deletingEmail === user.email}
                     isAdmin={user.role === "ADMIN"}

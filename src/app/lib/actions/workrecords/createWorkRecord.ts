@@ -2,21 +2,22 @@
 import { WorkRecord } from "@/app/types/api";
 import { dynamoDb } from "../../dynamodb";
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
+import { revalidateTag } from "next/cache";
 
 export async function createWorkRecord(workRecord: WorkRecord) {
   console.log("Creating work record:", new Date().toISOString());
   const timestamp = new Date().toISOString();
-  const yearMonth = workRecord.date.slice(0, 7);
-  console.log(yearMonth);
+  const yearMonth = workRecord.date.slice(0, 10);
+  const trueYearMonth = yearMonth.slice(0, 7);
 
   try {
     const formattedRecord = {
-      userId: `USER#${workRecord.userId}#${yearMonth}`,
-      date: `${workRecord.type.toUpperCase()}#${workRecord.date}`,
+      userId: workRecord.userId,
+      date: `${workRecord.date}#${timestamp}`,
       type: workRecord.type,
-      hours: workRecord.hours,
+      time: workRecord.time,
       reason: workRecord.reason,
-      yearMonth: yearMonth,
+      yearMonth: trueYearMonth,
       createdAt: timestamp,
       updatedAt: timestamp,
       approvedBy: workRecord.approvedBy,
@@ -26,6 +27,8 @@ export async function createWorkRecord(workRecord: WorkRecord) {
       TableName: process.env.WORKRECORD_DYNAMODB_TABLE_NAME!,
       Item: formattedRecord,
     });
+    revalidateTag(`user-${workRecord.userId}-records`);
+    revalidateTag(`monthly-records-${trueYearMonth}`);
 
     await dynamoDb.send(command);
   } catch (error: any) {

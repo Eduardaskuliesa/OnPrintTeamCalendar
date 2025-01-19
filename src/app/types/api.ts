@@ -47,8 +47,8 @@ export interface Vacation {
 export interface WorkRecord {
   userId: string;
   date: string;
-  type: "overtime" | "absence" | "vacation";
-  hours: number;
+  type: "overtime" | "late" | "early_leave";
+  time: string;
   yearMonth: string;
   reason: string;
   createdAt: string;

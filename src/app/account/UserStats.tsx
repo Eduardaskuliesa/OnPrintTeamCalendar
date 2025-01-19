@@ -1,13 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Wallet, CalendarRange, Calculator } from "lucide-react";
-import { Outfit, } from "next/font/google";
-
+import { Outfit } from "next/font/google";
 import { AnimatePresence, motion } from "framer-motion";
 import { User, Vacation } from "../types/api";
-import { formatNumber } from "../utils/formatters";
-
 import NavigationTabs from "./components/UserStats/NavigationTabs";
 import DashboardContent from "./components/UserStats/tabs/DashboardContent";
 import SettingsContent from "./components/UserStats/tabs/SettingsContent";
@@ -93,8 +89,6 @@ const UserStats = ({
     };
   }, [activeTab]);
 
-  const todayDate = new Date().toLocaleDateString("lt-LT");
-
   const approvedFutureVacations = futureVacationsList.filter(
     (vacation) => vacation.status === "APPROVED"
   );
@@ -102,36 +96,6 @@ const UserStats = ({
   const pendingVacations = futureVacationsList.filter(
     (vacation) => vacation.status === "PENDING"
   );
-
-  const stats = {
-    balance: {
-      title: <>Atostogų dienos</>,
-      value: formatNumber(realCurrentBalance),
-      icon: Wallet,
-      subtitle: todayDate,
-      iconBg: "bg-green-100",
-      iconColor: "text-green-800",
-      textColor: "text-green-800",
-    },
-    reserved: {
-      title: "Rezervuotos dienos",
-      value: formatNumber(totalFutureVacationDays),
-      icon: CalendarRange,
-      subtitle: "Būsimos atostogos",
-      iconBg: "bg-blue-100",
-      iconColor: "text-db",
-      textColor: "text-db",
-    },
-    remaining: {
-      title: <>Likutis / Trūkumas</>,
-      value: formatNumber(currentVacationDays),
-      icon: Calculator,
-      subtitle: todayDate,
-      iconBg: "bg-pink-100",
-      iconColor: "text-pink-700",
-      textColor: "text-pink-700",
-    },
-  };
 
   return (
     <div className="flex flex-row-reverse items-start justify-end gap-1 w-full relative">
@@ -171,7 +135,9 @@ const UserStats = ({
               >
                 {activeTab === "dashboard" && (
                   <DashboardContent
-                    stats={stats}
+                    realCurrentBalance={realCurrentBalance}
+                    totalFutureVacationDays={totalFutureVacationDays}
+                    currentVacationDays={currentVacationDays}
                     approvedVacations={approvedFutureVacations}
                     pendingVacations={pendingVacations}
                   />
@@ -179,7 +145,6 @@ const UserStats = ({
                 {activeTab === "settings" && (
                   <SettingsContent usersData={usersData} userData={userData} />
                 )}
-                {/* {activeTab === "actions" && <ActionContent />} */}
               </motion.div>
             </AnimatePresence>
           </motion.div>

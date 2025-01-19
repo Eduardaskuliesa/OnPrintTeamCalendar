@@ -4,7 +4,7 @@ import React from 'react';
 interface StatCardProps {
   title: string | React.ReactNode;
   value: string | number | React.ReactNode;
-  subtitle: string | React.ReactNode;
+  subtitle?: string | React.ReactNode;
   icon: LucideIcon;
   iconBg: string;
   iconColor: string;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, Calendar, Palmtree, Settings } from "lucide-react";
+import { Users, Calendar, Palmtree, Settings, Briefcase } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export type TabType = "dashboard" | "pending" | "active" | "settings";
+export type TabType = "dashboard" | "pending" | "active" | "settings" | "workrecords";
 
 interface AdminTabsProps {
   activeTab: TabType;
@@ -45,6 +45,12 @@ const AdminTabs = ({
       id: "settings",
       label: "Nustatymai",
       icon: <Settings className="w-4 h-4 text-gray-500" />,
+      count: null,
+    },
+    {
+      id: "workrecords",
+      label: "Darbo įrašai",
+      icon: <Briefcase className="w-4 h-4 text-sky-500" />,
       count: null,
     },
   ];

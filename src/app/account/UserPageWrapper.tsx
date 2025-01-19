@@ -4,6 +4,7 @@ import { getUserVacations } from "../lib/actions/users/getUsersVacations";
 import PasswordForm from "./PasswordForm";
 import UserInfo from "./UserInfo";
 import UserStats from "./UserStats";
+import UserWorkRecordCard from "./workRecord/UserWorkCard";
 
 export async function UserPageWrapper({ userId }: { userId: string }) {
   const [userData, vacationsData, usersData] = await Promise.all([
@@ -27,7 +28,6 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
       .filter((vacation) => vacation.status === "PENDING")
       .reduce((total, vacation) => total + vacation.totalVacationDays, 0),
 
-    // Actually used vacation days (past)
     usedVacationDays: vacationsData.data
       .filter(
         (vacation) =>
@@ -111,7 +111,7 @@ export async function UserPageWrapper({ userId }: { userId: string }) {
         userData={userData.data as User}
         usersData={usersData.data as User[]}
       />
-
+      <UserWorkRecordCard userId={userId}></UserWorkRecordCard>
       <PasswordForm />
     </div>
   );

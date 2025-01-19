@@ -16,7 +16,7 @@ interface ActiveVacationsListProps {
   vacations: Vacation[];
 }
 
-export default function ActiveVacationsList({
+export default function ActiveVacationsListContent({
   vacations,
 }: ActiveVacationsListProps) {
   const currentlyActive = vacations.filter((vacation) => {

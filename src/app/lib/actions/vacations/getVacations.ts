@@ -57,8 +57,6 @@ async function fetchVacationsData() {
       },
     };
 
-    console.log(vacation.gapDays);
-
     const gapEvent =
       vacation.gapDays > 0
         ? {

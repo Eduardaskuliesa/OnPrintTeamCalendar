@@ -6,6 +6,7 @@ import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { useQueryClient } from "@tanstack/react-query";
 import { Home, ScrollText, Loader2 } from "lucide-react";
 import { User } from "@/app/types/api";
+import WorkRecordButton from "../../workRecord/WorkRecordButton";
 
 interface NavigationProps {
   activeTab: string;
@@ -18,7 +19,7 @@ const NavigationTabs = ({
   activeTab,
   setActiveTab,
   useGlobal,
-  userData
+  userData,
 }: NavigationProps) => {
   const queryClient = useQueryClient();
   const [isSettingsLoading, setIsSettingsLoading] = useState(false);
@@ -51,21 +52,24 @@ const NavigationTabs = ({
     <div className="h-auto w-14 bg-[#EADBC8] border-2 border-blue-50 rounded-xl flex flex-col gap-3 py-4 items-center justify-start">
       <button
         onClick={() => setActiveTab("dashboard")}
-        className={`p-2 rounded-lg transition-colors ${activeTab === "dashboard"
+        className={`p-2 rounded-lg transition-colors ${
+          activeTab === "dashboard"
             ? "bg-green-100"
             : "bg-[#fefaf6] hover:bg-green-100"
-          }`}
+        }`}
       >
         <Home size={24} className="text-gray-800" />
       </button>
+
       <button
         onMouseEnter={handleHoverSettings}
         onClick={() => setActiveTab("settings")}
         disabled={isSettingsLoading}
-        className={`p-2 rounded-lg transition-colors relative ${activeTab === "settings"
+        className={`p-2 rounded-lg transition-colors relative ${
+          activeTab === "settings"
             ? "bg-blue-100"
             : "bg-[#fefaf6] hover:bg-blue-100"
-          } ${isSettingsLoading ? "opacity-50" : ""}`}
+        } ${isSettingsLoading ? "opacity-50" : ""}`}
       >
         {isSettingsLoading ? (
           <Loader2 size={24} className="text-gray-800 animate-spin " />
@@ -73,16 +77,7 @@ const NavigationTabs = ({
           <ScrollText size={24} className="text-gray-800" />
         )}
       </button>
-      {/* <button
-        onClick={() => setActiveTab("actions")}
-        className={`p-2 rounded-lg transition-colors ${
-          activeTab === "actions"
-            ? "bg-pink-100"
-            : "bg-[#fefaf6] hover:bg-pink-100"
-        }`}
-      >
-        <CalendarRange size={24} className="text-gray-800" />
-      </button> */}
+      <WorkRecordButton userId={userData.userId}></WorkRecordButton>
     </div>
   );
 };
