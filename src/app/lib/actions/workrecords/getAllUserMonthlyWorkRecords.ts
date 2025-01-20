@@ -40,7 +40,7 @@ export async function getAllUserMonthlyWorkRecords(
 
     const cachedRecords = await unstable_cache(
       () => queryUserMonthlyWorkRecords(userId, yearMonth),
-      [`work-records-${userId}-${yearMonth.slice(0, 7)}`],
+      [`work-records-${userId}-${yearMonth}`],
       {
         revalidate: 86400,
         tags: [`user-${userId}-records`],
