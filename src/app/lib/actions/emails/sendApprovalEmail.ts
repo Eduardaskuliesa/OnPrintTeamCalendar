@@ -1,23 +1,29 @@
 "use server";
 import { Resend } from "resend";
 import { resendDomain } from "../../resend";
+import { createVacationPDF } from "./pdfs/VacationRequestPdf";
 
 export interface VacationEmailData {
   to: string;
   name: string;
+  surname: string;
   startDate: string;
   endDate: string;
+  createdAt?: string;
 }
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = new Resend(resendApiKey);
 
 export async function sendApprovedEmail(data: VacationEmailData) {
-  const formattedStartDate = new Date(data.startDate).toLocaleDateString("lt-LT", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const formattedStartDate = new Date(data.startDate).toLocaleDateString(
+    "lt-LT",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
   const formattedEndDate = new Date(data.endDate).toLocaleDateString("lt-LT", {
     year: "numeric",
     month: "long",
@@ -67,11 +73,19 @@ export async function sendApprovedEmail(data: VacationEmailData) {
   `;
 
   try {
+    const pdfUint8Array = await createVacationPDF(data);
+    const pdfBuffer = Buffer.from(pdfUint8Array);
     const response = await resend.emails.send({
       from: `Atostogos@${resendDomain}`,
-      to: data.to,
+      to: [data.to, "zygimantas@logitema.lt"],
       subject: subject,
       html: htmlContent,
+      attachments: [
+        {
+          filename: `Atostogų prašymas - ${data.name}${data.surname}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
     });
 
     return { success: true, data: response };
@@ -82,5 +96,3 @@ export async function sendApprovedEmail(data: VacationEmailData) {
     };
   }
 }
-
-

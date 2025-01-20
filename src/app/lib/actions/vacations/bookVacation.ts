@@ -94,6 +94,7 @@ export async function bookVacation(formData: FormData) {
     await sendRequestEmail({
       to: user.data.email,
       name: user.data.name,
+      surname: user.data.surname,
       startDate: formData.startDate,
       endDate: formData.endDate,
     });

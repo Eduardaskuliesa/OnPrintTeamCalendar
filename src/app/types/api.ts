@@ -40,6 +40,7 @@ export interface Vacation {
   userEmail: string;
   endDate: string;
   userColor: string;
+  createdAt: string;
   totalVacationDays: number;
   status: "PENDING" | "APPROVED" | "REJECTED";
 }

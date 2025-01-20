@@ -105,14 +105,16 @@ export default function WorkRecordForm({
       }
 
       await queryClient.invalidateQueries({
-        queryKey: ["userWorkRecords", userId, workRecord.yearMonth.slice(0, 7)],
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: ["monthlyWorkRecords", workRecord.yearMonth.slice(0, 7)],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ["userWorkRecords", userId, workRecord.yearMonth.slice(0, 7)],
+        predicate: (query) => {
+          return (
+            (query.queryKey[0] === "userWorkRecords" &&
+              query.queryKey[1] === userId &&
+              (query.queryKey[2] === workRecord.yearMonth.slice(0, 7) ||
+                query.queryKey[2] === workRecord.yearMonth)) ||
+            (query.queryKey[0] === "monthlyWorkRecords" &&
+              query.queryKey[1] === workRecord.yearMonth.slice(0, 7))
+          );
+        },
       });
 
       toast.success("Įrašas sėkmingai sukurtas");

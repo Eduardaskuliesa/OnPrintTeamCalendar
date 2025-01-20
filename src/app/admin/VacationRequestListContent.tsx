@@ -17,6 +17,7 @@ interface Vacation {
   endDate: string;
   userColor: string;
   totalVacationDays: number;
+  createdAt: string;
   status: "PENDING" | "APPROVED" | "REJECTED";
 }
 
@@ -57,11 +58,15 @@ export default function VacationRequestListContent({
           status,
           request.userId
         );
+        const surname = users.find((u) => u.userId === request.userId)
+          ?.surname as string;
 
         if (result.success) {
           await sendApprovedEmail({
             to: request.userEmail,
             name: request.userName,
+            surname: surname,
+            createdAt: request.createdAt.slice(0, 10),
             startDate: request.startDate,
             endDate: request.endDate,
           });

@@ -1,10 +1,12 @@
 "use server";
 import { Resend } from "resend";
 import { resendDomain } from "../../resend";
+import { createVacationPDF } from "./pdfs/VacationRequestPdf";
 
 export interface EmailData {
   to: string;
   name: string;
+  surname: string;
   startDate: string;
   endDate: string;
 }
@@ -27,7 +29,7 @@ export async function sendRequestEmail(data: EmailData) {
     day: "numeric",
   });
 
-  const subject = `Naujas atostogų prašymas - ${data.name}`;
+  const subject = `Naujas atostogų prašymas - ${data.name} ${data.surname}`;
   const adminUrl = "https://www.onprintvacations.site/admin";
 
   const htmlContent = `
@@ -43,13 +45,13 @@ export async function sendRequestEmail(data: EmailData) {
         <p style="margin-bottom: 15px;">Sveiki,</p>
         
         <p style="margin-bottom: 15px; color: #4A4A4A;">
-          ${data.name} pateikė naują atostogų prašymą.
+          ${data.name} ${data.surname} pateikė naują atostogų prašymą.
         </p>
 
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <div style="margin: 0; line-height: 1.8;">
             <p style="margin: 0; white-space: nowrap; color: #4A4A4A;">
-              <strong style="color: #4A4A4A;">Darbuotojas:</strong> <span style="color: #4A4A4A;">${data.name}</span>
+              <strong style="color: #4A4A4A;">Darbuotojas:</strong> <span style="color: #4A4A4A;">${data.name} ${data.surname} </span>
             </p>
             <p style="margin: 0; white-space: nowrap; color: #4A4A4A;">
               <strong style="color: #4A4A4A;">Nuo:</strong> <span style="color: #4A4A4A;">${formattedStartDate}</span>
@@ -93,11 +95,20 @@ export async function sendRequestEmail(data: EmailData) {
   `;
 
   try {
+    const pdfUint8Array = await createVacationPDF(data);
+    const pdfBuffer = Buffer.from(pdfUint8Array);
+
     const response = await resend.emails.send({
       from: `Atostogos@${resendDomain}`,
-      to: 'zygimantas@logitema.lt',
+      to: "zygimantas@logitema.lt",
       subject: subject,
       html: htmlContent,
+      attachments: [
+        {
+          filename: `Atostogų prašymas - ${data.name}${data.surname}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
     });
 
     return { success: true, data: response };
