@@ -33,7 +33,7 @@ export async function getAllUserMonthlyWorkRecords(
 ) {
   try {
     const session = await getServerSession(authOptions);
-
+    console.log(yearMonth)
     if (!session?.user) {
       throw new Error("Unauthorized");
     }

@@ -67,17 +67,20 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
 
   const handleSearch = () => {
     let newSearchDate = `${selectedYear}`;
+    
     if (selectedMonth && selectedMonth !== "all") {
       const monthIndex = months.indexOf(selectedMonth) + 1;
-      newSearchDate += `-${monthIndex.toString().padStart(2, "0")}`;
-
+      const formattedMonth = monthIndex.toString().padStart(2, "0");
+      newSearchDate += `-${formattedMonth}`;
+      
       if (selectedDay && selectedDay !== "all") {
-        newSearchDate += `-${selectedDay.padStart(2, "0")}`;
+        newSearchDate += `-${selectedDay}`;
       }
     }
+    
+    console.log('Setting search date to:', newSearchDate);
     setSearchDate(newSearchDate);
   };
-
   const handleReset = () => {
     setSelectedYear(currentYear);
     setSelectedMonth(months[new Date().getMonth()]);

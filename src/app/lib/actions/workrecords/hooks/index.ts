@@ -113,9 +113,9 @@ export const useGetAllUserMonthlyWorkRecordsNotFiltered = (
   userId: string,
   yearMonth: string
 ) => {
-  const trueYearMonth = yearMonth.slice(0, 7);
+  
   return useQuery({
-    queryKey: ["userWorkRecords", userId, trueYearMonth],
+    queryKey: ["userWorkRecords", userId, yearMonth],
     queryFn: () => getAllUserMonthlyWorkRecords(userId, yearMonth),
   });
 };
