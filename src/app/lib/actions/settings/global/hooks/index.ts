@@ -8,6 +8,7 @@ import {
   updateSeasonalRules,
   updateSettingEnabled,
 } from "../updateGlobalSettings";
+import { updateEmails } from "../updateAdminEmails";
 
 export const useUpdateSettingEnabled = () => {
   const queryClient = useQueryClient();
@@ -128,6 +129,27 @@ export const useUpdateRestrictedDays = () => {
       const result = await updateRestrictedDays(restrictedDays);
       if (!result.success) {
         throw new Error(result.error || "Failed to update restricted days");
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getGlobalSettings"] });
+      queryClient.invalidateQueries({ queryKey: ["sanitizedSettings"] });
+    },
+  });
+};
+
+export const useUpdateEmails = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (emails: {
+      admin: GlobalSettingsType["emails"]["admin"];
+      accountant: GlobalSettingsType["emails"]["accountant"];
+    }) => {
+      const result = await updateEmails(emails);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to update emails");
       }
       return result;
     },

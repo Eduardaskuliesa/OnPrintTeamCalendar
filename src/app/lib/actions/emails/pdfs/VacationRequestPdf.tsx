@@ -1,7 +1,6 @@
 import puppeteer from "puppeteer";
 
 export interface EmailData {
-  to: string;
   name: string;
   surname: string;
   startDate: string;
@@ -28,7 +27,7 @@ export const createVacationPDF = async (data: EmailData) => {
     day: "numeric",
   });
 
-  const currentDate = data.createdAt || new Date().toISOString().split('T')[0];
+  const currentDate = data.createdAt || new Date().toISOString().split("T")[0];
 
   const html = `
     <!DOCTYPE html>

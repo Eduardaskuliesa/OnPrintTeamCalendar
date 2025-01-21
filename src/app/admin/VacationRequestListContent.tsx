@@ -7,6 +7,8 @@ import { vacationsAction } from "../lib/actions/vacations";
 import { User } from "../types/api";
 import { sendRejectedEmail } from "../lib/actions/emails/sendRejectEmail";
 import { sendApprovedEmail } from "../lib/actions/emails/sendApprovalEmail";
+import { getGlobalSettings } from "../lib/actions/settings/global/getGlobalSettings";
+import { GlobalSettingsType } from "../types/bookSettings";
 
 interface Vacation {
   id: string;
@@ -60,10 +62,12 @@ export default function VacationRequestListContent({
         );
         const surname = users.find((u) => u.userId === request.userId)
           ?.surname as string;
+        const globalSettingsData = await getGlobalSettings();
 
         if (result.success) {
           await sendApprovedEmail({
-            to: request.userEmail,
+            sendTo: globalSettingsData.data?.emails
+              .accountant as GlobalSettingsType["emails"]["accountant"],
             name: request.userName,
             surname: surname,
             createdAt: request.createdAt.slice(0, 10),

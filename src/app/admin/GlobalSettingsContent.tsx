@@ -4,7 +4,7 @@ import { Bounce, toast } from "react-toastify";
 import { GlobalSettingsType } from "../types/bookSettings";
 import { useGlobalSettings } from "../lib/actions/useGetSettings";
 import { useUserSettings } from "../lib/actions/settings/user/hooks";
-import { AlertTriangle, Check, X } from "lucide-react";
+import { AlertTriangle, Check, Mail, X } from "lucide-react";
 import BookingRulesCard from "./components/globalSettings/BookingRulesCard";
 import GapRulesCard from "./components/globalSettings/GapRulesCard";
 import OverlapRulesCard from "./components/globalSettings/OverlapRulesCard";
@@ -13,6 +13,7 @@ import SeasonalRulesCard from "./components/globalSettings/SeasonalRules";
 import GlobalSettingsLoader from "./GlobalSettingsLoader";
 import { User } from "@/app/types/api";
 import { SettingHeader } from "./SettingsHeader";
+import { UpdateAdminModal } from "./components/globalSettings/UpdateAdminModal";
 
 interface GlobalSettingsProps {
   users: User[];
@@ -36,6 +37,7 @@ const GlobalSettingsContent = ({
       cancelHandler?: () => void;
     };
   }>({});
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const { data: globalData, isLoading: isGlobalLoading } = useGlobalSettings();
   const { data: userData, isLoading: isUserLoading } = useUserSettings(
@@ -149,6 +151,11 @@ const GlobalSettingsContent = ({
           badgeText: "Global Settings",
         }}
         usersLabel="Users"
+        isLoading={isGlobalLoading}
+        icon={{
+          Icon: Mail,
+          onClick: () => setIsEmailModalOpen(true),
+        }}
       />
 
       {isLoading ? (
@@ -243,6 +250,13 @@ const GlobalSettingsContent = ({
               }
             />
           </div>
+          {isEmailModalOpen && globalData?.data && (
+            <UpdateAdminModal
+              isOpen={isEmailModalOpen}
+              onClose={() => setIsEmailModalOpen(false)}
+              initialData={globalData.data.emails}
+            />
+          )}
         </>
       )}
     </div>

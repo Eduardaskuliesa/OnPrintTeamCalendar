@@ -71,4 +71,8 @@ export interface GlobalSettingsType {
     restrictedDays: boolean;
     seasonalRules: boolean;
   };
+  emails: {
+    admin: string[];
+    accountant: string;
+  };
 }

@@ -31,6 +31,7 @@ export function sanitizeSettings(
       : userSettings.seasonalRules,
 
     useGlobalSettings: userSettings.useGlobalSettings,
+    emails: globalSettings.emails,
   };
 
   return mergedSettings;

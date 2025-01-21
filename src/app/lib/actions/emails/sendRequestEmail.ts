@@ -2,9 +2,10 @@
 import { Resend } from "resend";
 import { resendDomain } from "../../resend";
 import { createVacationPDF } from "./pdfs/VacationRequestPdf";
+import { GlobalSettingsType } from "@/app/types/bookSettings";
 
 export interface EmailData {
-  to: string;
+  sendTo?: GlobalSettingsType["emails"]["admin"];
   name: string;
   surname: string;
   startDate: string;
@@ -97,10 +98,9 @@ export async function sendRequestEmail(data: EmailData) {
   try {
     const pdfUint8Array = await createVacationPDF(data);
     const pdfBuffer = Buffer.from(pdfUint8Array);
-
     const response = await resend.emails.send({
       from: `Atostogos@${resendDomain}`,
-      to: "zygimantas@logitema.lt",
+      to: data.sendTo || [],
       subject: subject,
       html: htmlContent,
       attachments: [

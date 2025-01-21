@@ -92,7 +92,7 @@ export async function bookVacation(formData: FormData) {
     };
 
     await sendRequestEmail({
-      to: user.data.email,
+      sendTo: globalSettings?.data?.emails.admin,
       name: user.data.name,
       surname: user.data.surname,
       startDate: formData.startDate,
