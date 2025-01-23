@@ -17,6 +17,13 @@ const resendApiKey = process.env.RESEND_API_KEY;
 const resend = new Resend(resendApiKey);
 
 export async function sendApprovedEmail(data: VacationEmailData) {
+
+  console.log('Environment check:', {
+    hasResendKey: !!process.env.RESEND_API_KEY,
+    keyFirstChars: process.env.RESEND_API_KEY?.substring(0, 5), // Just to verify it starts with 're_'
+    domain: resendDomain
+  });
+  
   const formattedStartDate = new Date(data.startDate).toLocaleDateString(
     "lt-LT",
     {
