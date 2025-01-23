@@ -14,15 +14,9 @@ export interface EmailData {
 
 export const createVacationPDF = async (data: EmailData) => {
   try {
-    console.log("Current working directory:", process.cwd());
-    console.log(
-      "Font path:",
-      path.join(process.cwd(), "public", "fonts", "Roboto-Regular.ttf")
-    );
     const fontPath = path.join(
       process.cwd(),
       "public",
-      "fonts",
       "Roboto-Regular.ttf"
     );
     const fontBytes = readFileSync(fontPath).toString("base64");
