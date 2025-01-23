@@ -15,8 +15,7 @@ const nextConfig: NextConfig = {
     WORKRECORD_DYNAMODB_TABLE_NAME: process.env.WORKRECORD_DYNAMODB_TABLE_NAME,
     SETTINGS_DYNAMODB_TABLE_NAME: process.env.SETTINGS_DYNAMODB_TABLE_NAME,
     SALT_ROUNDS: process.env.SALT_ROUNDS,
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
-
+    RESEND_API_KEY: process.env.RESEND_API_KEY
   },
 };
 

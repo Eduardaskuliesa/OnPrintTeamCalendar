@@ -76,6 +76,7 @@ export async function sendApprovedEmail(data: VacationEmailData) {
   try {
     const pdfUint8Array = await createVacationPDF(data);
     const pdfBuffer = Buffer.from(pdfUint8Array);
+   
     const response = await resend.emails.send({
       from: `Atostogos@${resendDomain}`,
       to: data.sendTo,

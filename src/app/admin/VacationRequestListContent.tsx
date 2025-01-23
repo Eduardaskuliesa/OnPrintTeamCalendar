@@ -64,6 +64,8 @@ export default function VacationRequestListContent({
           ?.surname as string;
         const globalSettingsData = await getGlobalSettings();
 
+        
+
         if (result.success) {
           await sendApprovedEmail({
             sendTo: globalSettingsData.data?.emails
