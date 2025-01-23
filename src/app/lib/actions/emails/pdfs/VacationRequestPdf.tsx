@@ -1,4 +1,5 @@
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+import { PDFDocument, rgb } from 'pdf-lib';
+import fetch from 'node-fetch';
 
 export interface EmailData {
   name: string;
@@ -30,93 +31,57 @@ export const createVacationPDF = async (data: EmailData) => {
     // Create a new PDFDocument
     const pdfDoc = await PDFDocument.create();
 
+    // Fetch and embed the Roboto font
+    const fontResponse = await fetch(
+      'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.ttf'
+    );
+    const fontBytes = await fontResponse.arrayBuffer();
+    
+    // Embed font
+    const customFont = await pdfDoc.embedFont(fontBytes);
+
     // Add a blank page
     const page = pdfDoc.addPage([595.28, 841.89]); // A4 dimensions in points
 
-    // Get the Times-Roman font
-    const font = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-
-    // Set up text parameters
-    const fontSize = 12;
     const { width, height } = page.getSize();
 
-    // Add content
-    page.drawText(`${data.name} ${data.surname}`, {
-      x: width / 2 - 50,
-      y: height - 100,
-      size: fontSize,
-      font
-    });
+    // Helper function to write text with proper encoding
+    const writeText = (text: string, x: number, y: number, size: number = 12) => {
+      page.drawText(text, {
+        x,
+        y,
+        size,
+        font: customFont,
+        color: rgb(0, 0, 0)
+      });
+    };
 
-    page.drawText('Pareigos', {
-      x: width / 2 - 30,
-      y: height - 120,
-      size: fontSize,
-      font
-    });
+    // Header
+    writeText(`${data.name} ${data.surname}`, width / 2 - 50, height - 100);
+    writeText('Pareigos', width / 2 - 30, height - 120);
 
-    page.drawText('UAB „Logitema"', {
-      x: 50,
-      y: height - 160,
-      size: fontSize,
-      font
-    });
+    // Company info
+    writeText('UAB „Logitema"', 50, height - 160);
+    writeText('Direktoriui', 50, height - 180);
 
-    page.drawText('Direktoriui', {
-      x: 50,
-      y: height - 180,
-      size: fontSize,
-      font
-    });
+    // Title
+    writeText('PRAŠYMAS', width / 2 - 40, height - 220, 14);
 
-    page.drawText('PRAŠYMAS', {
-      x: width / 2 - 40,
-      y: height - 220,
-      size: 14,
-      font
-    });
+    // Date and location
+    writeText(currentDate, width / 2 - 30, height - 260);
+    writeText('Klaipėda', width / 2 - 25, height - 280);
 
-    page.drawText(currentDate, {
-      x: width / 2 - 30,
-      y: height - 260,
-      size: fontSize,
-      font
-    });
+    // Content
+    const content = `Prašau mane išleisti kasmetinių apmokamų atostogų nuo ${formattedStartDate} iki ${formattedEndDate} imtinai.`;
+    writeText(content, 50, height - 340);
+    writeText('Noriu atostoginius gauti kartu su atlyginimu.', 50, height - 360);
 
-    page.drawText('Klaipėda', {
-      x: width / 2 - 25,
-      y: height - 280,
-      size: fontSize,
-      font
-    });
+    // Signature
+    writeText(`${data.name} ${data.surname}`, width - 200, 150);
+    writeText('Parašas', width - 200, 130);
 
-    const content = `Prašau mane išleisti kasmetinių apmokamų atostogų nuo ${formattedStartDate} iki ${formattedEndDate} imtinai.\n\nNoriu atostoginius gauti kartu su atlyginimu.`;
-    
-    page.drawText(content, {
-      x: 50,
-      y: height - 340,
-      size: fontSize,
-      font,
-      maxWidth: width - 100
-    });
-
-    page.drawText(`${data.name} ${data.surname}`, {
-      x: width - 200,
-      y: 150,
-      size: fontSize,
-      font
-    });
-
-    page.drawText('Parašas', {
-      x: width - 200,
-      y: 130,
-      size: fontSize,
-      font
-    });
-
-    // Serialize the PDFDocument to bytes
+    // Save the PDF
     const pdfBytes = await pdfDoc.save();
-    
     return new Uint8Array(pdfBytes);
 
   } catch (error) {
