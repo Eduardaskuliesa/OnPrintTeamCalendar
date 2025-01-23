@@ -1,4 +1,4 @@
-import { jsPDF } from 'jspdf';
+import { PDFDocument, StandardFonts } from 'pdf-lib';
 
 export interface EmailData {
   name: string;
@@ -27,54 +27,97 @@ export const createVacationPDF = async (data: EmailData) => {
   const currentDate = data.createdAt || new Date().toISOString().split("T")[0];
 
   try {
-    // Create new document
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
+    // Create a new PDFDocument
+    const pdfDoc = await PDFDocument.create();
+
+    // Add a blank page
+    const page = pdfDoc.addPage([595.28, 841.89]); // A4 dimensions in points
+
+    // Get the Times-Roman font
+    const font = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+
+    // Set up text parameters
+    const fontSize = 12;
+    const { width, height } = page.getSize();
+
+    // Add content
+    page.drawText(`${data.name} ${data.surname}`, {
+      x: width / 2 - 50,
+      y: height - 100,
+      size: fontSize,
+      font
     });
 
-    // Enable Lithuanian characters
-    doc.setLanguage("lt");
+    page.drawText('Pareigos', {
+      x: width / 2 - 30,
+      y: height - 120,
+      size: fontSize,
+      font
+    });
 
-    // Set font
-    doc.setFont("helvetica");
-    
-    // Header
-    doc.setFontSize(12);
-    doc.text(`${data.name} ${data.surname}`, 105, 40, { align: 'center' });
-    doc.text('Pareigos', 105, 48, { align: 'center' });
+    page.drawText('UAB „Logitema"', {
+      x: 50,
+      y: height - 160,
+      size: fontSize,
+      font
+    });
 
-    // Company info
-    doc.text('UAB „Logitema"', 20, 70);
-    doc.text('Direktoriui', 20, 78);
+    page.drawText('Direktoriui', {
+      x: 50,
+      y: height - 180,
+      size: fontSize,
+      font
+    });
 
-    // Title
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text('PRAŠYMAS', 105, 100, { align: 'center' });
+    page.drawText('PRAŠYMAS', {
+      x: width / 2 - 40,
+      y: height - 220,
+      size: 14,
+      font
+    });
 
-    // Date and location
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    doc.text(currentDate, 105, 120, { align: 'center' });
-    doc.text('Klaipėda', 105, 128, { align: 'center' });
+    page.drawText(currentDate, {
+      x: width / 2 - 30,
+      y: height - 260,
+      size: fontSize,
+      font
+    });
 
-    // Content
+    page.drawText('Klaipėda', {
+      x: width / 2 - 25,
+      y: height - 280,
+      size: fontSize,
+      font
+    });
+
     const content = `Prašau mane išleisti kasmetinių apmokamų atostogų nuo ${formattedStartDate} iki ${formattedEndDate} imtinai.\n\nNoriu atostoginius gauti kartu su atlyginimu.`;
     
-    doc.text(content, 105, 150, { 
-      align: 'center',
-      maxWidth: 150
+    page.drawText(content, {
+      x: 50,
+      y: height - 340,
+      size: fontSize,
+      font,
+      maxWidth: width - 100
     });
 
-    // Signature
-    doc.text(`${data.name} ${data.surname}`, 190, 200, { align: 'right' });
-    doc.text('Parašas', 190, 208, { align: 'right' });
+    page.drawText(`${data.name} ${data.surname}`, {
+      x: width - 200,
+      y: 150,
+      size: fontSize,
+      font
+    });
 
-    // Return as Uint8Array
-    const pdfOutput = doc.output('arraybuffer');
-    return new Uint8Array(pdfOutput);
+    page.drawText('Parašas', {
+      x: width - 200,
+      y: 130,
+      size: fontSize,
+      font
+    });
+
+    // Serialize the PDFDocument to bytes
+    const pdfBytes = await pdfDoc.save();
+    
+    return new Uint8Array(pdfBytes);
 
   } catch (error) {
     console.error('PDF Generation Error:', error);

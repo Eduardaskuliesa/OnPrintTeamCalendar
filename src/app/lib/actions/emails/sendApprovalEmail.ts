@@ -1,6 +1,11 @@
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+"use server";
+import { Resend } from "resend";
+import { resendDomain } from "../../resend";
+import { createVacationPDF } from "./pdfs/VacationRequestPdf";
+import { GlobalSettingsType } from "@/app/types/bookSettings";
 
-export interface EmailData {
+export interface VacationEmailData {
+  sendTo: GlobalSettingsType["emails"]["accountant"];
   name: string;
   surname: string;
   startDate: string;
@@ -8,7 +13,12 @@ export interface EmailData {
   createdAt?: string;
 }
 
-export const createVacationPDF = async (data: EmailData) => {
+const resendApiKey = process.env.RESEND_API_KEY;
+const resend = new Resend(resendApiKey);
+
+export async function sendApprovedEmail(data: VacationEmailData) {
+
+  
   const formattedStartDate = new Date(data.startDate).toLocaleDateString(
     "lt-LT",
     {
@@ -17,110 +27,76 @@ export const createVacationPDF = async (data: EmailData) => {
       day: "numeric",
     }
   );
-
   const formattedEndDate = new Date(data.endDate).toLocaleDateString("lt-LT", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 
-  const currentDate = data.createdAt || new Date().toISOString().split("T")[0];
+  const subject = `Atostogų prašymas patvirtintas - ${data.name}`;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>${subject}</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #4A4A4A; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #2c3e50; margin-bottom: 20px;">Atostogų prašymas patvirtintas</h2>
+        
+        <p style="margin-bottom: 15px;">Sveiki, ${data.name},</p>
+        
+        <p style="margin-bottom: 15px; color: #4A4A4A;">
+          Jūsų atostogų prašymas buvo patvirtintas.
+        </p>
+
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <div style="margin: 0; line-height: 1.8;">
+            <p style="margin: 0; white-space: nowrap; color: #4A4A4A;">
+              <strong style="color: #4A4A4A;">Atostogų laikotarpis:</strong>
+            </p>
+            <p style="margin: 0; white-space: nowrap; color: #4A4A4A;">
+              <strong style="color: #4A4A4A;">Nuo:</strong> <span style="color: #4A4A4A;">${formattedStartDate}</span>
+            </p>
+            <p style="margin: 0; white-space: nowrap; color: #4A4A4A;">
+              <strong style="color: #4A4A4A;">Iki:</strong> <span style="color: #4A4A4A;">${formattedEndDate}</span>
+            </p>
+            <p style="margin: 0; white-space: nowrap; color: #4A4A4A;">
+              <strong style="color: #4A4A4A;">Statusas:</strong> <span style="color: #2ecc71;">Patvirtinta</span>
+            </p>
+          </div>
+        </div>
+
+        <p style="color: #777777; font-size: 14px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+          Tai yra automatinis pranešimas. Gero poilsio!
+        </p>
+      </body>
+    </html>
+  `;
 
   try {
-    // Create a new PDFDocument
-    const pdfDoc = await PDFDocument.create();
-
-    // Add a blank page
-    const page = pdfDoc.addPage([595.28, 841.89]); // A4 dimensions in points
-
-    // Get the Times-Roman font
-    const font = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-
-    // Set up text parameters
-    const fontSize = 12;
-    const { width, height } = page.getSize();
-
-    // Add content
-    page.drawText(`${data.name} ${data.surname}`, {
-      x: width / 2 - 50,
-      y: height - 100,
-      size: fontSize,
-      font
+    const pdfUint8Array = await createVacationPDF(data);
+    const pdfBuffer = Buffer.from(pdfUint8Array);
+   
+    const response = await resend.emails.send({
+      from: `Atostogos@${resendDomain}`,
+      to: data.sendTo,
+      subject: subject,
+      html: htmlContent,
+      attachments: [
+        {
+          filename: `Atostogų prašymas - ${data.name}${data.surname}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
     });
 
-    page.drawText('Pareigos', {
-      x: width / 2 - 30,
-      y: height - 120,
-      size: fontSize,
-      font
-    });
-
-    page.drawText('UAB „Logitema"', {
-      x: 50,
-      y: height - 160,
-      size: fontSize,
-      font
-    });
-
-    page.drawText('Direktoriui', {
-      x: 50,
-      y: height - 180,
-      size: fontSize,
-      font
-    });
-
-    page.drawText('PRAŠYMAS', {
-      x: width / 2 - 40,
-      y: height - 220,
-      size: 14,
-      font
-    });
-
-    page.drawText(currentDate, {
-      x: width / 2 - 30,
-      y: height - 260,
-      size: fontSize,
-      font
-    });
-
-    page.drawText('Klaipėda', {
-      x: width / 2 - 25,
-      y: height - 280,
-      size: fontSize,
-      font
-    });
-
-    const content = `Prašau mane išleisti kasmetinių apmokamų atostogų nuo ${formattedStartDate} iki ${formattedEndDate} imtinai.\n\nNoriu atostoginius gauti kartu su atlyginimu.`;
-    
-    page.drawText(content, {
-      x: 50,
-      y: height - 340,
-      size: fontSize,
-      font,
-      maxWidth: width - 100
-    });
-
-    page.drawText(`${data.name} ${data.surname}`, {
-      x: width - 200,
-      y: 150,
-      size: fontSize,
-      font
-    });
-
-    page.drawText('Parašas', {
-      x: width - 200,
-      y: 130,
-      size: fontSize,
-      font
-    });
-
-    // Serialize the PDFDocument to bytes
-    const pdfBytes = await pdfDoc.save();
-    
-    return new Uint8Array(pdfBytes);
-
-  } catch (error) {
-    console.error('PDF Generation Error:', error);
-    throw error;
+    return { success: true, data: response };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Unknown error",
+    };
   }
-};
+}
