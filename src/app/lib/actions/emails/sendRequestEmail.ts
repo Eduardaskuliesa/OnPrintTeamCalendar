@@ -6,10 +6,12 @@ import { GlobalSettingsType } from "@/app/types/bookSettings";
 
 export interface EmailData {
   sendTo?: GlobalSettingsType["emails"]["admin"];
+  founderNameSurname?: string;
   name: string;
   surname: string;
   startDate: string;
   endDate: string;
+  jobTitle: string;
 }
 
 const resendApiKey = process.env.RESEND_API_KEY;

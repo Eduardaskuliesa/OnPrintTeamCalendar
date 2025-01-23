@@ -17,6 +17,8 @@ interface UpdateUserData {
   vacationDays?: number;
   updateAmount?: number;
   birthday?: string;
+  role?: "USER" | "ADMIN";
+  jobTitle: string;
 }
 
 export async function updateUser(userId: string, userData: UpdateUserData) {
@@ -42,7 +44,7 @@ export async function updateUser(userId: string, userData: UpdateUserData) {
       updateExpressions.push("surname = :surname");
       expressionAttributeValues[":surname"] = userData.surname;
     }
-    
+
     if (userData.email) {
       updateExpressions.push("email = :email");
       expressionAttributeValues[":email"] = userData.email;
@@ -57,7 +59,7 @@ export async function updateUser(userId: string, userData: UpdateUserData) {
       updateExpressions.push("useGlobal = :useGlobal");
       expressionAttributeValues[":useGlobal"] = userData.useGlobal;
     }
-   
+
     if (userData.password) {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       updateExpressions.push("password = :password");
@@ -77,6 +79,17 @@ export async function updateUser(userId: string, userData: UpdateUserData) {
     if (userData.birthday) {
       updateExpressions.push("birthday = :birthday");
       expressionAttributeValues[":birthday"] = userData.birthday;
+    }
+
+    if (userData.role) {
+      updateExpressions.push("#userRole = :role");
+      expressionAttributeNames["#userRole"] = "role";
+      expressionAttributeValues[":role"] = userData.role;
+    }
+
+    if (userData.jobTitle) {
+      updateExpressions.push("jobTitle = :jobTitle");
+      expressionAttributeValues[":jobTitle"] = userData.jobTitle;
     }
 
     updateExpressions.push("updatedAt = :updatedAt");

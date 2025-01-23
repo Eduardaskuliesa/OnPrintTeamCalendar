@@ -74,5 +74,6 @@ export interface GlobalSettingsType {
   emails: {
     admin: string[];
     accountant: string;
+    founderNameSurname: string;
   };
 }

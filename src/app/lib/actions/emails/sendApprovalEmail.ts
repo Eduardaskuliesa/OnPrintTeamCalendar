@@ -10,6 +10,8 @@ export interface VacationEmailData {
   surname: string;
   startDate: string;
   endDate: string;
+  jobTitle?: string;
+  founderNameSurname: string;
   createdAt?: string;
 }
 
@@ -17,8 +19,6 @@ const resendApiKey = process.env.RESEND_API_KEY;
 const resend = new Resend(resendApiKey);
 
 export async function sendApprovedEmail(data: VacationEmailData) {
-
-  
   const formattedStartDate = new Date(data.startDate).toLocaleDateString(
     "lt-LT",
     {
@@ -78,7 +78,7 @@ export async function sendApprovedEmail(data: VacationEmailData) {
   try {
     const pdfUint8Array = await createVacationPDF(data);
     const pdfBuffer = Buffer.from(pdfUint8Array);
-   
+
     const response = await resend.emails.send({
       from: `Atostogos@${resendDomain}`,
       to: data.sendTo,

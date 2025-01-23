@@ -26,10 +26,11 @@ export interface FormData {
   email: string;
   password: string;
   color: string;
-  role?: string;
+  role?: "ADMIN" | "USER";
   vacationDays: number;
   updateAmount: number;
   birthday?: string;
+  jobTitle?: string;
 }
 
 export default function CreateUserForm({
@@ -96,7 +97,11 @@ export default function CreateUserForm({
         </Button>
       </div>
 
-      <form ref={formRef} onSubmit={handleSubmit} className="space-y-3 min-w-[250px] sm:space-y-5">
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit}
+        className="space-y-3 min-w-[250px] sm:space-y-5"
+      >
         <NameSurnameInput
           name={formData.name}
           surname={formData.surname}

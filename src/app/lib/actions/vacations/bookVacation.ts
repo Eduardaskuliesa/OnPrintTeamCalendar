@@ -90,10 +90,12 @@ export async function bookVacation(formData: FormData) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-
+    console.log(globalSettings?.data?.emails.founderNameSurname);
     await sendRequestEmail({
       sendTo: globalSettings?.data?.emails.admin,
+      founderNameSurname: globalSettings?.data?.emails.founderNameSurname,
       name: user.data.name,
+      jobTitle: user.data.jobTitle,
       surname: user.data.surname,
       startDate: formData.startDate,
       endDate: formData.endDate,

@@ -60,18 +60,24 @@ export default function VacationRequestListContent({
           status,
           request.userId
         );
-        const surname = users.find((u) => u.userId === request.userId)
-          ?.surname as string;
-        const globalSettingsData = await getGlobalSettings();
+        const userToSendEmail = users.find((u) => u.userId === request.userId);
+        if (!userToSendEmail) {
+          return console.log("User not exist email will not be send");
+        }
 
-        
+        console.log(userToSendEmail);
+
+        const globalSettingsData = await getGlobalSettings();
 
         if (result.success) {
           await sendApprovedEmail({
             sendTo: globalSettingsData.data?.emails
               .accountant as GlobalSettingsType["emails"]["accountant"],
             name: request.userName,
-            surname: surname,
+            founderNameSurname:
+              globalSettingsData.data?.emails.founderNameSurname,
+            surname: userToSendEmail.surname,
+            jobTitle: userToSendEmail.jobTitle,
             createdAt: request.createdAt.slice(0, 10),
             startDate: request.startDate,
             endDate: request.endDate,

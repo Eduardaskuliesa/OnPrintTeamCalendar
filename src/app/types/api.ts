@@ -3,7 +3,8 @@ export interface User {
   name: string;
   surname: string;
   userId: string;
-  role: string;
+  role?: "USER" | "ADMIN";
+  jobTitle?: string;
   color: string;
   useGlobal: boolean;
   vacationDays: number;

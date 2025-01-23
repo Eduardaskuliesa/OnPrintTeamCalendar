@@ -10,6 +10,7 @@ import bcrypt from "bcryptjs";
 import { PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { v4 as uuidv4 } from "uuid";
+import { User } from "@/app/types/api";
 
 async function getGlobalSettings(): Promise<GlobalSettingsType> {
   const result = await dynamoDb.send(
@@ -121,7 +122,7 @@ export async function createUser(formData: FormData) {
         surname,
         color,
         birthday,
-        role,
+        role: role as User["role"],
         vacationDays,
         updateAmount,
         useGlobal,

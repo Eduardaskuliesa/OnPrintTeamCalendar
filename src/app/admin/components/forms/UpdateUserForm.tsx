@@ -1,9 +1,9 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
 import { updateUser } from "../../../lib/actions/users/updateUser";
 import { toast } from "react-toastify";
-import { User } from "../../../types/api";
-import { X } from "lucide-react";
+import type { User } from "../../../types/api";
 import { Button } from "@/components/ui/button";
 import SettingsToggle from "../../SettingsToggleUpdateForm";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,9 +12,30 @@ import { ColorInput } from "./ColorInput";
 import { EmailPasswordInput } from "./EmailPasswordInput";
 import { NameSurnameInput } from "./NameSurnameInput";
 import { VacationDaysBalanceInput } from "./VacationDaysBalanceInput";
-import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetFreshUser } from "../../../lib/actions/users/hooks/useGetFreshUser";
+import { RoleJobTitleInput } from "./RoleJobTitleInput";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
+
+interface FormData {
+  name: string;
+  surname: string;
+  email: string;
+  color: string;
+  useGlobal: boolean;
+  password: string;
+  vacationDays: number;
+  updateAmount: number;
+  birthday: string;
+  role: "USER" | "ADMIN";
+  jobTitle: string;
+}
 
 interface UpdateUserFormProps {
   userId: string;
@@ -35,7 +56,7 @@ export default function UpdateUserForm({
   const formRef = useRef<HTMLFormElement>(null);
   const queryClient = useQueryClient();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     surname: "",
     email: "",
@@ -45,11 +66,20 @@ export default function UpdateUserForm({
     vacationDays: 0,
     updateAmount: 0.05479452,
     birthday: "",
+    role: "USER", // Set a default role
+    jobTitle: "",
   });
+
+  useEffect(() => {
+    console.log("User data:", user);
+    console.log("userName", user?.name);
+    console.log("User role:", user?.role);
+  }, [user]);
 
   useEffect(() => {
     if (user) {
       setFormData({
+        role: user.role === "ADMIN" ? "ADMIN" : "USER",
         name: user.name,
         surname: user.surname || "",
         email: user.email,
@@ -59,6 +89,7 @@ export default function UpdateUserForm({
         vacationDays: user.vacationDays,
         updateAmount: user.updateAmount || 0.05479452,
         birthday: user.birthday || "",
+        jobTitle: user.jobTitle || "",
       });
     }
   }, [user]);
@@ -76,7 +107,9 @@ export default function UpdateUserForm({
       formData.updateAmount !== user.updateAmount ||
       formData.useGlobal !== user.useGlobal ||
       formData.password !== "" ||
-      formData.birthday !== user.birthday;
+      formData.birthday !== user.birthday ||
+      formData.role !== user.role ||
+      formData.jobTitle !== user.jobTitle;
 
     if (!hasChanges) {
       onCancel();
@@ -88,7 +121,6 @@ export default function UpdateUserForm({
       setLoading(true);
       const result = await updateUser(userId, formData);
       queryClient.invalidateQueries({ queryKey: ["users"] });
-    
 
       if (result.success) {
         toast.success("Vartotojas sėkmingai atnaujintas");
@@ -98,6 +130,7 @@ export default function UpdateUserForm({
           updatedAt: new Date().toISOString(),
         };
         onUserUpdated(updatedUser);
+        onCancel(); // Close dialog after successful update
       } else {
         toast.error(result.error || "Nepavyko atnaujinti vartotojo");
       }
@@ -112,24 +145,15 @@ export default function UpdateUserForm({
     return value % 1 === 0 ? Number(value) : Number(Number(value).toFixed(10));
   };
 
-  useKeyboardShortcuts(isOpen, onCancel, undefined, formRef);
+  console.log(user?.role);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-xl max-w-2xl w-full mx-4 shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Atnaujinti Vartotoją
-          </h2>
-          <Button
-            className="bg-gray-100 hover:bg-gray-200"
-            variant="ghost"
-            size="icon"
-            onClick={onCancel}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Atnaujinti Vartotoją</DialogTitle>
+          <DialogClose onClick={onCancel} />
+        </DialogHeader>
 
         <form
           ref={formRef}
@@ -144,6 +168,10 @@ export default function UpdateUserForm({
                 <Skeleton className="h-10 w-full" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 ">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="grid grid-cols-1 xsm:grid-cols-2 gap-4 ">
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
               </div>
@@ -210,6 +238,13 @@ export default function UpdateUserForm({
                   }
                 />
               </div>
+              <RoleJobTitleInput
+                jobTitle={formData.jobTitle}
+                role={formData.role}
+                onChange={(field, value) =>
+                  setFormData((prev) => ({ ...prev, [field]: value }))
+                }
+              />
             </>
           )}
 
@@ -231,7 +266,7 @@ export default function UpdateUserForm({
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

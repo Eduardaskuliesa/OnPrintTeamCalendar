@@ -25,8 +25,11 @@ export function UpdateAdminModal({
 }: EmailSettingsModalProps) {
   const [adminEmails, setAdminEmails] = useState<string[]>([]);
   const [accountantEmail, setAccountantEmail] = useState("");
+  const [founderNameSurname, setFounderNameSurname] = useState("");
   const [initialAdminEmails, setInitialAdminEmails] = useState<string[]>([]);
   const [initialAccountantEmail, setInitialAccountantEmail] = useState("");
+  const [initialFounderNameSurname, setInitialFounderNameSurname] =
+    useState("");
   const { mutate: updateEmails, isPending } = useUpdateEmails();
 
   useEffect(() => {
@@ -34,8 +37,10 @@ export function UpdateAdminModal({
       const adminData = initialData.admin.length > 0 ? initialData.admin : [""];
       setAdminEmails(adminData);
       setAccountantEmail(initialData.accountant || "");
+      setFounderNameSurname(initialData.founderNameSurname || "");
       setInitialAdminEmails(adminData);
       setInitialAccountantEmail(initialData.accountant || "");
+      setInitialFounderNameSurname(initialData.founderNameSurname || "");
     }
   }, [isOpen, initialData]);
 
@@ -69,7 +74,8 @@ export function UpdateAdminModal({
     const hasChanges =
       JSON.stringify(filteredAdminEmails) !==
         JSON.stringify(initialAdminEmails) ||
-      accountantEmail !== initialAccountantEmail;
+      accountantEmail !== initialAccountantEmail ||
+      founderNameSurname !== initialFounderNameSurname;
 
     if (!hasChanges) {
       toast.info("Nepadarėte jokių pakeitimų");
@@ -81,10 +87,11 @@ export function UpdateAdminModal({
       {
         admin: filteredAdminEmails,
         accountant: accountantEmail,
+        founderNameSurname: founderNameSurname,
       },
       {
         onSuccess: () => {
-          toast.success("El. paštas(-ai) buvo sėkmingai pakeisti");
+          toast.success("Nustatymai buvo sėkmingai pakeisti");
           onClose();
         },
       }
@@ -101,9 +108,6 @@ export function UpdateAdminModal({
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-db">El. pašto Nustatymai</DialogTitle>
-            {isPending && (
-              <Loader className="animate-spin mr-2 text-db" size={18} />
-            )}
           </div>
         </DialogHeader>
 
@@ -162,6 +166,20 @@ export function UpdateAdminModal({
               onChange={(e) => setAccountantEmail(e.target.value)}
               placeholder="buhalteris@pavyzdys.lt"
               type="email"
+              disabled={isPending}
+              className="border-lcoffe focus:ring-dcoffe"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-db">
+              Direktoriaus(-ės) Vardas Pavardė
+            </label>
+            <Input
+              value={founderNameSurname}
+              onChange={(e) => setFounderNameSurname(e.target.value)}
+              placeholder="Vardas Pavardė"
+              type="text"
               disabled={isPending}
               className="border-lcoffe focus:ring-dcoffe"
             />

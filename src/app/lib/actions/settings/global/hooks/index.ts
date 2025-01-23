@@ -146,6 +146,7 @@ export const useUpdateEmails = () => {
     mutationFn: async (emails: {
       admin: GlobalSettingsType["emails"]["admin"];
       accountant: GlobalSettingsType["emails"]["accountant"];
+      founderNameSurname: GlobalSettingsType["emails"]["founderNameSurname"];
     }) => {
       const result = await updateEmails(emails);
       if (!result.success) {

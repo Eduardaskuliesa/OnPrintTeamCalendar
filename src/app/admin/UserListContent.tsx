@@ -179,7 +179,7 @@ export default function UserListContent({
                         <Pencil size={18} className="mr-2 text-teal-800" />
                         Edit
                       </DropdownMenuItem>
-                      {!user.role.includes("ADMIN") && (
+                      {user.role && !user.role.includes("ADMIN") && (
                         <DropdownMenuItem
                           onClick={() => handleDelete(user)}
                           className="flex items-center text-rose-700"
