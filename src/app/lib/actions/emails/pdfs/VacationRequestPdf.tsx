@@ -1,4 +1,5 @@
-import puppeteer from "puppeteer";
+import PDFDocument from 'pdfkit';
+// import { Roboto } from 'next/font/google';
 
 export interface EmailData {
   name: string;
@@ -8,10 +9,13 @@ export interface EmailData {
   createdAt?: string;
 }
 
-export const createVacationPDF = async (data: EmailData) => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+// const font = Roboto({
+//   subsets: ["latin"],
+//   weight: ["400", "700"],
+//   display: "swap",
+// });
 
+export const createVacationPDF = async (data: EmailData) => {
   const formattedStartDate = new Date(data.startDate).toLocaleDateString(
     "lt-LT",
     {
@@ -29,65 +33,60 @@ export const createVacationPDF = async (data: EmailData) => {
 
   const currentDate = data.createdAt || new Date().toISOString().split("T")[0];
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          padding: 50px;
-          font-size: 12pt;
+  return new Promise<Buffer>((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({
+        size: 'A4',
+        margin: 50,
+        info: {
+          Title: 'Atostogų prašymas',
+          Author: `${data.name} ${data.surname}`
         }
-        .header { text-align: center; margin-bottom: 20px; margin-top:80px }
-        .company { margin-bottom: 40px; }
-        .title { 
-          text-align: center;
-          font-size: 14pt;
-          margin: 30px 0;
-        }
-        .content { margin: 20px 0; text-align: center; }
-        .signature { 
-          text-align: right;
-          margin-top: 60px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <p>${data.name} ${data.surname}</p>
-        <p>Pareigos</p>
-      </div>
-      
-      <div class="company">
-        <p>UAB „Logitema"</p>
-        <p>Direktoriui</p>
-      </div>
+      });
 
-      <div class="title">PRAŠYMAS</div>
-      
-      <div style="text-align: center;">
-        <p>${currentDate}</p>
-        <p>Klaipėda</p>
-      </div>
+      // Collect the PDF data chunks
+      const chunks: any[] = [];
+      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
 
-      <div class="content">
-        Prašau mane išleisti kasmetinių apmokamų atostogų nuo ${formattedStartDate} iki ${formattedEndDate} imtinai.
-        \n Noriu atostoginius gauti kartu su atlyginimu.
-      </div>
+      // Header
+      doc.fontSize(12)
+         .text(`${data.name} ${data.surname}`, { align: 'center' })
+         .text('Pareigos', { align: 'center' })
+         .moveDown(2);
 
-      <div class="signature">
-        <p>${data.name} ${data.surname}</p>
-        <p>Parašas</p>
-      </div>
-    </body>
-    </html>
-  `;
+      // Company info
+      doc.text('UAB „Logitema"')
+         .text('Direktoriui')
+         .moveDown(2);
 
-  await page.setContent(html);
-  const pdf = await page.pdf({ format: "A4" });
-  await browser.close();
+      // Title
+      doc.fontSize(14)
+         .text('PRAŠYMAS', { align: 'center' })
+         .moveDown();
 
-  return pdf;
+      // Date and location
+      doc.fontSize(12)
+         .text(currentDate, { align: 'center' })
+         .text('Klaipėda', { align: 'center' })
+         .moveDown(2);
+
+      // Content
+      doc.text(
+        `Prašau mane išleisti kasmetinių apmokamų atostogų nuo ${formattedStartDate} iki ${formattedEndDate} imtinai.\n\nNoriu atostoginius gauti kartu su atlyginimu.`,
+        { align: 'center' }
+      )
+      .moveDown(4);
+
+      // Signature
+      doc.text(`${data.name} ${data.surname}`, { align: 'right' })
+         .text('Parašas', { align: 'right' });
+
+      // Finalize PDF
+      doc.end();
+
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
