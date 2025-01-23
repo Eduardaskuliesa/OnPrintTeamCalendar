@@ -1,92 +1,109 @@
 import PDFDocument from 'pdfkit';
-// import { Roboto } from 'next/font/google';
+import { Buffer } from 'buffer';
 
 export interface EmailData {
-  name: string;
-  surname: string;
-  startDate: string;
-  endDate: string;
-  createdAt?: string;
+ name: string;
+ surname: string;
+ startDate: string;
+ endDate: string;
+ createdAt?: string;
 }
 
-// const font = Roboto({
-//   subsets: ["latin"],
-//   weight: ["400", "700"],
-//   display: "swap",
-// });
-
 export const createVacationPDF = async (data: EmailData) => {
-  const formattedStartDate = new Date(data.startDate).toLocaleDateString(
-    "lt-LT",
-    {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }
-  );
+ // Fetch fonts from Google Fonts CDN
+ const robotoRegular = await fetch(
+   'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5Q.ttf'
+ ).then(res => res.arrayBuffer());
+ 
+ const robotoBold = await fetch(
+   'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmWUlvAw.ttf'
+ ).then(res => res.arrayBuffer());
 
-  const formattedEndDate = new Date(data.endDate).toLocaleDateString("lt-LT", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+ const formattedStartDate = new Date(data.startDate).toLocaleDateString(
+   "lt-LT",
+   {
+     year: "numeric",
+     month: "long",
+     day: "numeric",
+   }
+ );
 
-  const currentDate = data.createdAt || new Date().toISOString().split("T")[0];
+ const formattedEndDate = new Date(data.endDate).toLocaleDateString("lt-LT", {
+   year: "numeric",
+   month: "long",
+   day: "numeric",
+ });
 
-  return new Promise<Buffer>((resolve, reject) => {
-    try {
-      const doc = new PDFDocument({
-        size: 'A4',
-        margin: 50,
-        info: {
-          Title: 'Atostogų prašymas',
-          Author: `${data.name} ${data.surname}`
-        }
-      });
+ const currentDate = data.createdAt || new Date().toISOString().split("T")[0];
 
-      // Collect the PDF data chunks
-      const chunks: any[] = [];
-      doc.on('data', chunk => chunks.push(chunk));
-      doc.on('end', () => resolve(Buffer.concat(chunks)));
+ return new Promise<Buffer>((resolve, reject) => {
+   try {
+     const doc = new PDFDocument({
+       size: 'A4',
+       margin: 50,
+       info: {
+         Title: 'Atostogų prašymas',
+         Author: `${data.name} ${data.surname}`
+       }
+     });
 
-      // Header
-      doc.fontSize(12)
-         .text(`${data.name} ${data.surname}`, { align: 'center' })
-         .text('Pareigos', { align: 'center' })
-         .moveDown(2);
+     // Register fonts
+     doc.registerFont('Roboto', Buffer.from(robotoRegular));
+     doc.registerFont('Roboto-Bold', Buffer.from(robotoBold));
+     
+     // Set default font
+     doc.font('Roboto');
 
-      // Company info
-      doc.text('UAB „Logitema"')
-         .text('Direktoriui')
-         .moveDown(2);
+     // Collect the PDF data chunks
+     const chunks: any[] = [];
+     doc.on('data', chunk => chunks.push(chunk));
+     doc.on('end', () => resolve(Buffer.concat(chunks)));
 
-      // Title
-      doc.fontSize(14)
-         .text('PRAŠYMAS', { align: 'center' })
-         .moveDown();
+     // Header
+     doc.font('Roboto')
+        .fontSize(12)
+        .text(`${data.name} ${data.surname}`, { align: 'center' })
+        .text('Pareigos', { align: 'center' })
+        .moveDown(2);
 
-      // Date and location
-      doc.fontSize(12)
-         .text(currentDate, { align: 'center' })
-         .text('Klaipėda', { align: 'center' })
-         .moveDown(2);
+     // Company info
+     doc.text('UAB „Logitema"', { align: 'left' })
+        .text('Direktoriui', { align: 'left' })
+        .moveDown(2);
 
-      // Content
-      doc.text(
-        `Prašau mane išleisti kasmetinių apmokamų atostogų nuo ${formattedStartDate} iki ${formattedEndDate} imtinai.\n\nNoriu atostoginius gauti kartu su atlyginimu.`,
-        { align: 'center' }
-      )
-      .moveDown(4);
+     // Title
+     doc.font('Roboto-Bold')
+        .fontSize(14)
+        .text('PRAŠYMAS', { align: 'center' })
+        .moveDown();
 
-      // Signature
-      doc.text(`${data.name} ${data.surname}`, { align: 'right' })
-         .text('Parašas', { align: 'right' });
+     // Date and location
+     doc.font('Roboto')
+        .fontSize(12)
+        .text(currentDate, { align: 'center' })
+        .text('Klaipėda', { align: 'center' })
+        .moveDown(2);
 
-      // Finalize PDF
-      doc.end();
+     // Content
+     doc.text(
+       `Prašau mane išleisti kasmetinių apmokamų atostogų nuo ${formattedStartDate} iki ${formattedEndDate} imtinai.\n\nNoriu atostoginius gauti kartu su atlyginimu.`,
+       { 
+         align: 'center',
+         lineGap: 10
+       }
+     )
+     .moveDown(4);
 
-    } catch (error) {
-      reject(error);
-    }
-  });
+     // Signature
+     doc.text(`${data.name} ${data.surname}`, { align: 'right' })
+        .text('Parašas', { align: 'right' });
+
+     // Finalize PDF
+     doc.end();
+
+   } catch (error) {
+     console.error('PDF Generation Error:', error);
+     reject(error);
+   }
+ });
 };

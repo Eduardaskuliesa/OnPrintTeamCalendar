@@ -101,10 +101,8 @@ export async function sendApprovedEmail(data: VacationEmailData) {
   try {
     // Debug Step 4: PDF Generation
     console.log('Starting PDF generation...');
-    const pdfUint8Array = await createVacationPDF(data);
-    console.log('PDF generated successfully, size:', pdfUint8Array.length);
-
-    const pdfBuffer = Buffer.from(pdfUint8Array);
+    const pdfBuffer = await createVacationPDF(data);
+   
     console.log('PDF buffer created, size:', pdfBuffer.length);
 
     // Debug Step 5: Email Sending Configuration
