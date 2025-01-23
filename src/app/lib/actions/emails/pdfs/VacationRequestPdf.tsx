@@ -16,7 +16,6 @@ export const createVacationPDF = async (data: EmailData) => {
   try {
     const fontPath = path.join(
       process.cwd(),
-      "src",
       "app",
       "fonts",
       "Roboto-Regular.ttf"
