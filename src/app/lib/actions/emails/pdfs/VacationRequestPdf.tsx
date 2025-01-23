@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import path from "path";
 
 export interface EmailData {
@@ -14,11 +14,23 @@ export interface EmailData {
 
 export const createVacationPDF = async (data: EmailData) => {
   try {
-    const fontPath = path.join(
-      process.cwd(),
-      "public",
-      "Roboto-Regular.ttf"
-    );
+    console.log("Current working directory:", process.cwd());
+    console.log("__dirname:", __dirname);
+
+    // Try multiple potential paths
+    const possiblePaths = [
+      path.join(process.cwd(), "fonts", "Roboto-Regular.ttf"),
+      path.join(process.cwd(), "public", "fonts", "Roboto-Regular.ttf"),
+      path.join(__dirname, "fonts", "Roboto-Regular.ttf"),
+      path.join(__dirname, "..", "..", "fonts", "Roboto-Regular.ttf"),
+    ];
+
+    possiblePaths.forEach((fontPath) => {
+      console.log(`Checking path: ${fontPath}`);
+      console.log(`File exists: ${existsSync(fontPath)}`);
+    });
+
+    const fontPath = path.join(process.cwd(), "fonts", "Roboto-Regular.ttf");
     const fontBytes = readFileSync(fontPath).toString("base64");
 
     const formattedStartDate = new Date(data.startDate).toLocaleDateString(
