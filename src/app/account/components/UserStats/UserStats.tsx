@@ -1,18 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Outfit } from "next/font/google";
 import { AnimatePresence, motion } from "framer-motion";
-import { User, Vacation } from "../types/api";
-import NavigationTabs from "./components/UserStats/NavigationTabs";
-import DashboardContent from "./components/UserStats/tabs/DashboardContent";
-import SettingsContent from "./components/UserStats/tabs/SettingsContent";
+import { User, Vacation } from "../../../types/api";
+import NavigationTabs from "./NavigationTabs";
+import DashboardContent from "./tabs/VacationContent/index.";
+import SettingsContent from "./tabs/SettingsContent";
+import CustomAndBirghtDays from "./tabs/CustomAndBirghtDays";
+import CustomDayHeader from "./CustomDayHeader";
 
-const fredoka = Outfit({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-});
 
 const slideVariants = {
   enter: (direction: number) => ({
@@ -29,7 +25,7 @@ const slideVariants = {
   }),
 };
 
-const TABS = ["dashboard", "settings", "actions"];
+const TABS = ["dashboard", "customDays", "settings"];
 
 interface UserStatsProps {
   realCurrentBalance: number;
@@ -51,6 +47,7 @@ const UserStats = ({
   const [activeTab, setActiveTab] = useState("dashboard");
   const [direction, setDirection] = useState(0);
   const [contentHeight, setContentHeight] = useState("auto");
+  const [isDataReady, setIsDataReady] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [key, setKey] = useState(0);
   const [heightAnimationSpeed, setHeightAnimationSpeed] = useState(0.5);
@@ -68,14 +65,15 @@ const UserStats = ({
       setKey((prevKey) => prevKey + 1);
     }
   };
+  const updateHeight = () => {
+    if (contentRef.current) {
+      const newHeight = contentRef.current.offsetHeight;
+      setContentHeight(`${newHeight}px`);
+    }
+  };
 
   useEffect(() => {
-    const updateHeight = () => {
-      if (contentRef.current) {
-        const newHeight = contentRef.current.offsetHeight;
-        setContentHeight(`${newHeight}px`);
-      }
-    };
+    updateHeight();
 
     const resizeObserver = new ResizeObserver(updateHeight);
     if (contentRef.current) {
@@ -97,6 +95,16 @@ const UserStats = ({
     (vacation) => vacation.status === "PENDING"
   );
 
+  useEffect(() => {
+    updateHeight();
+  }, [
+    isDataReady,
+    pendingVacations,
+    approvedFutureVacations,
+    realCurrentBalance,
+    futureVacationsList,
+  ]);
+
   return (
     <div className="flex flex-row-reverse items-start justify-end gap-1 w-full relative">
       <NavigationTabs
@@ -107,13 +115,7 @@ const UserStats = ({
       />
 
       <div className="flex-1 relative px-6 py-6 mb-4  bg-[#EADBC8] border-blue-50 border-2 rounded-b-3xl rounded-tl-3xl">
-        <div className="w-auto h-14 flex items-center bg-[#EADBC8] absolute rounded-t-2xl border-blue-50 top-0 -mt-14 -right-[2px] border-t-2 border-l-2 border-r-2">
-          <span
-            className={`text-3xl px-4 py-3 block font-bold text-gray-800 tracking-wide ${fredoka.className}`}
-          >
-            Šiandien mėlagio diena
-          </span>
-        </div>
+        <CustomDayHeader></CustomDayHeader>
 
         <div className="overflow-hidden py-1">
           <motion.div
@@ -140,6 +142,12 @@ const UserStats = ({
                     currentVacationDays={currentVacationDays}
                     approvedVacations={approvedFutureVacations}
                     pendingVacations={pendingVacations}
+                  />
+                )}
+                {activeTab === "customDays" && (
+                  <CustomAndBirghtDays
+                    userId={userData.userId}
+                    isDataReady={setIsDataReady}
                   />
                 )}
                 {activeTab === "settings" && (

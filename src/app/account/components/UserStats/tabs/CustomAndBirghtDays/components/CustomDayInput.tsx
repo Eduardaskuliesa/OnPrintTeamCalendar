@@ -1,26 +1,24 @@
 "use client";
-
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 
-interface BirthDayInputProps {
+interface CustomDayInputProps {
   value?: string;
   onChange: (value: string) => void;
   className?: string;
 }
 
-export const BirthDayInput = ({
+export const CustomDayInput = ({
   value = "",
   onChange,
   className,
-}: BirthDayInputProps) => {
+}: CustomDayInputProps) => {
   const parseInitialValue = (dateString: string) => {
-    if (!dateString) return { year: "", month: "", day: "" };
+    if (!dateString) return { month: "", day: "" };
     const parts = dateString.split("-");
     return {
-      year: parts[0] || "",
-      month: parts[1] ? parseInt(parts[1], 10).toString() : "",
-      day: parts[2] ? parseInt(parts[2], 10).toString() : "",
+      month: parts[0] ? parseInt(parts[0], 10).toString() : "",
+      day: parts[1] ? parseInt(parts[1], 10).toString() : "",
     };
   };
 
@@ -30,18 +28,16 @@ export const BirthDayInput = ({
     setDateParts(parseInitialValue(value));
   }, [value]);
 
-  const formatDate = ({ year, month, day }: typeof dateParts) => {
-    if (!year) return "";
-    const formattedMonth = month ? month.padStart(2, "0") : "";
+  const formatDate = ({ month, day }: typeof dateParts) => {
+    if (!month) return "";
+    const formattedMonth = month.padStart(2, "0");
     const formattedDay = day ? day.padStart(2, "0") : "";
 
-    if (year && !formattedMonth) return year;
-    if (year && formattedMonth && !formattedDay)
-      return `${year}-${formattedMonth}`;
-    return `${year}-${formattedMonth}-${formattedDay}`;
+    if (!formattedDay) return formattedMonth;
+    return `${formattedMonth}-${formattedDay}`;
   };
 
-  const handleInputChange = (part: "year" | "month" | "day", value: string) => {
+  const handleInputChange = (part: "month" | "day", value: string) => {
     const newDateParts = {
       ...dateParts,
       [part]: value,
@@ -67,24 +63,12 @@ export const BirthDayInput = ({
   return (
     <div className={className}>
       <label className="block text-sm font-medium text-gray-700 mb-1">
-        Gimimo data
+        Data
       </label>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <Input
           type="number"
-          name="birthYear"
-          placeholder="Metai"
-          min="1900"
-          maxLength={4}
-          onInput={(e) => handleNumberInput(e, 4)}
-          max={new Date().getFullYear()}
-          onChange={(e) => handleInputChange("year", e.target.value)}
-          value={dateParts.year}
-          className="w-full h-10 rounded-lg"
-        />
-        <Input
-          type="number"
-          name="birthMonth"
+          name="month"
           placeholder="Mėn"
           min="1"
           max="12"
@@ -96,7 +80,7 @@ export const BirthDayInput = ({
         />
         <Input
           type="number"
-          name="birthDay"
+          name="day"
           placeholder="Diena"
           min="1"
           max="31"

@@ -6,11 +6,11 @@ import {
   Clock,
   Wallet,
 } from "lucide-react";
-import StatCard from "../StatCard";
-import VacationList from "../VacationList";
+import StatCard from "../../../StatCard";
+import VacationList from "./VacationList";
 import { formatNumber } from "@/app/utils/formatters";
 
-interface DashboardContentProps {
+interface VacationContentProps {
   approvedVacations: Vacation[];
   pendingVacations: Vacation[];
   realCurrentBalance: number;
@@ -18,13 +18,13 @@ interface DashboardContentProps {
   currentVacationDays: number;
 }
 
-const DashboardContent = ({
+const VacationContent = ({
   approvedVacations,
   pendingVacations,
   realCurrentBalance,
   totalFutureVacationDays,
   currentVacationDays,
-}: DashboardContentProps) => {
+}: VacationContentProps) => {
   const todayDate = new Date().toLocaleDateString("lt-LT");
   const stats = {
     balance: {
@@ -83,4 +83,4 @@ const DashboardContent = ({
   );
 };
 
-export default DashboardContent;
+export default VacationContent;

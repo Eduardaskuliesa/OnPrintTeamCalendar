@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useRef, FormEvent } from "react";
 import { toast } from "react-toastify";
 import { X } from "lucide-react";
@@ -8,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
-import { CustomTimeInput } from "./CustomTimeInput";
-import { createWorkRecord } from "../../lib/actions/workrecords/createWorkRecord";
+import { createWorkRecord } from "../../../lib/actions/workrecords/createWorkRecord";
 import { useQueryClient } from "@tanstack/react-query";
+import { CustomTimeInput } from "./CustomTimeInput";
 
 interface WorkRecordFormProps {
   userId: string;

@@ -3,8 +3,8 @@ import { usersActions } from "../lib/actions/users";
 import { getUserVacations } from "../lib/actions/users/getUsersVacations";
 import PasswordForm from "./PasswordForm";
 import UserInfo from "./UserInfo";
-import UserStats from "./UserStats";
-import UserWorkRecordCard from "./workRecord/UserWorkCard";
+import UserStats from "./components/UserStats/UserStats";
+import UserWorkRecordCard from "./components/WorkRecord/UserWorkCard";
 
 export async function UserPageWrapper({ userId }: { userId: string }) {
   const [userData, vacationsData, usersData] = await Promise.all([

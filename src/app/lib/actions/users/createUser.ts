@@ -7,7 +7,7 @@ import { dynamoName, settingsDynamoName } from "@/app/lib/dynamodb";
 import { dynamoDb } from "@/app/lib/dynamodb";
 import { FormData } from "@/app/admin/components/forms/CreateUserForm";
 import bcrypt from "bcryptjs";
-import { PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { v4 as uuidv4 } from "uuid";
 import { User } from "@/app/types/api";
@@ -35,6 +35,21 @@ export async function createUser(formData: FormData) {
       throw new Error("Unauthorized");
     }
 
+    const existingUser = await dynamoDb.send(
+      new QueryCommand({
+        TableName: dynamoName,
+        IndexName: "email-index",
+        KeyConditionExpression: "email = :email",
+        ExpressionAttributeValues: {
+          ":email": formData.email,
+        },
+      })
+    );
+
+    if (existingUser.Items && existingUser.Items.length > 0) {
+      throw new Error("Vartotojas su šiuo el. paštu jau egzistuoja");
+    }
+
     const userId = uuidv4();
     const email = formData.email;
     const password = formData.password;
@@ -46,6 +61,7 @@ export async function createUser(formData: FormData) {
     const updateAmount = formData.updateAmount;
     const useGlobal = false;
     const role = "USER";
+    const jobTitle = formData.jobTitle;
 
     if (!email || !password || !name) {
       throw new Error("Missing required fields");
@@ -68,13 +84,14 @@ export async function createUser(formData: FormData) {
         name,
         surname,
         role,
+        jobTitle,
         vacationDays,
         updateAmount,
         useGlobal,
         createdAt: timestamp,
         updatedAt: timestamp,
       },
-      ConditionExpression: "attribute_not_exists(id)",
+      ConditionExpression: "attribute_not_exists(email)",
     });
 
     const userSettings = {
@@ -121,6 +138,7 @@ export async function createUser(formData: FormData) {
         name,
         surname,
         color,
+        jobTitle,
         birthday,
         role: role as User["role"],
         vacationDays,

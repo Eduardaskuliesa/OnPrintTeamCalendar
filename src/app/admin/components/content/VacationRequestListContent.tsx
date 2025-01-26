@@ -1,14 +1,14 @@
 "use client";
+import { sendApprovedEmail } from "@/app/lib/actions/emails/sendApprovalEmail";
+import { sendRejectedEmail } from "@/app/lib/actions/emails/sendRejectEmail";
+import { getGlobalSettings } from "@/app/lib/actions/settings/global/getGlobalSettings";
+import { vacationsAction } from "@/app/lib/actions/vacations";
+import { User } from "@/app/types/api";
+import { GlobalSettingsType } from "@/app/types/bookSettings";
+import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
 import { Clock, RefreshCcw, Check, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import DeleteConfirmation from "../ui/DeleteConfirmation";
-import { vacationsAction } from "../lib/actions/vacations";
-import { User } from "../types/api";
-import { sendRejectedEmail } from "../lib/actions/emails/sendRejectEmail";
-import { sendApprovedEmail } from "../lib/actions/emails/sendApprovalEmail";
-import { getGlobalSettings } from "../lib/actions/settings/global/getGlobalSettings";
-import { GlobalSettingsType } from "../types/bookSettings";
 
 interface Vacation {
   id: string;
@@ -284,7 +284,6 @@ export default function VacationRequestListContent({
           setSelectedRequest(null);
         }}
         onConfirm={handleDeleteConfirm}
-        userName={selectedRequest?.userName}
         loading={
           selectedRequest ? loadingRejectIds.has(selectedRequest.id) : false
         }

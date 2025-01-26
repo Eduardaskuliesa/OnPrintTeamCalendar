@@ -5,7 +5,6 @@ interface DeleteConfirmationProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  userName?: string;
   loading: boolean;
   message?: string | JSX.Element;
   reverseButtons?: boolean;

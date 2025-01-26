@@ -13,6 +13,7 @@ import { VacationDaysBalanceInput } from "./VacationDaysBalanceInput";
 import { BirthDayInput } from "./BirthdayInput";
 import { useKeyboardShortcuts } from "../../../hooks/useKeyboardShortcuts";
 import { sendWelcomeEmail } from "@/app/lib/actions/emails/sendWelcomeEmail";
+import { RoleJobTitleInput } from "./RoleJobTitleInput";
 
 interface CreateUserFormProps {
   onUserCreated: (newUser: User) => void;
@@ -52,6 +53,7 @@ export default function CreateUserForm({
     updateAmount: 0.05479452,
     color: "#7986cb",
     birthday: "",
+    jobTitle: "",
   });
 
   async function handleSubmit(e: FormEvent<Element>) {
@@ -142,6 +144,13 @@ export default function CreateUserForm({
             }
           />
         </div>
+        <RoleJobTitleInput
+          jobTitle={formData.jobTitle || ""}
+          role={formData.role || ""}
+          onChange={(field, value) =>
+            setFormData((prev) => ({ ...prev, [field]: value }))
+          }
+        />
 
         <div className="flex justify-end space-x-3 pt-4">
           <Button

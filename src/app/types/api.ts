@@ -57,3 +57,8 @@ export interface WorkRecord {
   updatedAt: string;
   approvedBy?: string;
 }
+
+export interface CustomBrithDayForm {
+  name: string;
+  date: string;
+}

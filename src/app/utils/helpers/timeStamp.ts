@@ -1,0 +1,1 @@
+export const createTimestamp = new Date().toISOString();

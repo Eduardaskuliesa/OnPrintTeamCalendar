@@ -5,11 +5,15 @@ import CreateUserForm from "./components/forms/CreateUserForm";
 import AdminDashboardStats from "./AdminDashboardStats";
 import AdminTabs from "./AdminTabs";
 import AddUserButton from "./AddUserButton";
-import ActiveVacationsListContent from "./ActiveVacationsListContent";
-import VacationRequestListContent from "./VacationRequestListContent";
+import ActiveVacationsListContent from "./components/content/ActiveVacationsListContent";
 import UserListContent from "./UserListContent";
-const GlobalSettingsContent = lazy(() => import("./GlobalSettingsContent"));
-const WorkRecordContent = lazy(() => import("./WorkRecordContent"));
+import VacationRequestListContent from "./components/content/VacationRequestListContent";
+const GlobalSettingsContent = lazy(
+  () => import("./components/content/GlobalSettingsContent")
+);
+const WorkRecordContent = lazy(
+  () => import("./components/content//WorkRecordContent")
+);
 
 export default function AdminPage({
   initialUsers,

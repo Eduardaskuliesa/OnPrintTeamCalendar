@@ -3,7 +3,7 @@ import { ArrowRight, CircleX, LucideIcon } from 'lucide-react';
 import { Vacation } from '@/app/types/api';
 import { formatDate } from '@/app/utils/formatters';
 import { useState } from 'react';
-import VacationCancellationModal from '../../VacationCancellationModal';
+import VacationCancellationModal from './VacationCancellationModal';
 import { toast } from 'react-toastify';
 import { vacationsAction } from '@/app/lib/actions/vacations';
 

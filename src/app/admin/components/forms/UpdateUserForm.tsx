@@ -66,7 +66,7 @@ export default function UpdateUserForm({
     vacationDays: 0,
     updateAmount: 0.05479452,
     birthday: "",
-    role: "USER", // Set a default role
+    role: "USER",
     jobTitle: "",
   });
 

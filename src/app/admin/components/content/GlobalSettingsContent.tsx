@@ -1,19 +1,19 @@
 "use client";
+import { useUserSettings } from "@/app/lib/actions/settings/user/hooks";
+import { useGlobalSettings } from "@/app/lib/actions/useGetSettings";
+import { User } from "@/app/types/api";
+import { GlobalSettingsType } from "@/app/types/bookSettings";
+import { AlertTriangle, X, Check, Mail } from "lucide-react";
 import React, { useState } from "react";
 import { Bounce, toast } from "react-toastify";
-import { GlobalSettingsType } from "../types/bookSettings";
-import { useGlobalSettings } from "../lib/actions/useGetSettings";
-import { useUserSettings } from "../lib/actions/settings/user/hooks";
-import { AlertTriangle, Check, Mail, X } from "lucide-react";
-import BookingRulesCard from "./components/globalSettings/BookingRulesCard";
-import GapRulesCard from "./components/globalSettings/GapRulesCard";
-import OverlapRulesCard from "./components/globalSettings/OverlapRulesCard";
-import RestrictedDaysCard from "./components/globalSettings/RestrictedDaysCard";
-import SeasonalRulesCard from "./components/globalSettings/SeasonalRules";
-import GlobalSettingsLoader from "./GlobalSettingsLoader";
-import { User } from "@/app/types/api";
-import { SettingHeader } from "./SettingsHeader";
-import { UpdateAdminModal } from "./components/globalSettings/UpdateAdminModal";
+import { SettingHeader } from "../../SettingsHeader";
+import BookingRulesCard from "../globalSettings/BookingRulesCard";
+import GapRulesCard from "../globalSettings/GapRulesCard";
+import OverlapRulesCard from "../globalSettings/OverlapRulesCard";
+import RestrictedDaysCard from "../globalSettings/RestrictedDaysCard";
+import SeasonalRulesCard from "../globalSettings/SeasonalRules";
+import { UpdateAdminModal } from "../globalSettings/UpdateAdminModal";
+import GlobalSettingsLoader from "../skeletons/GlobalSettingsSkeleton";
 
 interface GlobalSettingsProps {
   users: User[];

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface NavItemProps {
   href: string;
@@ -43,9 +44,11 @@ const NavItem = ({ href, icon, text, onClick }: NavItemProps) => {
 const Sidebar = () => {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const queryClient = useQueryClient();
 
   const handleLogout = async () => {
     router.replace("/login");
+    queryClient.clear();
     try {
       await signOut({ redirect: false });
       toast.success("Successfully logged out!");

@@ -14,7 +14,7 @@ export default function WorkRecordButton({ userId }: WorkRecordButtonProps) {
     <>
       <button
         onClick={() => setShowWorkRecordForm(true)}
-        className="p-2 bg-[#fefaf6] hover:bg-rose-100 rounded-lg transition-colors"
+        className="p-2 bg-[#fefaf6] hover:bg-red-100 rounded-lg transition-colors"
       >
         <Briefcase size={24} className="text-gray-800" />
       </button>

@@ -1,13 +1,10 @@
 import React, { useState } from "react";
 import { User } from "@/app/types/api";
-import { SettingHeader } from "./SettingsHeader";
-import {
-  useMonthlyWorkRecords,
-  useUserWorkRecords,
-} from "../lib/actions/workrecords/hooks";
-import ReasonCell from "./ReasonCell";
-import WorkRecordSkeleton from "./WorkRecordSkeleton";
 import { Button } from "@/components/ui/button";
+import { useMonthlyWorkRecords, useUserWorkRecords } from "@/app/lib/actions/workrecords/hooks";
+import ReasonCell from "../../ReasonCell";
+import { SettingHeader } from "../../SettingsHeader";
+import WorkRecordSkeleton from "../skeletons/WorkRecordSkeleton";
 
 interface WorkRecordContentProps {
   users: User[];

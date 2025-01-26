@@ -4,9 +4,10 @@ import { sanitizeSettings } from "@/app/lib/actions/settings/sanitizeSettings";
 import { getUserSettings } from "@/app/lib/actions/settings/user/getUserSettings";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { useQueryClient } from "@tanstack/react-query";
-import { Home, ScrollText, Loader2 } from "lucide-react";
+import { Home, ScrollText, CalendarHeart, Bell } from "lucide-react";
 import { User } from "@/app/types/api";
-import WorkRecordButton from "../../workRecord/WorkRecordButton";
+import WorkRecordButton from "../WorkRecord/WorkRecordButton";
+import NavButton from "./NavigationTabButton";
 
 interface NavigationProps {
   activeTab: string;
@@ -50,34 +51,33 @@ const NavigationTabs = ({
 
   return (
     <div className="h-auto w-14 bg-[#EADBC8] border-2 border-blue-50 rounded-xl flex flex-col gap-3 py-4 items-center justify-start">
-      <button
+      <NavButton
+        icon={Home}
+        isActive={activeTab === "dashboard"}
         onClick={() => setActiveTab("dashboard")}
-        className={`p-2 rounded-lg transition-colors ${
-          activeTab === "dashboard"
-            ? "bg-green-100"
-            : "bg-[#fefaf6] hover:bg-green-100"
-        }`}
-      >
-        <Home size={24} className="text-gray-800" />
-      </button>
-
-      <button
-        onMouseEnter={handleHoverSettings}
+        actionColor="bg-green-100"
+      />
+      <NavButton
+        isActive={activeTab === "customDays"}
+        onClick={() => setActiveTab("customDays")}
+        actionColor="bg-yellow-100"
+        icon={CalendarHeart}
+      />
+      <NavButton
+        actionColor="bg-blue-100"
         onClick={() => setActiveTab("settings")}
         disabled={isSettingsLoading}
-        className={`p-2 rounded-lg transition-colors relative ${
-          activeTab === "settings"
-            ? "bg-blue-100"
-            : "bg-[#fefaf6] hover:bg-blue-100"
-        } ${isSettingsLoading ? "opacity-50" : ""}`}
-      >
-        {isSettingsLoading ? (
-          <Loader2 size={24} className="text-gray-800 animate-spin " />
-        ) : (
-          <ScrollText size={24} className="text-gray-800" />
-        )}
-      </button>
+        isLoading={isSettingsLoading}
+        isActive={activeTab === "settings"}
+        onMouseEnter={handleHoverSettings}
+        icon={ScrollText}
+      />
+
+      <div className="h-1 w-full bg-db"></div>
       <WorkRecordButton userId={userData.userId}></WorkRecordButton>
+      <div className="p-2 bg-[#fefaf6] hover:bg-yellow-100 rounded-lg transition-colors cursor-pointer">
+        <Bell size={24} className="text-gray-800" />
+      </div>
     </div>
   );
 };

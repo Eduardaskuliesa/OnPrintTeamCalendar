@@ -1,5 +1,5 @@
 import { RefreshCcw } from "lucide-react";
-import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
+import { useKeyboardShortcuts } from "../../../../../hooks/useKeyboardShortcuts";
 
 interface VacationCancellationModalProps {
   isOpen: boolean;

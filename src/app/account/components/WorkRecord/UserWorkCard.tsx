@@ -9,9 +9,8 @@ import {
   FolderDown,
 } from "lucide-react";
 import { useGetAllUserMonthlyWorkRecordsNotFiltered } from "@/app/lib/actions/workrecords/hooks";
-import StatCard from "../components/UserStats/StatCard";
+import StatCard from "../StatCard";
 import { format } from "date-fns";
-import UserWorkRecordFilter from "./UserWorkRecordsFilter";
 import {
   calculateTotalHours,
   calculateOvertimeBalance,
@@ -21,9 +20,11 @@ import { deleteWorkRecord } from "@/app/lib/actions/workrecords/deleteWorkRecord
 import { useQueryClient } from "@tanstack/react-query";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
 import { toast } from "react-toastify";
-import WorkRecordsTable from "./WorkRecordsTable";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import UserWorkRecordFilter from "./UserWorkRecordsFilter";
+import WorkRecordsTable from "./WorkRecordsTable";
 
 interface UserWorkRecordCardProps {
   userId: string;
@@ -67,18 +68,18 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
 
   const handleSearch = () => {
     let newSearchDate = `${selectedYear}`;
-    
+
     if (selectedMonth && selectedMonth !== "all") {
       const monthIndex = months.indexOf(selectedMonth) + 1;
       const formattedMonth = monthIndex.toString().padStart(2, "0");
       newSearchDate += `-${formattedMonth}`;
-      
+
       if (selectedDay && selectedDay !== "all") {
         newSearchDate += `-${selectedDay}`;
       }
     }
-    
-    console.log('Setting search date to:', newSearchDate);
+
+    console.log("Setting search date to:", newSearchDate);
     setSearchDate(newSearchDate);
   };
   const handleReset = () => {
