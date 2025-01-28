@@ -55,16 +55,16 @@ const NavigationTabs = ({
         icon={Home}
         isActive={activeTab === "dashboard"}
         onClick={() => setActiveTab("dashboard")}
-        actionColor="bg-green-100"
+        actionColor="bg-yellow-100"
       />
       <NavButton
         isActive={activeTab === "customDays"}
         onClick={() => setActiveTab("customDays")}
-        actionColor="bg-yellow-100"
+        actionColor="bg-emerald-100"
         icon={CalendarHeart}
       />
       <NavButton
-        actionColor="bg-blue-100"
+        actionColor="bg-red-100"
         onClick={() => setActiveTab("settings")}
         disabled={isSettingsLoading}
         isLoading={isSettingsLoading}

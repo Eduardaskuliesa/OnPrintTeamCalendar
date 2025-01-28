@@ -26,7 +26,7 @@ const NavButton = ({
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       disabled={disabled || isLoading}
-      className={`p-2 rounded-lg transition-colors ${
+      className={`p-2 rounded-lg transition-colors hover:${actionColor} ${
         isActive ? actionColor : `bg-[#fefaf6] hover:${actionColor}`
       } ${disabled || isLoading ? "opacity-50" : ""}`}
     >
