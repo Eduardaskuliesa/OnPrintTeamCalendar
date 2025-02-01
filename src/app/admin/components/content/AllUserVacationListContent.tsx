@@ -17,13 +17,6 @@ import { vacationsAction } from "@/app/lib/actions/vacations";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
-import { usersActions } from "@/app/lib/actions/users";
-import {
-  PdfData,
-  storePDFtoS3,
-} from "@/app/lib/actions/s3Actions/storePDFtoS3";
-import { getGlobalSettings } from "@/app/lib/actions/settings/global/getGlobalSettings";
-import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { useVacationPdf } from "@/app/hooks/useVacationPdf ";
 
 interface AllUserVacationListContentProps {
