@@ -1,5 +1,4 @@
 "use server";
-
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
@@ -18,39 +17,57 @@ export async function getAllMonthlyWorkRecords(
       throw new Error("Unauthorized");
     }
 
-    const trueYearMonth = yearMonth.slice(0, 7);
+    const isYearOnly = yearMonth.length === 4;
+    const trueYearMonth = isYearOnly ? yearMonth : yearMonth.slice(0, 7);
 
     const cachedRecords = await unstable_cache(
       async () => {
-        const command = new QueryCommand({
-          TableName: process.env.WORKRECORD_DYNAMODB_TABLE_NAME!,
-          IndexName: "yearMonth-index",
-          KeyConditionExpression: "yearMonth = :yearMonth",
-          ExpressionAttributeValues: {
-            ":yearMonth": trueYearMonth,
-          },
-          Limit: peekNext ? 1 : 10, // If peeking, just get 1 record
-          ExclusiveStartKey: lastEvaluatedKey
-            ? JSON.parse(lastEvaluatedKey)
-            : undefined,
-        });
+        try {
+          const command = new QueryCommand({
+            TableName: process.env.WORKRECORD_DYNAMODB_TABLE_NAME!,
+            IndexName: isYearOnly ? "year-index" : "yearMonth-index",
+            KeyConditionExpression: isYearOnly
+              ? "#yr = :yearValue"
+              : "yearMonth = :yearValue",
+            ExpressionAttributeNames: isYearOnly
+              ? {
+                  "#yr": "year",
+                }
+              : undefined,
+            ExpressionAttributeValues: {
+              ":yearValue": isYearOnly ? yearMonth : trueYearMonth,
+            },
+            Limit: peekNext ? 1 : 10,
+            ExclusiveStartKey: lastEvaluatedKey
+              ? JSON.parse(lastEvaluatedKey)
+              : undefined,
+          });
 
-        const result = await dynamoDb.send(command);
+          const result = await dynamoDb.send(command);
 
-        // If we're peeking, just return whether there are any items
-        if (peekNext) {
+          if (peekNext) {
+            return {
+              hasMore: result.Items && result.Items.length > 0,
+            };
+          }
+
           return {
-            hasMore: result.Items && result.Items.length > 0,
+            data: result.Items,
+            lastEvaluatedKey: result.LastEvaluatedKey
+              ? JSON.stringify(result.LastEvaluatedKey)
+              : undefined,
           };
+        } catch (error: any) {
+          if (
+            error.name === "ValidationException" ||
+            error.message.includes("starting key is outside query boundaries")
+          ) {
+            return peekNext
+              ? { hasMore: false }
+              : { data: [], lastEvaluatedKey: undefined };
+          }
+          throw error;
         }
-
-        // If not peeking, return normal response
-        return {
-          data: result.Items,
-          lastEvaluatedKey: result.LastEvaluatedKey
-            ? JSON.stringify(result.LastEvaluatedKey)
-            : undefined,
-        };
       },
       [
         `work-records-${trueYearMonth}-${lastEvaluatedKey || "initial"}${

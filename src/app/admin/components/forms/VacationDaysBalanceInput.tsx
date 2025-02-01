@@ -17,7 +17,7 @@ export const VacationDaysBalanceInput = ({
     field: "vacationDays" | "updateAmount",
     value: string
   ) => {
-    const numValue = value === "" ? 0 : parseFloat(value);
+    const numValue = value === "" ? 0 : Number(value);
     if (!isNaN(numValue)) {
       onChange(field, numValue);
     }
@@ -32,7 +32,7 @@ export const VacationDaysBalanceInput = ({
         <Input
           type="number"
           name="vacationDays"
-          value={vacationDays || ""}
+          value={vacationDays}
           onChange={(e) => handleInputChange("vacationDays", e.target.value)}
           step="0.00000001"
           max="1000"
@@ -47,7 +47,7 @@ export const VacationDaysBalanceInput = ({
         <Input
           type="number"
           name="updateAmount"
-          value={updateAmount || ""} 
+          value={updateAmount}
           onChange={(e) => handleInputChange("updateAmount", e.target.value)}
           step="0.00000001"
           min="0"
@@ -58,3 +58,5 @@ export const VacationDaysBalanceInput = ({
     </div>
   );
 };
+
+export default VacationDaysBalanceInput;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, Calendar, Palmtree, Settings, Briefcase } from "lucide-react";
+import { Users, Palmtree, Settings, Briefcase } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -7,7 +7,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export type TabType = "dashboard" | "pending" | "active" | "settings" | "workrecords";
+export type TabType =
+  | "dashboard"
+  | "pending"
+  | "active"
+  | "settings"
+  | "workrecords"
+  | "vacations";
 
 interface AdminTabsProps {
   activeTab: TabType;
@@ -16,31 +22,15 @@ interface AdminTabsProps {
   activeCount: number;
 }
 
-const AdminTabs = ({
-  activeTab,
-  onTabChange,
-  pendingCount,
-  activeCount,
-}: AdminTabsProps) => {
+const AdminTabs = ({ activeTab, onTabChange }: AdminTabsProps) => {
   const tabs = [
     {
       id: "dashboard",
-      label: "Dashboard",
+      label: "Darbuotojai",
       icon: <Users className="w-4 h-4 text-blue-500" />,
       count: null,
     },
-    {
-      id: "pending",
-      label: "Laukia patvirtinimo",
-      icon: <Calendar className="w-4 h-4 text-orange-500" />,
-      count: pendingCount,
-    },
-    {
-      id: "active",
-      label: "Atostogauja",
-      icon: <Palmtree className="w-4 h-4 text-green-500" />,
-      count: activeCount,
-    },
+
     {
       id: "settings",
       label: "Nustatymai",
@@ -51,6 +41,12 @@ const AdminTabs = ({
       id: "workrecords",
       label: "Darbo įrašai",
       icon: <Briefcase className="w-4 h-4 text-sky-500" />,
+      count: null,
+    },
+    {
+      id: "vacations",
+      label: "Visos atostogos",
+      icon: <Palmtree className="w-4 h-4 text-green-500" />,
       count: null,
     },
   ];

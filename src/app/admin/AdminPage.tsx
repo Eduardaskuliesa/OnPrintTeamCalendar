@@ -14,6 +14,9 @@ const GlobalSettingsContent = lazy(
 const WorkRecordContent = lazy(
   () => import("./components/content//WorkRecordContent")
 );
+const AllUserVacationListContent = lazy(
+  () => import("./components/content/AllUserVacationListContent")
+);
 
 export default function AdminPage({
   initialUsers,
@@ -24,7 +27,12 @@ export default function AdminPage({
 }) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [activeTab, setActiveTab] = useState<
-    "dashboard" | "pending" | "active" | "settings" | "workrecords"
+    | "dashboard"
+    | "pending"
+    | "active"
+    | "settings"
+    | "workrecords"
+    | "vacations"
   >("dashboard");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -72,7 +80,13 @@ export default function AdminPage({
       setSelectedUser(null);
     }
     setActiveTab(
-      tab as "dashboard" | "pending" | "active" | "settings" | "workrecords"
+      tab as
+        | "dashboard"
+        | "pending"
+        | "active"
+        | "settings"
+        | "workrecords"
+        | "vacations"
     );
     if (user) {
       setSelectedUser(user);
@@ -116,6 +130,14 @@ export default function AdminPage({
         );
       case "workrecords":
         return <WorkRecordContent users={users} selectedUser={selectedUser} />;
+      case "vacations":
+        return (
+          <AllUserVacationListContent
+            onUserUpdated={handleUserUpdated}
+            users={users}
+            selectedUser={selectedUser}
+          ></AllUserVacationListContent>
+        );
     }
   };
 
@@ -138,14 +160,16 @@ export default function AdminPage({
           </div>
         </div>
 
-        {activeTab !== "settings" && activeTab !== "workrecords" && (
-          <AdminDashboardStats
-            usersCount={users.length}
-            pendingVacations={pendingVacationsCount}
-            activeVacations={activeVacationsCount}
-            onNavigate={handleNavigate}
-          />
-        )}
+        {activeTab !== "settings" &&
+          activeTab !== "workrecords" &&
+          activeTab !== "vacations" && (
+            <AdminDashboardStats
+              usersCount={users.length}
+              pendingVacations={pendingVacationsCount}
+              activeVacations={activeVacationsCount}
+              onNavigate={handleNavigate}
+            />
+          )}
 
         <div className="max-w-5xl mt-6">{renderContent()}</div>
 

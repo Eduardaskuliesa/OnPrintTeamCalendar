@@ -104,12 +104,16 @@ const AdminVacationForm = ({
       }
 
       const result = await bookAsAdminVacation(formData, selectedUser as User);
-      queryClient.invalidateQueries({ queryKey: ["users"] });
 
       if (result.success && result.data) {
         const events = createVacationEvents(result.data as VacationData);
         onVacationCreated?.(events);
         toast.success("Atostogos užregistruotos");
+        queryClient.invalidateQueries({ queryKey: ["vacations"] });
+        queryClient.invalidateQueries({
+          queryKey: ["vacations", result.data.userId],
+        });
+        queryClient.invalidateQueries({ queryKey: ["users"] });
         handleClose();
         return;
       }
@@ -127,16 +131,15 @@ const AdminVacationForm = ({
 
   useKeyboardShortcuts(isOpen, handleClose, undefined);
 
-
   const selectedUser = users?.find((u) => u.userId === selectedUserId);
-
 
   return (
     <div
-      className={`fixed inset-0 transition-all duration-200 ease-out flex items-center justify-center z-50 ${isOpen
+      className={`fixed inset-0 transition-all duration-200 ease-out flex items-center justify-center z-50 ${
+        isOpen
           ? "bg-black/50 opacity-100 visible"
           : "bg-black/0 opacity-0 invisible"
-        }`}
+      }`}
     >
       <div
         className={`bg-white rounded-lg shadow-xl w-full max-w-md relative 
@@ -144,9 +147,10 @@ const AdminVacationForm = ({
           motion-safe:transition-[transform,opacity] 
           motion-safe:duration-300
           motion-safe:cubic-bezier(0.34, 1.56, 0.64, 1) 
-          ${isOpen
-            ? "transform scale-100 opacity-100 translate-y-0"
-            : "transform scale-95 opacity-0 -translate-y-2"
+          ${
+            isOpen
+              ? "transform scale-100 opacity-100 translate-y-0"
+              : "transform scale-95 opacity-0 -translate-y-2"
           }`}
       >
         {/* Header */}

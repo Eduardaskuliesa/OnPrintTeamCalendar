@@ -1,7 +1,6 @@
 "use server";
 import { Resend } from "resend";
 import { resendDomain } from "../../resend";
-import { createVacationPDF } from "./pdfs/VacationRequestPdf";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 
 export interface EmailData {
@@ -11,7 +10,9 @@ export interface EmailData {
   surname: string;
   startDate: string;
   endDate: string;
+  vacationId: string;
   jobTitle: string;
+  pdfContent: Buffer | null;
 }
 
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -98,8 +99,6 @@ export async function sendRequestEmail(data: EmailData) {
   `;
 
   try {
-    const pdfUint8Array = await createVacationPDF(data);
-    const pdfBuffer = Buffer.from(pdfUint8Array);
     const response = await resend.emails.send({
       from: `Atostogos@${resendDomain}`,
       to: data.sendTo || [],
@@ -108,7 +107,7 @@ export async function sendRequestEmail(data: EmailData) {
       attachments: [
         {
           filename: `Atostogų prašymas - ${data.name}${data.surname}.pdf`,
-          content: pdfBuffer,
+          content: data.pdfContent || "",
         },
       ],
     });

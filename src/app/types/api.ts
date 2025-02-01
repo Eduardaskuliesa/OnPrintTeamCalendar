@@ -44,6 +44,7 @@ export interface Vacation {
   createdAt: string;
   totalVacationDays: number;
   status: "PENDING" | "APPROVED" | "REJECTED";
+  pdfUrl: string;
 }
 
 export interface WorkRecord {

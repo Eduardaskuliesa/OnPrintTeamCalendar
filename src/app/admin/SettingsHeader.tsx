@@ -23,6 +23,7 @@ interface SettingHeaderProps {
     label: string;
     badgeText: string;
   };
+  children?: React.ReactNode
   selectPlaceholder?: string;
   usersLabel?: string;
   className?: string;
@@ -48,6 +49,7 @@ export function SettingHeader({
   },
   selectPlaceholder = "Select user",
   usersLabel = "Users",
+  children,
   className = "",
 }: SettingHeaderProps) {
   const currentUser = users.find((user) => user.userId === selectedUserId);
@@ -85,6 +87,7 @@ export function SettingHeader({
             </div>
           </div>
         </div>
+        <div>{children}</div>
 
         <div className="flex items-center gap-4">
           {(isLoading || icon) && (

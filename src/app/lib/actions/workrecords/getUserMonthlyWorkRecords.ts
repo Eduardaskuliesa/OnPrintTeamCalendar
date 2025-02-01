@@ -14,50 +14,58 @@ export async function getUserMonthlyWorkRecords(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const trueYearMonth = yearMonth.slice(0, 7);
+    if (!session?.user) throw new Error("Unauthorized");
 
-    if (!session?.user) {
-      throw new Error("Unauthorized");
-    }
+    const trueYearMonth = yearMonth.slice(0, 7);
 
     const cachedRecords = await unstable_cache(
       async () => {
         const command = new QueryCommand({
           TableName: process.env.WORKRECORD_DYNAMODB_TABLE_NAME!,
           KeyConditionExpression:
-            "userId = :userId AND begins_with(#date, :yearMonth)",
+            "userId = :userId AND begins_with(#date, :year)",
           ExpressionAttributeNames: {
             "#date": "date",
           },
           ExpressionAttributeValues: {
             ":userId": userId,
-            ":yearMonth": trueYearMonth,
+            ":year": trueYearMonth,
           },
           Limit: peekNext ? 1 : 10,
-          ExclusiveStartKey: lastEvaluatedKey
-            ? JSON.parse(lastEvaluatedKey)
-            : undefined,
+          ScanIndexForward: false,
+          ...(lastEvaluatedKey &&
+            lastEvaluatedKey !== "null" && {
+              ExclusiveStartKey: JSON.parse(lastEvaluatedKey),
+            }),
         });
 
-        const result = await dynamoDb.send(command);
+        try {
+          const result = await dynamoDb.send(command);
 
-        if (peekNext) {
+          if (peekNext) {
+            return { hasMore: result.Items && result.Items.length > 0 };
+          }
+
           return {
-            hasMore: result.Items && result.Items.length > 0,
+            data: result.Items || [],
+            lastEvaluatedKey: result.LastEvaluatedKey
+              ? JSON.stringify(result.LastEvaluatedKey)
+              : null,
           };
+        } catch (error: any) {
+          // Only return empty results if we hit the validation error
+          if (error.name === "ValidationException") {
+            return peekNext
+              ? { hasMore: false }
+              : { data: [], lastEvaluatedKey: null };
+          }
+          throw error;
         }
-
-        return {
-          data: result.Items,
-          lastEvaluatedKey: result.LastEvaluatedKey
-            ? JSON.stringify(result.LastEvaluatedKey)
-            : undefined,
-        };
       },
       [
-        `work-records-${userId}-${yearMonth}-${lastEvaluatedKey || "initial"}${
-          peekNext ? "-peek" : ""
-        }`,
+        `work-records-${userId}-${trueYearMonth}-${
+          lastEvaluatedKey || "initial"
+        }${peekNext ? "-peek" : ""}`,
       ],
       {
         revalidate: 86400,

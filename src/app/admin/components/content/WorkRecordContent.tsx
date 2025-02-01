@@ -1,15 +1,34 @@
 import React, { useState } from "react";
 import { User } from "@/app/types/api";
 import { Button } from "@/components/ui/button";
-import { useMonthlyWorkRecords, useUserWorkRecords } from "@/app/lib/actions/workrecords/hooks";
+import {
+  useMonthlyWorkRecords,
+  useUserWorkRecords,
+} from "@/app/lib/actions/workrecords/hooks";
 import ReasonCell from "../../ReasonCell";
 import { SettingHeader } from "../../SettingsHeader";
 import WorkRecordSkeleton from "../skeletons/WorkRecordSkeleton";
+import DateFilter from "../../DateFilter";
 
 interface WorkRecordContentProps {
   users: User[];
   selectedUser?: User | null;
 }
+
+const months = [
+  "Sausis",
+  "Vasaris",
+  "Kovas",
+  "Balandis",
+  "Gegužė",
+  "Birželis",
+  "Liepa",
+  "Rugpjūtis",
+  "Rugsėjis",
+  "Spalis",
+  "Lapkritis",
+  "Gruodis",
+];
 
 const WorkRecordContent = ({
   users: initialUsers,
@@ -19,10 +38,32 @@ const WorkRecordContent = ({
     selectedUser?.userId || "all"
   );
 
-  const currentYearMonth = new Date().toISOString().slice(0, 10);
-  console.log(currentYearMonth);
-  const allRecordsQuery = useMonthlyWorkRecords(currentYearMonth);
-  const userRecordsQuery = useUserWorkRecords(selectedUserId, currentYearMonth);
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(
+    months[new Date().getMonth()]
+  );
+  const [searchDate, setSearchDate] = useState(
+    new Date().toISOString().slice(0, 7)
+  );
+
+  const handleSearch = () => {
+    let newSearchDate = `${selectedYear}`;
+    if (selectedMonth && selectedMonth !== "all") {
+      const monthIndex = months.indexOf(selectedMonth) + 1;
+      const formattedMonth = monthIndex.toString().padStart(2, "0");
+      newSearchDate += `-${formattedMonth}`;
+    }
+    setSearchDate(newSearchDate);
+  };
+
+  const handleReset = () => {
+    setSelectedYear(currentYear);
+    setSelectedMonth(months[new Date().getMonth()]);
+    setSearchDate(new Date().toISOString().slice(0, 7));
+  };
+  const allRecordsQuery = useMonthlyWorkRecords(searchDate);
+  const userRecordsQuery = useUserWorkRecords(selectedUserId, searchDate);
 
   const {
     data: records,
@@ -36,8 +77,6 @@ const WorkRecordContent = ({
   const handleUserChange = (value: string) => {
     setSelectedUserId(value);
   };
-
-  console.log(allRecordsQuery.data?.length);
 
   return (
     <div className="space-y-6">
@@ -53,14 +92,27 @@ const WorkRecordContent = ({
         }}
         selectPlaceholder="Pasirinkite darbuotoją"
         usersLabel="Darbuotojai"
-      />
+      >
+        <DateFilter
+          currentYear={currentYear}
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          months={months}
+          onYearChange={setSelectedYear}
+          onMonthChange={setSelectedMonth}
+          onSearch={handleSearch}
+          onReset={handleReset}
+        />
+      </SettingHeader>
       {isLoading ? (
         <WorkRecordSkeleton />
       ) : (
         <div className="bg-slate-50 rounded-lg shadow-md border border-blue-50">
           {!records || records.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
-              Nėra įrašų šiam darbuotojui
+              {selectedUserId === "all"
+                ? "Nėra jokiu įrašų visiems darbuotojams"
+                : "Nėra įrašų šiam darbuotojui"}
             </div>
           ) : (
             <>

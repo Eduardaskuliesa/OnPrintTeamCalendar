@@ -6,6 +6,7 @@ import { vacationsAction } from "@/app/lib/actions/vacations";
 import { User } from "@/app/types/api";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Clock, RefreshCcw, Check, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -40,6 +41,7 @@ export default function VacationRequestListContent({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<Vacation | null>(null);
   const [deleteMessage, setDeleteMessage] = useState<string | JSX.Element>("");
+  const queryClient = useQueryClient();
 
   const handleStatusUpdate = async (
     id: string,
@@ -60,6 +62,10 @@ export default function VacationRequestListContent({
           status,
           request.userId
         );
+        queryClient.invalidateQueries({
+          queryKey: ["vacations"],
+          exact: false,
+        });
         const userToSendEmail = users.find((u) => u.userId === request.userId);
         if (!userToSendEmail) {
           return console.log("User not exist email will not be send");
@@ -73,7 +79,7 @@ export default function VacationRequestListContent({
           await sendApprovedEmail({
             sendTo: globalSettingsData.data?.emails
               .accountant as GlobalSettingsType["emails"]["accountant"],
-            name: request.userName,
+            name: userToSendEmail.name,
             founderNameSurname:
               globalSettingsData.data?.emails.founderNameSurname,
             surname: userToSendEmail.surname,

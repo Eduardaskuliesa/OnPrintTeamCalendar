@@ -13,6 +13,7 @@ import { vacationsAction } from ".";
 import { User } from "@/app/types/api";
 import { sanitizeSettings } from "../settings/sanitizeSettings";
 import { sendRequestEmail } from "../emails/sendRequestEmail";
+import { storePDFtoS3 } from "../s3Actions/storePDFtoS3";
 
 interface FormData {
   startDate: string;
@@ -64,22 +65,26 @@ export async function bookVacation(formData: FormData) {
     const remainingVacationDays =
       user.data.vacationDays - conflictCheck.vacationDaysUsed;
 
-    const updateResult = await usersActions.updateUserVacationDays(
-      session.user.userId,
-      remainingVacationDays
-    );
-    if (!updateResult.success) {
-      return {
-        success: false,
-        error: "Failed to update vacation days",
-      };
-    }
+    const vacationId = crypto.randomUUID();
+    const userNameSurname = `${user.data.name} ${user.data.surname}`;
+    const pdfData = {
+      name: user.data.name,
+      surname: user.data.surname,
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      jobTitle: user.data.jobTitle,
+      sendTo: globalSettings?.data?.emails.admin,
+      founderNameSurname: globalSettings?.data?.emails.founderNameSurname,
+      vacationId: vacationId,
+    };
+
+    const vacationPDF = await storePDFtoS3(pdfData, { returnPdf: true });
 
     const vacation = {
-      id: crypto.randomUUID(),
+      id: vacationId,
       userEmail: user.data.email,
       userId: user.data.userId,
-      userName: user.data.name,
+      userName: userNameSurname,
       userColor: user.data.color,
       startDate: formData.startDate,
       endDate: formData.endDate,
@@ -89,12 +94,15 @@ export async function bookVacation(formData: FormData) {
       requiresApproval: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      pdfUrl: vacationPDF.url,
     };
-    console.log(globalSettings?.data?.emails.founderNameSurname);
+
     await sendRequestEmail({
       sendTo: globalSettings?.data?.emails.admin,
       founderNameSurname: globalSettings?.data?.emails.founderNameSurname,
       name: user.data.name,
+      pdfContent: vacationPDF.pdfContent || null,
+      vacationId: vacation.id,
       jobTitle: user.data.jobTitle,
       surname: user.data.surname,
       startDate: formData.startDate,
@@ -108,6 +116,16 @@ export async function bookVacation(formData: FormData) {
         ConditionExpression: "attribute_not_exists(id)",
       })
     );
+    const updateResult = await usersActions.updateUserVacationDays(
+      session.user.userId,
+      remainingVacationDays
+    );
+    if (!updateResult.success) {
+      return {
+        success: false,
+        error: "Failed to update vacation days",
+      };
+    }
 
     revalidateTag("vacations");
     revalidateTag("admin-vacations");

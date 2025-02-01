@@ -51,6 +51,9 @@ export default function UserListContent({
   const handleWorkRecords = (user: User) => {
     onNavigate("workrecords", user);
   };
+  const handleVacation = (user: User) => {
+    onNavigate("vacations", user);
+  };
 
   const handleDelete = (user: User) => {
     setUserToDelete(user);
@@ -152,6 +155,7 @@ export default function UserListContent({
                     onEdit={() => handleUpdate(user)}
                     onWorkRecords={() => handleWorkRecords(user)}
                     onDelete={() => handleDelete(user)}
+                    onVacation={() => handleVacation(user)}
                     isDeleting={deletingEmail === user.email}
                     isAdmin={user.role === "ADMIN"}
                   />

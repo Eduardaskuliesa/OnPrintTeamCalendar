@@ -9,6 +9,7 @@ import DateSelection from "../selectors/DateSelection";
 import SubmitButton from "../buttons/SubmitButton";
 import { Event, VacationData } from "@/app/types/event";
 import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface VacationFormProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ const VacationForm = ({
   initialEndDate,
   onVacationCreated,
 }: VacationFormProps) => {
+  const queryClient = useQueryClient();
   const formRef = useRef<HTMLFormElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -65,10 +67,18 @@ const VacationForm = ({
     try {
       const result = await bookVacation(formData);
 
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       if (result.success && result.data) {
         const events = createVacationEvents(result.data as VacationData);
         onVacationCreated?.(events as Event[]);
-        toast.success("Rezervacija sėkmingai užregistruota.Laukite patvirtinimo.");
+        queryClient.invalidateQueries({
+          queryKey: ["vacations"],
+          exact: false, 
+        });
+
+        toast.success(
+          "Rezervacija sėkmingai užregistruota.Laukite patvirtinimo."
+        );
         handleClose();
         return;
       }
@@ -131,7 +141,9 @@ const VacationForm = ({
             onStartDateChange={(date) =>
               setFormData({ ...formData, startDate: date })
             }
-            onEndDateChange={(date) => setFormData({ ...formData, endDate: date })}
+            onEndDateChange={(date) =>
+              setFormData({ ...formData, endDate: date })
+            }
             disabled={loading}
             startLabel="Pradžios data"
             endLabel="Pabaigos data"

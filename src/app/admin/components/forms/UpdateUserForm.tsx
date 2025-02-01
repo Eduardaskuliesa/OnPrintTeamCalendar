@@ -130,7 +130,7 @@ export default function UpdateUserForm({
           updatedAt: new Date().toISOString(),
         };
         onUserUpdated(updatedUser);
-        onCancel(); // Close dialog after successful update
+        onCancel();
       } else {
         toast.error(result.error || "Nepavyko atnaujinti vartotojo");
       }
