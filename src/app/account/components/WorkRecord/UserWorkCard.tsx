@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { useGetAllUserMonthlyWorkRecordsNotFiltered } from "@/app/lib/actions/workrecords/hooks";
 import StatCard from "../StatCard";
-import { format } from "date-fns";
 import {
   calculateTotalHours,
   calculateOvertimeBalance,
@@ -47,11 +46,11 @@ const months = [
 
 const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(
-    months[new Date().getMonth()]
-  );
+  const [selectedMonth, setSelectedMonth] = useState<string | null>("all");
   const [selectedDay, setSelectedDay] = useState<string | null>("all");
-  const [searchDate, setSearchDate] = useState(format(new Date(), "yyyy-MM"));
+  const [searchDate, setSearchDate] = useState(
+    new Date().getFullYear().toString()
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<WorkRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -63,8 +62,6 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
   );
   const currentYear = new Date().getFullYear();
   const queryClient = useQueryClient();
-
-  console.log(data?.data?.length);
 
   const handleSearch = () => {
     let newSearchDate = `${selectedYear}`;
@@ -79,14 +76,14 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
       }
     }
 
-    console.log("Setting search date to:", newSearchDate);
     setSearchDate(newSearchDate);
   };
   const handleReset = () => {
     setSelectedYear(currentYear);
-    setSelectedMonth(months[new Date().getMonth()]);
+    setSelectedMonth("all");
     setSelectedDay("all");
-    setSearchDate(format(new Date(), "yyyy-MM"));
+    setSearchDate(currentYear.toString());
+    console.log(selectedMonth);
   };
 
   const handleDeleteClick = (record: WorkRecord) => {
@@ -103,6 +100,8 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
         selectedRecord.userId,
         selectedRecord.date
       );
+
+      console.log(searchDate);
 
       await queryClient.invalidateQueries({
         queryKey: ["userWorkRecords", userId, searchDate],

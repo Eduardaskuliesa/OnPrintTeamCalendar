@@ -129,6 +129,7 @@ export const useGetAllUserMonthlyWorkRecordsNotFiltered = (
   userId: string,
   yearMonth: string
 ) => {
+  console.log(yearMonth);
   return useQuery({
     queryKey: ["userWorkRecords", userId, yearMonth],
     queryFn: () => getAllUserMonthlyWorkRecords(userId, yearMonth),
