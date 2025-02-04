@@ -19,6 +19,7 @@ export async function createWorkRecord(workRecord: WorkRecord) {
       time: workRecord.time,
       reason: workRecord.reason,
       yearMonth: trueYearMonth,
+      year: year,
       createdAt: timestamp,
       updatedAt: timestamp,
       approvedBy: workRecord.approvedBy,
