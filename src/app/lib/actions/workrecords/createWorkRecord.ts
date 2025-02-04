@@ -9,6 +9,7 @@ export async function createWorkRecord(workRecord: WorkRecord) {
   const timestamp = new Date().toISOString();
   const yearMonth = workRecord.date.slice(0, 10);
   const trueYearMonth = yearMonth.slice(0, 7);
+  const year = workRecord.date.slice(0, 4)
 
   try {
     const formattedRecord = {
@@ -29,6 +30,9 @@ export async function createWorkRecord(workRecord: WorkRecord) {
     });
     revalidateTag(`user-${workRecord.userId}-records`);
     revalidateTag(`monthly-records-${trueYearMonth}`);
+    revalidateTag(`monthly-records-${yearMonth}`);
+    revalidateTag(`monthly-records-${year}`);
+
 
     await dynamoDb.send(command);
   } catch (error: any) {

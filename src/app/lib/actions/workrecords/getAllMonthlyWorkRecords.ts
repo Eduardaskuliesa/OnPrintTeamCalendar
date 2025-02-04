@@ -16,6 +16,7 @@ export async function getAllMonthlyWorkRecords(
     if (!session?.user) {
       throw new Error("Unauthorized");
     }
+    console.log(yearMonth)
 
     const isYearOnly = yearMonth.length === 4;
     const trueYearMonth = isYearOnly ? yearMonth : yearMonth.slice(0, 7);
