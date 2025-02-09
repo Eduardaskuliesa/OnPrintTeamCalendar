@@ -30,8 +30,12 @@ export async function deleteWorkRecord(userId: string, exactDate: string) {
 
     if (!existingRecord.Item) {
       const yearMonth = exactDate.split("#")[0].slice(0, 7);
+      const trueYearMonth = exactDate.split("#")[0].slice(0, 10);
+      const year = exactDate.split("#")[0].slice(0, 4);
       revalidateTag(`user-${userId}-records`);
       revalidateTag(`monthly-records-${yearMonth}`);
+      revalidateTag(`monthly-records-${trueYearMonth}`);
+      revalidateTag(`monthly-records-${year}`);
       return { success: false, error: "Įrašas nerastas, perkraukite puslapį" };
     }
 

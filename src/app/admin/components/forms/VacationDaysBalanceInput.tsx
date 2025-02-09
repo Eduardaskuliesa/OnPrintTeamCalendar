@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+import { useState, useEffect } from 'react';
 
 interface VacationDaysBalanceInputProps {
   vacationDays: number;
@@ -13,15 +14,16 @@ export const VacationDaysBalanceInput = ({
   onChange,
   className,
 }: VacationDaysBalanceInputProps) => {
-  const handleInputChange = (
-    field: "vacationDays" | "updateAmount",
-    value: string
-  ) => {
-    const numValue = value === "" ? 0 : Number(value);
-    if (!isNaN(numValue)) {
-      onChange(field, numValue);
-    }
-  };
+  const [localVacationDays, setLocalVacationDays] = useState(vacationDays === 0 ? '' : vacationDays.toString());
+  const [localUpdateAmount, setLocalUpdateAmount] = useState(updateAmount === 0 ? '' : updateAmount.toString());
+
+  useEffect(() => {
+    setLocalVacationDays(vacationDays === 0 ? '' : vacationDays.toString());
+  }, [vacationDays]);
+
+  useEffect(() => {
+    setLocalUpdateAmount(updateAmount === 0 ? '' : updateAmount.toString());
+  }, [updateAmount]);
 
   return (
     <div className={`grid grid-cols-2 gap-4 ${className || ""}`}>
@@ -32,10 +34,15 @@ export const VacationDaysBalanceInput = ({
         <Input
           type="number"
           name="vacationDays"
-          value={vacationDays}
-          onChange={(e) => handleInputChange("vacationDays", e.target.value)}
+          value={localVacationDays}
+          onChange={(e) => {
+            const val = e.target.value;
+            setLocalVacationDays(val);
+            onChange("vacationDays", val === '' ? 0 : Number(val));
+          }}
           step="0.00000001"
           max="1000"
+          min="0"
           className="w-full h-10 rounded-lg"
         />
       </div>
@@ -47,8 +54,12 @@ export const VacationDaysBalanceInput = ({
         <Input
           type="number"
           name="updateAmount"
-          value={updateAmount}
-          onChange={(e) => handleInputChange("updateAmount", e.target.value)}
+          value={localUpdateAmount}
+          onChange={(e) => {
+            const val = e.target.value;
+            setLocalUpdateAmount(val);
+            onChange("updateAmount", val === '' ? 0 : Number(val));
+          }}
           step="0.00000001"
           min="0"
           className="w-full h-10 rounded-lg"

@@ -147,10 +147,10 @@ const GlobalSettingsContent = ({
         title="Atostogų Nustatymai"
         defaultOption={{
           id: "global",
-          label: "Global Settings",
-          badgeText: "Global Settings",
+          label: "Globalus nustatymai",
+          badgeText: "Globalus nustatymai",
         }}
-        usersLabel="Users"
+        usersLabel="Darbuotojai"
         isLoading={isGlobalLoading}
         icon={{
           Icon: Mail,
