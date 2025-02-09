@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { getSession, signIn } from "next-auth/react";
@@ -10,12 +9,6 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -27,28 +20,26 @@ export default function LoginPage() {
       const response = await signIn("credentials", {
         email: formData.get("email"),
         password: formData.get("password"),
-        redirect: false, 
+        redirect: false,
       });
 
       if (response?.error) {
-        toast.error("Invalid credentials");
+        toast.error("Neteisingi prisijungimo duomenys");
+        setLoading(false);
         return;
       }
 
-      // If login successful, get the session
       const session = await getSession();
 
-      // Redirect based on role
       if (session?.user?.role === "ADMIN") {
         router.replace("/admin");
       } else if (session?.user?.role === "USER") {
         router.replace("/account");
       }
 
-      toast.success("Successfully logged in!");
+      toast.success("Sėkmingai prisijungėte!");
     } catch (error) {
-      toast.error("Login failed. Please try again.");
-    } finally {
+      toast.error("Prisijungimas nepavyko. Bandykite dar kartą.");
       setLoading(false);
     }
   };
@@ -67,19 +58,15 @@ export default function LoginPage() {
               htmlFor="email"
               className="block text-sm font-medium text-[#102C57]"
             >
-              Email Address
+              El. paštas
             </label>
             <input
               id="email"
               name="email"
               type="email"
               required
-              value={formData.email}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, email: e.target.value }))
-              }
               className="mt-1 block w-full py-3 px-4 border focus:outline-none border-lcoffe rounded-lg shadow-sm focus:ring-2 focus:ring-dcoffe focus:border-transparent transition-colors"
-              placeholder="example@domain.com"
+              placeholder="pavyzdys@pastas.lt"
             />
           </div>
           <div>
@@ -87,7 +74,7 @@ export default function LoginPage() {
               htmlFor="password"
               className="block text-sm font-medium text-[#102C57]"
             >
-              Password
+              Slaptažodis
             </label>
             <div className="relative">
               <input
@@ -95,10 +82,6 @@ export default function LoginPage() {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, password: e.target.value }))
-                }
                 className="mt-1 block w-full py-3 px-4 border focus:outline-none border-lcoffe rounded-lg shadow-sm focus:ring-2 focus:ring-dcoffe focus:border-transparent transition-colors"
                 placeholder="••••••••"
               />
@@ -115,10 +98,10 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-dcoffe flex items-center justify-center text-gray-950 rounded-lg shadow-md hover:bg-vdcoffe hover:text-white focus:outline-none focus:ring-2 focus:ring-[#DAC0A3] transition-colors  duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 px-4 bg-dcoffe flex items-center justify-center text-gray-950 rounded-lg shadow-md hover:bg-vdcoffe hover:text-white focus:outline-none focus:ring-2 focus:ring-[#DAC0A3] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <div className="w-5 h-5 border-2  border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               "Prisijungti"
             )}
