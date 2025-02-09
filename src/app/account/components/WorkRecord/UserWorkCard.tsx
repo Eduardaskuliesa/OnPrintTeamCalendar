@@ -8,6 +8,7 @@ import {
   X,
   FolderDown,
 } from "lucide-react";
+
 import { useGetAllUserMonthlyWorkRecordsNotFiltered } from "@/app/lib/actions/workrecords/hooks";
 import StatCard from "../StatCard";
 import {
@@ -24,6 +25,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import UserWorkRecordFilter from "./UserWorkRecordsFilter";
 import WorkRecordsTable from "./WorkRecordsTable";
+import WorkRecordUpdateForm from "./UpdateWorkRecordForm";
 
 interface UserWorkRecordCardProps {
   userId: string;
@@ -52,6 +54,7 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
     new Date().getFullYear().toString()
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<WorkRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showTable, setShowTable] = useState(false);
@@ -89,6 +92,16 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
   const handleDeleteClick = (record: WorkRecord) => {
     setSelectedRecord(record);
     setIsDeleteModalOpen(true);
+  };
+
+  const handleEditClick = (record: WorkRecord) => {
+    setSelectedRecord(record);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedRecord(null);
   };
 
   const handleDeleteConfirm = async () => {
@@ -232,6 +245,7 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
                   className="overflow-hidden"
                 >
                   <WorkRecordsTable
+                    handleEditClick={handleEditClick}
                     workRecordsData={data?.data as WorkRecord[]}
                     handleDeleteClick={handleDeleteClick}
                   />
@@ -241,6 +255,13 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
           </>
         )}
       </div>
+
+      <WorkRecordUpdateForm
+        userId={userId}
+        onCancel={handleCloseModal}
+        isOpen={isModalOpen}
+        record={selectedRecord}
+      />
 
       <DeleteConfirmation
         isOpen={isDeleteModalOpen}

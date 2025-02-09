@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React from "react";
-import { Menu, X, User, Calendar, Settings, LogOut } from "lucide-react";
+import {
+  Menu,
+  X,
+  User,
+  Calendar,
+  LogOut,
+  Mail,
+  ShieldCheck,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
@@ -62,10 +70,13 @@ const Sidebar = () => {
 
   const navItems = [
     ...(session?.user?.role === "ADMIN"
-      ? [{ href: "/admin", icon: <User size={20} />, text: "Admin" }]
+      ? [
+          { href: "/admin", icon: <ShieldCheck size={20} />, text: "Adminas" },
+          { href: "/queues", icon: <Mail size={20} />, text: "Eilės" },
+        ]
       : []),
-    { href: "/calendar", icon: <Calendar size={20} />, text: "Calendar" },
-    { href: "/account", icon: <Settings size={20} />, text: "Account" },
+    { href: "/calendar", icon: <Calendar size={20} />, text: "Kalendorius" },
+    { href: "/account", icon: <User size={20} />, text: "Paskyra" },
   ];
 
   const closeMobileMenu = () => {

@@ -56,13 +56,13 @@ export function CustomTimeInput({ value, onChange }: CustomTimeInputProps) {
           className="w-full justify-start text-left font-normal h-10 border-gray-300 border rounded-lg"
         >
           <Clock className="mr-2 h-4 w-4" />
-          {value || "Select time"}
+          {value || "Pasirinkite laiką"}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-4">
         <div className="flex items-center justify-between space-x-2">
           <div className="flex-1">
-            <label className="text-sm font-medium mb-1 block">Hours</label>
+            <label className="text-sm font-medium mb-1 block">Valandos</label>
             <Input
               type="number"
               inputMode="numeric"

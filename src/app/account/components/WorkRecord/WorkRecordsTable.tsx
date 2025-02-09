@@ -1,15 +1,17 @@
 import ReasonCell from "@/app/admin/ReasonCell";
 import { WorkRecord } from "@/app/types/api";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import React from "react";
 
 interface WorkRecordTablePops {
   workRecordsData: WorkRecord[];
   handleDeleteClick: (record: WorkRecord) => void;
+  handleEditClick: (record: WorkRecord) => void;
 }
 const WorkRecordsTable = ({
   workRecordsData,
   handleDeleteClick,
+  handleEditClick,
 }: WorkRecordTablePops) => {
   return (
     <>
@@ -69,6 +71,12 @@ const WorkRecordsTable = ({
                   </td>
                   <td className="pr-10 py-4 whitespace-nowrap text-sm">
                     <div className="flex items-center justify-end space-x-2">
+                      <button
+                        onClick={() => handleEditClick(record)}
+                        className="text-db hover:text-slate-800 transition-colors"
+                      >
+                        <Pencil className="h-4 w-4"></Pencil>
+                      </button>
                       <button
                         onClick={() => handleDeleteClick(record)}
                         className="text-red-600 hover:text-red-800 transition-colors"
