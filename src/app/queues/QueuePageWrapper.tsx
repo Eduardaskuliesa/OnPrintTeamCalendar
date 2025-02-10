@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import QueueTable from "./components/QueueTable";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useQueueByStatus } from "../lib/actions/queues/hooks/useQueueByStatus";
 import { PaginationState } from "../types/queueApi";
+import Link from "next/link";
 
 // Define BullMQ status types
 type BullMQStatus = "delayed" | "active" | "completed" | "failed" | "paused";
@@ -145,6 +146,11 @@ const QueuePageWrapper = () => {
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <button className="bg-dcoffe w-32 flex items-center px-2 h-9 F rounded-md hover:bg-vdcoffe text-db hover:text-gray-50 transition-colors duration-100">
+          <Plus className="h-4 w-4 mr-2"></Plus>
+          <Link href="queues/create">Sukurti eilė</Link>
+        </button>
       </div>
 
       <QueueTable

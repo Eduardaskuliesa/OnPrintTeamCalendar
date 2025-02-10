@@ -25,7 +25,12 @@ interface NavItemProps {
   subItems?: NavItemProps[];
 }
 
-const SubNavItem = ({ href, icon, text, onClick }: Omit<NavItemProps, 'subItems'>) => {
+const SubNavItem = ({
+  href,
+  icon,
+  text,
+  onClick,
+}: Omit<NavItemProps, "subItems">) => {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -52,7 +57,8 @@ const NavItem = ({ href, icon, text, onClick, subItems }: NavItemProps) => {
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const hasSubItems = subItems && subItems.length > 0;
-  const isChildActive = hasSubItems && subItems.some(item => item.href === pathname);
+  const isChildActive =
+    hasSubItems && subItems.some((item) => item.href === pathname);
   const isActive = pathname === href;
 
   const toggleDropdown = (e: React.MouseEvent) => {
@@ -73,8 +79,13 @@ const NavItem = ({ href, icon, text, onClick, subItems }: NavItemProps) => {
         href={href}
         onClick={handleClick}
         className={`flex items-center justify-between px-3 py-2 mx-1 rounded-md
-          ${isActive ? "bg-slate-50 text-[#102C57]" :
-            isChildActive ? " text-gray-950 " : "text-gray-700"}
+          ${
+            isActive
+              ? "bg-slate-50 text-[#102C57]"
+              : isChildActive
+              ? " text-gray-950 "
+              : "text-gray-700"
+          }
           ${!isActive && "hover:bg-slate-50"} hover:text-[#102C57] 
           transition-colors duration-200`}
       >
@@ -111,7 +122,7 @@ const NavItem = ({ href, icon, text, onClick, subItems }: NavItemProps) => {
       </AnimatePresence>
     </div>
   );
-}
+};
 const Sidebar = () => {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -124,9 +135,9 @@ const Sidebar = () => {
     };
 
     checkIsDesktop();
-    window.addEventListener('resize', checkIsDesktop);
+    window.addEventListener("resize", checkIsDesktop);
 
-    return () => window.removeEventListener('resize', checkIsDesktop);
+    return () => window.removeEventListener("resize", checkIsDesktop);
   }, []);
 
   const handleLogout = async () => {
@@ -146,17 +157,25 @@ const Sidebar = () => {
   const navItems = [
     ...(session?.user?.role === "ADMIN"
       ? [
-        { href: "/admin", icon: <ShieldCheck size={20} />, text: "Adminas" },
-        {
-          href: "/",
-          icon: <Mail size={20} />,
-          text: "Eilės",
-          subItems: [
-            { href: "/queues", icon: <Mail size={16} />, text: "Visos eilės" },
-            { href: "/queues/steps", icon: <ListChecks size={16} />, text: "Žingsniai" },
-          ],
-        },
-      ]
+          { href: "/admin", icon: <ShieldCheck size={20} />, text: "Adminas" },
+          {
+            href: "/",
+            icon: <Mail size={20} />,
+            text: "Eilės",
+            subItems: [
+              {
+                href: "/queues",
+                icon: <Mail size={16} />,
+                text: "Visos eilės",
+              },
+              {
+                href: "/queues/steps",
+                icon: <ListChecks size={16} />,
+                text: "Žingsniai",
+              },
+            ],
+          },
+        ]
       : []),
     { href: "/calendar", icon: <Calendar size={20} />, text: "Kalendorius" },
     { href: "/account", icon: <User size={20} />, text: "Paskyra" },
@@ -165,8 +184,6 @@ const Sidebar = () => {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
-
-
 
   return (
     <>
@@ -196,12 +213,11 @@ const Sidebar = () => {
           />
         )}
       </AnimatePresence>
-      
+
       {/* Sidebar */}
       <motion.div
         className="fixed h-full w-44 z-50 bg-[#EADBC8] border-r border-blue-100 shadow-sm md:left-0 top-0"
-        initial={{ x: "-100%" }}
-        animate={{ x: isDesktop  ? 0 : isMobileMenuOpen ? 0 : "-100%" }}
+        animate={{ x: isDesktop ? 0 : isMobileMenuOpen ? 0 : "-100%" }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         <div className="flex items-center h-14 px-4 border-b border-slate-100">
@@ -214,7 +230,7 @@ const Sidebar = () => {
           </button>
         </div>
 
-        <nav className="flex flex-col gap-1 mt-10">
+        <nav className="flex flex-col gap-1 mt-2">
           {navItems.map((item, index) => (
             <NavItem
               key={index}
