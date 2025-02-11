@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import { dynamoDb } from "../../dynamodb";
 import { revalidateTag } from "next/cache";
 
-export async function updateStepStatus(stepId: string, isActive: boolean) {
+export async function updateTagstatus(tagId: string, isActive: boolean) {
     const session = await getServerSession(authOptions);
     if (session?.user?.role !== "ADMIN") {
         throw new Error("Unauthorized");
@@ -13,8 +13,8 @@ export async function updateStepStatus(stepId: string, isActive: boolean) {
 
     const result = await dynamoDb.send(
         new UpdateCommand({
-            TableName: process.env.QUEUE_STEP_DYNAMODB_TABLE_NAME,
-            Key: { stepId },
+            TableName: process.env.QUEUE_TAG_DYNAMODB_TABLE_NAME,
+            Key: { tagId },
             UpdateExpression: "SET isActive = :isActive",
             ExpressionAttributeValues: {
                 ":isActive": isActive
@@ -22,7 +22,7 @@ export async function updateStepStatus(stepId: string, isActive: boolean) {
             ReturnValues: "ALL_NEW"
         })
     );
-    revalidateTag('all-steps')
-    revalidateTag(`step-${stepId}`)
+    revalidateTag('all-tags')
+    revalidateTag(`tag-${tagId}`)
     return { data: result.Attributes };
 }

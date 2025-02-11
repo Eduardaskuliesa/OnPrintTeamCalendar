@@ -1,331 +1,248 @@
-"use client";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  ArrowRight,
-  Plus,
-  X,
-  ChevronRight,
-  Mail,
-  Tag,
-  Timer,
-  Loader2,
-} from "lucide-react";
-import { useGetSteps } from "@/app/lib/actions/queuesSteps/hooks/useGetSteps";
-import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+"use client"
+import React, { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
+import { Mail, Tag, Loader2, X, CirclePlus } from "lucide-react"
+import { toast } from "react-toastify"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useGetTags } from "@/app/lib/actions/queuesSteps/hooks/useGetTags"
+import { Badge } from "@/components/ui/badge"
+import { bullTimeConvert } from "@/app/utils/bullTimeConvert"
+import QueueTagButton from "../tags/QueueTagButton"
 
-interface Step {
-  stepId: string;
-  tag: string;
-  waitDuration: number;
-  isActive: boolean;
-  actionConfig: {
-    template: string;
-  };
+interface Tag {
+  tagId: string
+  tagName: string
+  waitDuration: number
+  isActive: boolean
 }
 
-interface SelectedStep {
-  stepId: string;
-  status: "pending";
-  completedAt: null;
+interface SelectedTag {
+  tagId: string
+  tagName: string
+  waitDuration: number
 }
 
 interface FormData {
-  email: string;
-  tag: string;
-  selectedSteps: SelectedStep[];
+  email: string
+  selectedTags: SelectedTag[]
 }
 
 interface FormErrors {
-  email?: string;
-  tag?: string;
-  steps?: string;
+  email?: string
+  tags?: string
 }
 
-const CreateJobPage = () => {
-  const router = useRouter();
-  const { data: availableSteps, isLoading: stepsLoading } = useGetSteps();
-  const [showStepsModal, setShowStepsModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
-
-  const queryClient = useQueryClient();
+const CreateQueueJob = () => {
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const { data: availableTags, isLoading: isLoadingTags } = useGetTags()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [currentTagId, setCurrentTagId] = useState<string>("")
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
-    tag: "",
-    selectedSteps: [],
-  });
+    selectedTags: [],
+  })
 
   const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
+    const newErrors: FormErrors = {}
 
     if (!formData.email.trim()) {
-      newErrors.email = "El. paštas yra privalomas";
+      newErrors.email = "El. paštas yra būtinas"
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Neteisingas el. pašto formatas";
+      newErrors.email = "Neteisingas el. pašto formatas"
     }
 
-    if (!formData.tag.trim()) {
-      newErrors.tag = "Žyma yra privaloma";
+    if (formData.selectedTags.length === 0) {
+      newErrors.tags = "Pasirinkite bent vieną žymą"
     }
 
-    if (formData.selectedSteps.length === 0) {
-      newErrors.steps = "Pasirinkite bent vieną žingsnį";
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleTagSelect = (tagId: string) => {
+    const selectedTag = availableTags?.find((tag) => tag.tagId === tagId)
+    if (selectedTag && !formData.selectedTags.some((t) => t.tagId === tagId)) {
+      setFormData((prev) => ({
+        ...prev,
+        selectedTags: [
+          ...prev.selectedTags,
+          {
+            tagId: selectedTag.tagId,
+            tagName: selectedTag.tagName,
+            waitDuration: selectedTag.waitDuration,
+          },
+        ],
+      }))
+      setCurrentTagId("")
     }
+    if (errors.tags) setErrors((prev) => ({ ...prev, tags: undefined }))
+  }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleStepSelect = (step: Step) => {
+  const removeTag = (tagId: string) => {
     setFormData((prev) => ({
       ...prev,
-      selectedSteps: [
-        ...prev.selectedSteps,
-        {
-          stepId: step.stepId,
-          status: "pending",
-          completedAt: null,
-        },
-      ],
-    }));
-    if (errors.steps) {
-      setErrors((prev) => ({ ...prev, steps: undefined }));
-    }
-  };
-
-  const removeStep = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      selectedSteps: prev.selectedSteps.filter((_, i) => i !== index),
-    }));
-  };
+      selectedTags: prev.selectedTags.filter((tag) => tag.tagId !== tagId),
+    }))
+  }
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) return
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
-      const scheduledFor = availableSteps?.find(
-        (step) => step.stepId === formData.selectedSteps[0]?.stepId
-      )?.waitDuration;
-
-      if (!scheduledFor) {
-        throw new Error("Nepavyko nustatyti laiko");
-      }
-
-      const jobData = {
+      const requestData = {
         email: formData.email,
-        tag: formData.tag,
-        scheduledFor,
-        steps: formData.selectedSteps.reduce((acc, step, index) => {
-          acc[`step${index + 1}`] = step;
-          return acc;
-        }, {} as Record<string, SelectedStep>),
-      };
-
-      console.log(jobData);
+        tags: formData.selectedTags.map((tag) => ({
+          tagId: tag.tagId,
+          tagName: tag.tagName,
+          scheduledFor: tag.waitDuration,
+        })),
+      }
 
       const response = await fetch("http://localhost:3000/api/queue", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(jobData),
-      });
+        body: JSON.stringify(requestData),
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Įvyko klaida");
+        const error = await response.json()
+        throw new Error(error.message || "Nepavyko sukurti eilės užduočių")
       }
 
-      toast.success("Eilė sėkmingai sukurta");
-      await queryClient.invalidateQueries({ queryKey: ["queue", "delayed"] });
-      router.push("/queues");
+      toast.success("Eilės užduotys sėkmingai sukurtos")
+      await queryClient.invalidateQueries({ queryKey: ["queue", "delayed"] })
+      await queryClient.invalidateQueries({ queryKey: ["all-tags"] })
+      router.push("/queues")
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Įvyko klaida");
-      console.error("Failed to create queue:", error);
+      toast.error(error instanceof Error ? error.message : "Įvyko klaida")
+      console.error("Nepavyko sukurti eilių:", error)
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
+
+  const availableTagsExist = availableTags && availableTags.filter(
+    (tag) => tag.isActive && !formData.selectedTags.some((t) => t.tagId === tag.tagId)
+  ).length > 0
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <h1 className="text-2xl font-bold">Sukurti naują eilę</h1>
+    <div className="max-w-2xl mx-auto p-6 space-y-6">
+      <h1 className="text-2xl font-bold">Sukurti naujas eilės užduotis</h1>
 
-      <div className="space-y-6">
-        {/* Basic Information */}
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                El. paštas
-              </label>
-              <Input
-                value={formData.email}
-                onChange={(e) => {
-                  setFormData((prev) => ({ ...prev, email: e.target.value }));
-                  if (errors.email) {
-                    setErrors((prev) => ({ ...prev, email: undefined }));
-                  }
-                }}
-                placeholder="Įveskite el. paštą"
-                className={errors.email ? "border-red-500" : ""}
-              />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Tag className="w-4 h-4" />
-                Žyma
-              </label>
-              <Input
-                value={formData.tag}
-                onChange={(e) => {
-                  setFormData((prev) => ({ ...prev, tag: e.target.value }));
-                  if (errors.tag) {
-                    setErrors((prev) => ({ ...prev, tag: undefined }));
-                  }
-                }}
-                placeholder="Įveskite žymą"
-                className={errors.tag ? "border-red-500" : ""}
-              />
-              {errors.tag && (
-                <p className="text-sm text-red-500">{errors.tag}</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Steps Selection */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Timer className="w-4 h-4" />
-                Žingsniai
-              </label>
-
-              {/* Selected Steps */}
-              <div className="space-y-3">
-                {formData.selectedSteps.map((step, index) => {
-                  const stepData = availableSteps?.find(
-                    (s) => s.stepId === step.stepId
-                  );
-                  return (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg"
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium">{stepData?.tag}</div>
-                        <div className="text-sm text-gray-500">
-                          {stepData?.actionConfig.template}
-                        </div>
-                      </div>
-                      {index < formData.selectedSteps.length - 1 && (
-                        <ChevronRight className="w-5 h-5 text-gray-400" />
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeStep(index)}
-                        className="h-8 w-8"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {errors.steps && (
-                <p className="text-sm text-red-500">{errors.steps}</p>
-              )}
-
-              {/* Add Step Button */}
-              <Button
-                onClick={() => setShowStepsModal(true)}
-                variant="outline"
-                className="w-full"
-                disabled={stepsLoading}
-              >
-                {stepsLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Plus className="w-4 h-4 mr-2" />
-                )}
-                Pridėti žingsnį
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Submit Button */}
-        <Button
-          onClick={handleSubmit}
-          className="w-full bg-dcoffe hover:bg-vdcoffe text-db hover:text-gray-50"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Kuriama...
-            </>
-          ) : (
-            "Sukurti"
-          )}
-        </Button>
-      </div>
-
-      {/* Steps Selection Modal */}
-      <Dialog open={showStepsModal} onOpenChange={setShowStepsModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Pasirinkite žingsnį</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {availableSteps
-              ?.filter((step) => step.isActive)
-              .map((step) => (
-                <button
-                  key={step.stepId}
-                  onClick={() => {
-                    handleStepSelect(step as Step);
-                    setShowStepsModal(false);
-                  }}
-                  className="flex items-center justify-between p-4 rounded-lg border hover:border-gray-400 transition-colors"
-                >
-                  <div className="flex-1">
-                    <div className="font-medium">{step.tag}</div>
-                    <div className="text-sm text-gray-500">
-                      {step.actionConfig.template}
-                    </div>
-                  </div>
-                  <ArrowRight className="w-5 h-5 text-gray-400" />
-                </button>
-              ))}
+      <Card>
+        <CardContent className="pt-6 space-y-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              El. paštas
+            </label>
+            <Input
+              value={formData.email}
+              onChange={(e) => {
+                setFormData((prev) => ({ ...prev, email: e.target.value }))
+                if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }))
+              }}
+              placeholder="Įveskite el. pašto adresą"
+              className={`bg-white ${errors.email ? "border-red-500" : ""}`}
+            />
+            {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
 
-export default CreateJobPage;
+          <div className="space-y-2">
+            <div className="flex flex-row gap-6   justify-between items-center">
+              <div className="w-1/2">
+                <label className="text-sm font-medium flex items-center gap-2 mb-2 ">
+                  <Tag className="w-4 h-4" />
+                  Pasirinkite žymas
+                </label>
+                <Select
+
+                  value={currentTagId}
+                  onValueChange={handleTagSelect}
+                  disabled={isLoadingTags || !availableTagsExist}
+                >
+                  <SelectTrigger className={`${errors.tags ? "border-red-500" : ""} bg-white`}>
+                    <SelectValue placeholder="Pasirinkite žymas" />
+                  </SelectTrigger>
+                  <SelectContent className="">
+                    {isLoadingTags ? (
+                      <SelectItem className="bg-white " value="loading" disabled>
+                        Kraunama...
+                      </SelectItem>
+                    ) : availableTagsExist ? (
+                      availableTags
+                        .filter((tag) => tag.isActive && !formData.selectedTags.some((t) => t.tagId === tag.tagId))
+                        .map((tag) => (
+                          <SelectItem key={tag.tagId} value={tag.tagId} className="font-medium bg-white">
+                            {tag.tagName} - {bullTimeConvert(tag.waitDuration)}
+                          </SelectItem>
+                        ))
+                    ) : (
+                      <SelectItem value="empty" disabled>
+                        Nėra galimų tagų
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <QueueTagButton
+                  buttonClassName="flex mt-5 group items-center gap-2 px-4 py-2 bg-dcoffe hover:bg-vdcoffe rounded-md transition-colors whitespace-nowrap"
+                  iconClassName="w-4 h-4 text-db group-hover:text-gray-50"
+                >
+                  <span className="flex items-center gap-2">
+                    <CirclePlus className="w-4 h-4 text-db group-hover:text-gray-50" />
+                    <span className="text-sm text-db group-hover:text-gray-50">
+                      Sukurti naują tagą
+                    </span>
+                  </span>
+                </QueueTagButton>
+              </div>
+            </div>
+          </div>
+          <div>
+
+            {errors.tags && <p className="text-sm text-red-500">{errors.tags}</p>}
+
+            {formData.selectedTags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2 ">
+                {formData.selectedTags.map((tag) => (
+                  <Badge key={tag.tagId} variant="secondary" className="flex items-center bg-slate-100 border-2 shadow-md rounded-md px-2 py-2 border-blue-50 gap-1 text-sm">
+                    {tag.tagName} - {bullTimeConvert(tag.waitDuration)}
+                    <button onClick={() => removeTag(tag.tagId)} className="ml-1 bg-red-100 rounded-lg p-0.5 text-red-600 hover:text-red-800">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Button onClick={handleSubmit} className="w-full bg-dcoffe hover:bg-vdcoffe transition-colors duration-200 text-db hover:text-gray-50" disabled={isSubmitting || isLoadingTags}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Kuriamos eilės...
+              </>
+            ) : (
+              "Sukurti užduotis"
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default CreateQueueJob
+

@@ -40,14 +40,11 @@ import {
 
 interface QueueItem {
   jobId: string;
-  tag: "EMAIL" | "NOTIFICATION" | "REMINDER";
+  tagName: string
   createdAt: string;
   scheduledFor: number;
   status: string;
   email: string;
-  payload: {
-    message: string;
-  };
   attempts: number;
   updatedAt: string;
 }
@@ -224,7 +221,7 @@ const QueueTable: React.FC<QueueTableProps> = ({
                 <TableCell className="py-2">{item.email}</TableCell>
                 <TableCell className="py-2">
                   <Badge variant="secondary" className="font-medium">
-                    {item.tag}
+                    {item.tagName}
                   </Badge>
                 </TableCell>
                 <TableCell className="py-2">
@@ -254,26 +251,26 @@ const QueueTable: React.FC<QueueTableProps> = ({
                     >
                       {(item.status === "PAUSED" ||
                         item.status === "QUEUED") && (
-                        <>
-                          {item.status === "PAUSED" ? (
-                            <DropdownMenuItem
-                              onClick={() => handleResumeItem(item.jobId)}
-                              className="flex hover:text-gray-900 rounded-md items-center gap-2 py-2 px-2 hover:bg-gray-100 cursor-pointer"
-                            >
-                              <Play className="h-4 w-4 mr-2" />
-                              <span>Resume</span>
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem
-                              onClick={() => handlePauseItem(item.jobId)}
-                              className="flex hover:text-gray-900 rounded-md items-center gap-2 py-2 px-2 hover:bg-gray-100 cursor-pointer"
-                            >
-                              <Pause className="h-4 w-4 mr-2" />
-                              <span>Pause</span>
-                            </DropdownMenuItem>
-                          )}
-                        </>
-                      )}
+                          <>
+                            {item.status === "PAUSED" ? (
+                              <DropdownMenuItem
+                                onClick={() => handleResumeItem(item.jobId)}
+                                className="flex hover:text-gray-900 rounded-md items-center gap-2 py-2 px-2 hover:bg-gray-100 cursor-pointer"
+                              >
+                                <Play className="h-4 w-4 mr-2" />
+                                <span>Resume</span>
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={() => handlePauseItem(item.jobId)}
+                                className="flex hover:text-gray-900 rounded-md items-center gap-2 py-2 px-2 hover:bg-gray-100 cursor-pointer"
+                              >
+                                <Pause className="h-4 w-4 mr-2" />
+                                <span>Pause</span>
+                              </DropdownMenuItem>
+                            )}
+                          </>
+                        )}
 
                       <DropdownMenuItem className="flex hover:text-gray-900 rounded-md items-center gap-2 py-2 px-2 hover:bg-gray-100 cursor-pointer">
                         <PenSquare className="h-4 w-4 mr-2" />

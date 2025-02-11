@@ -5,12 +5,12 @@ import { getServerSession } from "next-auth";
 import { unstable_cache } from "next/cache";
 import { dynamoDb } from "../../dynamodb";
 
-async function fetchStepsFromDb() {
-  console.log("Fetching all steps from DB at:", new Date().toISOString());
+async function fetchTagsFromDb() {
+  console.log("Fetching all tag from DB at:", new Date().toISOString());
 
   const result = await dynamoDb.send(
     new ScanCommand({
-      TableName: process.env.QUEUE_STEP_DYNAMODB_TABLE_NAME,
+      TableName: process.env.QUEUE_TAG_DYNAMODB_TABLE_NAME,
     })
   );
 
@@ -21,18 +21,18 @@ async function fetchStepsFromDb() {
   return result.Items;
 }
 
-const getCachedSteps = () =>
-  unstable_cache(() => fetchStepsFromDb(), ["all-steps"], {
+const getCachedTags = () =>
+  unstable_cache(() => fetchTagsFromDb(), ["all-tag"], {
     revalidate: 3600,
-    tags: ["all-steps"],
+    tags: ["all-tags"],
   });
 
-export async function getSteps() {
+export async function getTags() {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
 
-  const result = await getCachedSteps()();
+  const result = await getCachedTags()();
   return { data: result };
 }

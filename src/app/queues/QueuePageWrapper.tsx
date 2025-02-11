@@ -149,7 +149,7 @@ const QueuePageWrapper = () => {
 
         <button className="bg-dcoffe w-32 flex items-center px-2 h-9 F rounded-md hover:bg-vdcoffe text-db hover:text-gray-50 transition-colors duration-100">
           <Plus className="h-4 w-4 mr-2"></Plus>
-          <Link href="queues/create">Sukurti eilė</Link>
+          <Link href="/queues/create">Sukurti eilė</Link>
         </button>
       </div>
 

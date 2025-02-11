@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import QueuePageWrapper from "./QueuePageWrapper";
 
+
 const QueuePage = () => {
   return (
     <div>

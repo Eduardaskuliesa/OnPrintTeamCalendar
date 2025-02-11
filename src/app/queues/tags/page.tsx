@@ -7,10 +7,10 @@ import {
   Search,
   Plus,
   MoreHorizontal,
-  BookType,
   PowerOff,
   Power,
   Trash2,
+  Tag,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -19,14 +19,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import QueueStepButton from "./QueueStepButton";
-import QueueStepSkeleton from "./QueueStepSkeleton";
+
+import QueueStepSkeleton from "./QueueTagSkeleton";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
-import { useGetSteps } from "@/app/lib/actions/queuesSteps/hooks/useGetSteps";
+import { useGetTags } from "@/app/lib/actions/queuesSteps/hooks/useGetTags";
 import { toast } from "react-toastify";
-import { deleteStep } from "@/app/lib/actions/queuesSteps/deleteStep";
+
 import { useQueryClient } from "@tanstack/react-query";
-import { updateStepStatus } from "@/app/lib/actions/queuesSteps/dissableStep";
+import { deleteTag } from "@/app/lib/actions/queuesSteps/deleteTag";
+import { updateTagstatus } from "@/app/lib/actions/queuesSteps/dissableTag";
+import QueueTagButton from "./QueueTagButton";
+
 
 const formatWaitDuration = (milliseconds: number) => {
   const minutes = milliseconds / (1000 * 60);
@@ -43,53 +46,55 @@ const formatWaitDuration = (milliseconds: number) => {
 };
 
 const Page = () => {
-  const { data: steps, isLoading } = useGetSteps();
+  const { data: tags, isLoading } = useGetTags();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedStep, setSelectedStep] = useState<any>(null);
+  const [selectedTag, setsSlectedTag] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const queryClient = useQueryClient();
 
   const handleDelete = async () => {
-    if (!selectedStep) return;
+    if (!selectedTag) return;
 
     setLoading(true);
     try {
-      const response = await deleteStep(selectedStep.stepId);
+      const response = await deleteTag(selectedTag.tagId);
 
       if (!response) {
-        throw new Error("Failed to delete step");
+        throw new Error("Failed to delete tag");
       }
 
       toast.success(response.message);
-      await queryClient.invalidateQueries({ queryKey: ["all-steps"] });
+      await queryClient.invalidateQueries({ queryKey: ["all-tags"] });
     } catch (error) {
-      toast.error("Nepavyko ištrinti žingsnio");
-      console.error("Delete step error:", error);
+      toast.error("Nepavyko ištrinti tago");
+      console.error("Delete tag error:", error);
     } finally {
       setLoading(false);
       setShowDeleteDialog(false);
-      setSelectedStep(null);
+      setsSlectedTag(null);
     }
   };
 
-  const handleStatusUpdate = async (stepId: string, newStatus: boolean) => {
+  const handleStatusUpdate = async (tagId: string, newStatus: boolean) => {
     try {
-      const response = await updateStepStatus(stepId, newStatus);
+      const response = await updateTagstatus(tagId, newStatus);
       if (!response) {
         throw new Error("Failed to update status");
       }
-      await queryClient.invalidateQueries({ queryKey: ["all-steps"] });
-      toast.success(newStatus ? "Žingsnis aktyvuotas" : "Žingsnis išjungtas");
+      await queryClient.invalidateQueries({ queryKey: ["all-tags"] });
+      toast.success(newStatus ? "Tagas aktyvuotas" : "Tagas išjungtas");
     } catch (error) {
-      toast.error("Nepavyko atnaujinti žingsnio būsenos");
+      toast.error("Nepavyko atnaujinti tago būsenos");
       console.error("Update status error:", error);
     }
   };
 
-  const filteredSteps = steps?.filter((step) =>
-    step.tag.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredTags = tags?.filter((tag) =>
+    tag.tagName.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  console.log(tags)
 
   return (
     <div className="p-6 max-w-6xl">
@@ -109,17 +114,17 @@ const Page = () => {
               className="pl-10 w-48 bg-white"
             />
           </div>
-          <QueueStepButton
+          <QueueTagButton
             buttonClassName="flex group items-center gap-2 px-4 py-2 bg-dcoffe hover:bg-vdcoffe rounded-md transition-colors whitespace-nowrap"
             iconClassName="w-4 h-4 text-db group-hover:text-gray-50"
           >
             <span className="flex items-center gap-2">
               <Plus className="w-4 h-4 text-db group-hover:text-gray-50" />
               <span className="text-sm text-db group-hover:text-gray-50">
-                Pridėti žingsnį
+                Pridėti tagą
               </span>
             </span>
-          </QueueStepButton>
+          </QueueTagButton>
         </div>
       </div>
 
@@ -128,14 +133,15 @@ const Page = () => {
         <QueueStepSkeleton />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredSteps?.map((step) => (
+          {filteredTags?.map((tag) => (
             <div
-              key={step.stepId}
+              key={tag.tagId}
               className="bg-slate-50 border-blue-50 border-2 rounded-lg shadow-md"
             >
-              <div className="flex justify-between items-center p-4 border-b border-gray-300">
-                <div>
-                  <div className="font-semibold text-gray-900">{step.tag}</div>
+              <div className="flex justify-between items-center px-4 py-2 border-b border-gray-300">
+                <div className="flex items-center">
+                  <Tag className="mr-2 h-4 w-4"></Tag>
+                  <div className="font-semibold text-gray-900">{tag.tagName}</div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="p-2 hover:bg-gray-100 rounded-md">
@@ -149,20 +155,20 @@ const Page = () => {
                     <DropdownMenuItem
                       className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:cursor-pointer"
                       onClick={() =>
-                        handleStatusUpdate(step.stepId, !step.isActive)
+                        handleStatusUpdate(tag.tagId, !tag.isActive)
                       }
                     >
-                      {step.isActive ? (
+                      {tag.isActive ? (
                         <PowerOff className="mr-2 h-4 w-4" />
                       ) : (
                         <Power className="mr-2 h-4 w-4" />
                       )}
-                      <span>{step.isActive ? "Išjungti" : "Įjungti"}</span>
+                      <span>{tag.isActive ? "Išjungti" : "Įjungti"}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-red-600 focus:text-red-800 focus:bg-red-50 cursor-pointer"
                       onClick={() => {
-                        setSelectedStep(step);
+                        setsSlectedTag(tag);
                         setShowDeleteDialog(true);
                       }}
                     >
@@ -176,34 +182,30 @@ const Page = () => {
               <div className="p-4">
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
-                    <div className="flex items-center text-gray-700">
+                    <div className="flex items-center text-gray-700 mt-4">
                       <Timer className="w-4 h-4 mr-2" />
                       <span className="text-sm">
-                        {formatWaitDuration(step.waitDuration)} laukimas
+                        {formatWaitDuration(tag.waitDuration)} laukimas
                       </span>
-                    </div>
-                    <div className="flex items-center text-gray-700">
-                      <BookType className="w-4 h-4 mr-2" />
-                      <span className="text-sm">{step.actionType}</span>
                     </div>
                     <div className="flex items-center text-gray-700">
                       <Mail className="w-4 h-4 mr-2" />
                       <span className="text-sm">
-                        {step.actionConfig.template}
+                        {tag.actionConfig.template}
                       </span>
                     </div>
                   </div>
                   <div className="flex flex-col">
                     <div className="text-right">
                       <div className="text-xl font-semibold text-gray-900">
-                        {step.jobCount}
+                        {tag.jobCount}
                       </div>
                       <div className="text-sm text-gray-600">
                         paveiktos eilės
                       </div>
                     </div>
                     <div className="flex justify-end mt-2">
-                      {step.isActive ? (
+                      {tag.isActive ? (
                         <span className="text-emerald-600 text-center">
                           Aktyvus
                         </span>
@@ -226,8 +228,8 @@ const Page = () => {
         onConfirm={handleDelete}
         message={
           <>
-            Ar tikrai norite ištrinti <strong>{selectedStep?.tag}</strong>{" "}
-            žingsnį?
+            Ar tikrai norite ištrinti <strong>{selectedTag?.tag}</strong>{" "}
+            tagą?
           </>
         }
       />

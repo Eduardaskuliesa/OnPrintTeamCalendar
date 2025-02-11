@@ -5,13 +5,13 @@ import { getServerSession } from "next-auth";
 import { unstable_cache } from "next/cache";
 import { dynamoDb } from "../../dynamodb";
 
-async function fecthStepFromDb(stepId: string) {
-    console.log("Fetching step from DB at:", new Date().toISOString());
+async function fecthTagFromDb(tagId: string) {
+    console.log("Fetching tag from DB at:", new Date().toISOString());
 
     const result = await dynamoDb.send(
         new GetCommand({
-            TableName: process.env.QUEUE_STEP_DYNAMODB_TABLE_NAME,
-            Key: { stepId },
+            TableName: process.env.QUEUE_TAG_DYNAMODB_TABLE_NAME,
+            Key: { tagId },
         })
     );
 
@@ -22,18 +22,18 @@ async function fecthStepFromDb(stepId: string) {
     return result.Item;
 }
 
-const getCachedStep = (stepId: string) =>
-    unstable_cache(() => fecthStepFromDb(stepId), [`step-${stepId}`], {
+const getCachedTag = (tagId: string) =>
+    unstable_cache(() => fecthTagFromDb(tagId), [`tag-${tagId}`], {
         revalidate: 3600,
-        tags: [`step-${stepId}`],
+        tags: [`tag-${tagId}`],
     });
 
-export async function getStep(stepId: string) {
+export async function getTag(tagId: string) {
     const session = await getServerSession(authOptions);
     if (session?.user?.role !== "ADMIN") {
         throw new Error("Unauthorized");
     }
 
-    const result = await getCachedStep(stepId)();
+    const result = await getCachedTag(tagId)();
     return { data: result };
 }

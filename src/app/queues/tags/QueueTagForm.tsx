@@ -9,16 +9,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { createStep } from "@/app/lib/actions/queuesSteps/createStep";
 import { useQueryClient } from "@tanstack/react-query";
+import { createTag } from "@/app/lib/actions/queuesSteps/createTag";
 
-interface QueueStepFormProps {
+interface QueueTagFormProps {
   onCancel: () => void;
   isOpen: boolean;
 }
 
 interface FormData {
-  tag: string;
+  tagName: string;
   days: string;
   hours: string;
   minutes: string;
@@ -26,16 +26,16 @@ interface FormData {
 }
 
 interface FormErrors {
-  tag?: string;
+  tagName?: string;
   waitDuration?: string;
   emailTemplate?: string;
 }
 
-export default function QueueStepForm({ onCancel }: QueueStepFormProps) {
+export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState<FormData>({
-    tag: "",
+    tagName: "",
     days: "0",
     hours: "0",
     minutes: "0",
@@ -47,8 +47,8 @@ export default function QueueStepForm({ onCancel }: QueueStepFormProps) {
   const validateForm = (): FormErrors => {
     const newErrors: FormErrors = {};
 
-    if (!formData.tag.trim()) {
-      newErrors.tag = "Pavadinimas yra privaloma";
+    if (!formData.tagName.trim()) {
+      newErrors.tagName = "Pavadinimas yra privaloma";
     }
 
     const totalMilliseconds = calculateTotalMilliseconds();
@@ -85,24 +85,24 @@ export default function QueueStepForm({ onCancel }: QueueStepFormProps) {
     try {
       setLoading(true);
 
-      const stepData = {
-        tag: formData.tag,
+      const tagData = {
+        tag: formData.tagName,
         waitDuration: calculateTotalMilliseconds(),
         actionConfig: {
           template: formData.emailTemplate,
         },
       };
 
-      const response = await createStep(stepData);
+      const response = await createTag(tagData);
 
       if (!response) {
         throw new Error("Įvyko klaida kuriant žingsnį");
       }
 
       toast.success("Žingsnis sėkmingai sukurtas");
-      await queryClient.invalidateQueries({ queryKey: ["all-steps"] });
+      await queryClient.invalidateQueries({ queryKey: ["all-tags"] });
       setFormData({
-        tag: "",
+        tagName: "",
         days: "0",
         hours: "0",
         minutes: "0",
@@ -111,7 +111,7 @@ export default function QueueStepForm({ onCancel }: QueueStepFormProps) {
       onCancel();
     } catch (error: any) {
       toast.error(error.message);
-      console.error("Error creating queue step:", error);
+      console.error("Error creating queue Tag:", error);
     } finally {
       setLoading(false);
     }
@@ -148,7 +148,7 @@ export default function QueueStepForm({ onCancel }: QueueStepFormProps) {
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-2xl font-bold">
-          Naujas eilės žingsnis
+          Naujas tagas
         </CardTitle>
         <Button
           variant="ghost"
@@ -166,17 +166,17 @@ export default function QueueStepForm({ onCancel }: QueueStepFormProps) {
               Pavadinimas
             </label>
             <Input
-              value={formData.tag}
+              value={formData.tagName}
               onChange={(e) => {
-                setFormData((prev) => ({ ...prev, tag: e.target.value }));
-                if (errors.tag) {
-                  setErrors((prev) => ({ ...prev, tag: undefined }));
+                setFormData((prev) => ({ ...prev, tagName: e.target.value }));
+                if (errors.tagName) {
+                  setErrors((prev) => ({ ...prev, tagName: undefined }));
                 }
               }}
               placeholder="Įveskite pavadinimą"
               className="w-full"
             />
-            {errors.tag && <p className="text-sm text-red-500">{errors.tag}</p>}
+            {errors.tagName && <p className="text-sm text-red-500">{errors.tagName}</p>}
           </div>
 
           <div className="space-y-2">
@@ -325,3 +325,4 @@ export default function QueueStepForm({ onCancel }: QueueStepFormProps) {
     </Card>
   );
 }
+

@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { getSteps } from "../getSteps";
+import { getTags } from "../getTags";
 
-export const useGetSteps = () =>
+
+export const useGetTags = () =>
   useQuery({
-    queryKey: ["all-steps"],
+    queryKey: ["all-tags"],
     queryFn: async () => {
-      const response = await getSteps();
+      const response = await getTags()
       return response.data;
     },
     refetchOnMount: true,

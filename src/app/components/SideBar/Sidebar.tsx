@@ -32,7 +32,7 @@ const SubNavItem = ({
   onClick,
 }: Omit<NavItemProps, "subItems">) => {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname === href 
 
   return (
     <Link
@@ -79,11 +79,10 @@ const NavItem = ({ href, icon, text, onClick, subItems }: NavItemProps) => {
         href={href}
         onClick={handleClick}
         className={`flex items-center justify-between px-3 py-2 mx-1 rounded-md
-          ${
-            isActive
-              ? "bg-slate-50 text-[#102C57]"
-              : isChildActive
-              ? " text-gray-950 "
+          ${isActive
+            ? "bg-slate-50 text-[#102C57]"
+            : isChildActive
+              ? " text-amber-900 "
               : "text-gray-700"
           }
           ${!isActive && "hover:bg-slate-50"} hover:text-[#102C57] 
@@ -157,25 +156,25 @@ const Sidebar = () => {
   const navItems = [
     ...(session?.user?.role === "ADMIN"
       ? [
-          { href: "/admin", icon: <ShieldCheck size={20} />, text: "Adminas" },
-          {
-            href: "/",
-            icon: <Mail size={20} />,
-            text: "Eilės",
-            subItems: [
-              {
-                href: "/queues",
-                icon: <Mail size={16} />,
-                text: "Visos eilės",
-              },
-              {
-                href: "/queues/steps",
-                icon: <ListChecks size={16} />,
-                text: "Žingsniai",
-              },
-            ],
-          },
-        ]
+        { href: "/admin", icon: <ShieldCheck size={20} />, text: "Adminas" },
+        {
+          href: "/",
+          icon: <Mail size={20} />,
+          text: "Eilės",
+          subItems: [
+            {
+              href: "/queues",
+              icon: <Mail size={16} />,
+              text: "Visos eilės",
+            },
+            {
+              href: "/queues/tags",
+              icon: <ListChecks size={16} />,
+              text: "Žingsniai",
+            },
+          ],
+        },
+      ]
       : []),
     { href: "/calendar", icon: <Calendar size={20} />, text: "Kalendorius" },
     { href: "/account", icon: <User size={20} />, text: "Paskyra" },

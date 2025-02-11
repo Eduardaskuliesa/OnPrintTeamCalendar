@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Timer } from "lucide-react";
-import QueueStepForm from "./QueueStepForm";
+import QueueTagForm from "./QueueTagForm";
 import { LucideIcon } from "lucide-react";
 
-interface QueueStepButtonProps {
+interface QueueTagButtonProps {
   icon?: LucideIcon;
   buttonClassName?: string;
   iconClassName?: string;
@@ -14,7 +14,7 @@ interface QueueStepButtonProps {
   customModalClass?: string;
 }
 
-export default function QueueStepButton({
+export default function QueueTagButton({
   icon: Icon = Timer,
   buttonClassName = "p-2 bg-[#fefaf6] hover:bg-red-100 rounded-lg transition-colors",
   iconClassName = "text-gray-800",
@@ -23,8 +23,8 @@ export default function QueueStepButton({
   children,
   customOverlayClass = "",
   customModalClass = "",
-}: QueueStepButtonProps) {
-  const [showQueueStepForm, setShowQueueStepForm] = useState(false);
+}: QueueTagButtonProps) {
+  const [showQueueTagForm, setShowQueueTagForm] = useState(false);
 
   const defaultOverlayClass = `fixed inset-0 transition-all duration-200 ease-out flex items-center justify-center z-50`;
   const defaultModalClass = `bg-white rounded-lg w-full mx-4
@@ -36,7 +36,7 @@ export default function QueueStepButton({
   return (
     <>
       <button
-        onClick={() => setShowQueueStepForm(true)}
+        onClick={() => setShowQueueTagForm(true)}
         className={buttonClassName}
       >
         {children || <Icon size={iconSize} className={iconClassName} />}
@@ -44,23 +44,23 @@ export default function QueueStepButton({
 
       <div
         className={`${defaultOverlayClass} ${customOverlayClass} ${
-          showQueueStepForm
+          showQueueTagForm
             ? "bg-black/50 opacity-100 visible"
             : "bg-black/0 opacity-0 invisible pointer-events-none"
         }`}
-        onClick={() => setShowQueueStepForm(false)}
+        onClick={() => setShowQueueTagForm(false)}
       >
         <div
           className={`${defaultModalClass} ${modalWidth} ${customModalClass} ${
-            showQueueStepForm
+            showQueueTagForm
               ? "transform scale-100 opacity-100 translate-y-0"
               : "transform scale-95 opacity-0 -translate-y-2"
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          <QueueStepForm
-            onCancel={() => setShowQueueStepForm(false)}
-            isOpen={showQueueStepForm}
+          <QueueTagForm
+            onCancel={() => setShowQueueTagForm(false)}
+            isOpen={showQueueTagForm}
           />
         </div>
       </div>
