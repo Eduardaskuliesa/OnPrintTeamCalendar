@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useQueryClient } from "@tanstack/react-query";
-import { createTag } from "@/app/lib/actions/queuesSteps/createTag";
+import { createTag } from "@/app/lib/actions/queuesTags/createTag";
 
 interface QueueTagFormProps {
   onCancel: () => void;

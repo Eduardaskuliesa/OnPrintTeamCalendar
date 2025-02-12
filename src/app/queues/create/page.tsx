@@ -1,73 +1,81 @@
-"use client"
-import React, { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useQueryClient } from "@tanstack/react-query"
-import { Mail, Tag, Loader2, X, CirclePlus } from "lucide-react"
-import { toast } from "react-toastify"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useGetTags } from "@/app/lib/actions/queuesSteps/hooks/useGetTags"
-import { Badge } from "@/components/ui/badge"
-import { bullTimeConvert } from "@/app/utils/bullTimeConvert"
-import QueueTagButton from "../tags/QueueTagButton"
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { Mail, Tag, Loader2, X, CirclePlus } from "lucide-react";
+import { toast } from "react-toastify";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { Badge } from "@/components/ui/badge";
+import { bullTimeConvert } from "@/app/utils/bullTimeConvert";
+import QueueTagButton from "../tags/QueueTagButton";
+import { useGetTags } from "@/app/lib/actions/queuesTags/hooks/useGetTags";
+import { queueActions } from "@/app/lib/actions/queues";
 
 interface Tag {
-  tagId: string
-  tagName: string
-  waitDuration: number
-  isActive: boolean
+  tagId: string;
+  tagName: string;
+  waitDuration: number;
+  isActive: boolean;
 }
 
 interface SelectedTag {
-  tagId: string
-  tagName: string
-  waitDuration: number
+  tagId: string;
+  tagName: string;
+  waitDuration: number;
 }
 
 interface FormData {
-  email: string
-  selectedTags: SelectedTag[]
+  email: string;
+  selectedTags: SelectedTag[];
 }
 
 interface FormErrors {
-  email?: string
-  tags?: string
+  email?: string;
+  tags?: string;
 }
 
 const CreateQueueJob = () => {
-  const router = useRouter()
-  const queryClient = useQueryClient()
-  const { data: availableTags, isLoading: isLoadingTags } = useGetTags()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errors, setErrors] = useState<FormErrors>({})
-  const [currentTagId, setCurrentTagId] = useState<string>("")
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { data: availableTags, isLoading: isLoadingTags } = useGetTags();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [currentTagId, setCurrentTagId] = useState<string>("");
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
     selectedTags: [],
-  })
+  });
 
   const validateForm = (): boolean => {
-    const newErrors: FormErrors = {}
+    const newErrors: FormErrors = {};
 
     if (!formData.email.trim()) {
-      newErrors.email = "El. paštas yra būtinas"
+      newErrors.email = "El. paštas yra būtinas";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Neteisingas el. pašto formatas"
+      newErrors.email = "Neteisingas el. pašto formatas";
     }
 
     if (formData.selectedTags.length === 0) {
-      newErrors.tags = "Pasirinkite bent vieną žymą"
+      newErrors.tags = "Pasirinkite bent vieną žymą";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleTagSelect = (tagId: string) => {
-    const selectedTag = availableTags?.find((tag) => tag.tagId === tagId)
+    const selectedTag = availableTags?.find((tag) => tag.tagId === tagId);
     if (selectedTag && !formData.selectedTags.some((t) => t.tagId === tagId)) {
       setFormData((prev) => ({
         ...prev,
@@ -79,23 +87,23 @@ const CreateQueueJob = () => {
             waitDuration: selectedTag.waitDuration,
           },
         ],
-      }))
-      setCurrentTagId("")
+      }));
+      setCurrentTagId("");
     }
-    if (errors.tags) setErrors((prev) => ({ ...prev, tags: undefined }))
-  }
+    if (errors.tags) setErrors((prev) => ({ ...prev, tags: undefined }));
+  };
 
   const removeTag = (tagId: string) => {
     setFormData((prev) => ({
       ...prev,
       selectedTags: prev.selectedTags.filter((tag) => tag.tagId !== tagId),
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       const requestData = {
         email: formData.email,
@@ -104,36 +112,36 @@ const CreateQueueJob = () => {
           tagName: tag.tagName,
           scheduledFor: tag.waitDuration,
         })),
+      };
+
+      console.log(requestData);
+
+      const result = await queueActions.createQueue(requestData);
+
+      if (!result.success) {
+        throw new Error(result.message || "Nepavyko sukurti eilės užduočių");
       }
 
-      const response = await fetch("http://localhost:3000/api/queue", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      })
+      await queryClient.invalidateQueries({ queryKey: ["queue", "delayed"] });
+      await queryClient.invalidateQueries({ queryKey: ["all-tags"] });
+      toast.success("Eilės užduotys sėkmingai sukurtos");
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Nepavyko sukurti eilės užduočių")
-      }
-
-      toast.success("Eilės užduotys sėkmingai sukurtos")
-      await queryClient.invalidateQueries({ queryKey: ["queue", "delayed"] })
-      await queryClient.invalidateQueries({ queryKey: ["all-tags"] })
-      router.push("/queues")
+      router.push("/queues");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Įvyko klaida")
-      console.error("Nepavyko sukurti eilių:", error)
+      toast.error(error instanceof Error ? error.message : "Įvyko klaida");
+      console.error("Nepavyko sukurti eilių:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  const availableTagsExist = availableTags && availableTags.filter(
-    (tag) => tag.isActive && !formData.selectedTags.some((t) => t.tagId === tag.tagId)
-  ).length > 0
+  const availableTagsExist =
+    availableTags &&
+    availableTags.filter(
+      (tag) =>
+        tag.isActive &&
+        !formData.selectedTags.some((t) => t.tagId === tag.tagId)
+    ).length > 0;
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-6">
@@ -149,13 +157,16 @@ const CreateQueueJob = () => {
             <Input
               value={formData.email}
               onChange={(e) => {
-                setFormData((prev) => ({ ...prev, email: e.target.value }))
-                if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }))
+                setFormData((prev) => ({ ...prev, email: e.target.value }));
+                if (errors.email)
+                  setErrors((prev) => ({ ...prev, email: undefined }));
               }}
               placeholder="Įveskite el. pašto adresą"
               className={`bg-white ${errors.email ? "border-red-500" : ""}`}
             />
-            {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -166,24 +177,41 @@ const CreateQueueJob = () => {
                   Pasirinkite žymas
                 </label>
                 <Select
-
                   value={currentTagId}
                   onValueChange={handleTagSelect}
                   disabled={isLoadingTags || !availableTagsExist}
                 >
-                  <SelectTrigger className={`${errors.tags ? "border-red-500" : ""} bg-white`}>
+                  <SelectTrigger
+                    className={`${
+                      errors.tags ? "border-red-500" : ""
+                    } bg-white`}
+                  >
                     <SelectValue placeholder="Pasirinkite žymas" />
                   </SelectTrigger>
                   <SelectContent className="">
                     {isLoadingTags ? (
-                      <SelectItem className="bg-white " value="loading" disabled>
+                      <SelectItem
+                        className="bg-white "
+                        value="loading"
+                        disabled
+                      >
                         Kraunama...
                       </SelectItem>
                     ) : availableTagsExist ? (
                       availableTags
-                        .filter((tag) => tag.isActive && !formData.selectedTags.some((t) => t.tagId === tag.tagId))
+                        .filter(
+                          (tag) =>
+                            tag.isActive &&
+                            !formData.selectedTags.some(
+                              (t) => t.tagId === tag.tagId
+                            )
+                        )
                         .map((tag) => (
-                          <SelectItem key={tag.tagId} value={tag.tagId} className="font-medium bg-white">
+                          <SelectItem
+                            key={tag.tagId}
+                            value={tag.tagId}
+                            className="font-medium bg-white"
+                          >
                             {tag.tagName} - {bullTimeConvert(tag.waitDuration)}
                           </SelectItem>
                         ))
@@ -211,15 +239,23 @@ const CreateQueueJob = () => {
             </div>
           </div>
           <div>
-
-            {errors.tags && <p className="text-sm text-red-500">{errors.tags}</p>}
+            {errors.tags && (
+              <p className="text-sm text-red-500">{errors.tags}</p>
+            )}
 
             {formData.selectedTags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2 ">
                 {formData.selectedTags.map((tag) => (
-                  <Badge key={tag.tagId} variant="secondary" className="flex items-center bg-slate-100 border-2 shadow-md rounded-md px-2 py-2 border-blue-50 gap-1 text-sm">
+                  <Badge
+                    key={tag.tagId}
+                    variant="secondary"
+                    className="flex items-center bg-slate-100 border-2 shadow-md rounded-md px-2 py-2 border-blue-50 gap-1 text-sm"
+                  >
                     {tag.tagName} - {bullTimeConvert(tag.waitDuration)}
-                    <button onClick={() => removeTag(tag.tagId)} className="ml-1 bg-red-100 rounded-lg p-0.5 text-red-600 hover:text-red-800">
+                    <button
+                      onClick={() => removeTag(tag.tagId)}
+                      className="ml-1 bg-red-100 rounded-lg p-0.5 text-red-600 hover:text-red-800"
+                    >
                       <X className="h-4 w-4" />
                     </button>
                   </Badge>
@@ -228,7 +264,11 @@ const CreateQueueJob = () => {
             )}
           </div>
 
-          <Button onClick={handleSubmit} className="w-full bg-dcoffe hover:bg-vdcoffe transition-colors duration-200 text-db hover:text-gray-50" disabled={isSubmitting || isLoadingTags}>
+          <Button
+            onClick={handleSubmit}
+            className="w-full bg-dcoffe hover:bg-vdcoffe transition-colors duration-200 text-db hover:text-gray-50"
+            disabled={isSubmitting || isLoadingTags}
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -241,8 +281,7 @@ const CreateQueueJob = () => {
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default CreateQueueJob
-
+export default CreateQueueJob;

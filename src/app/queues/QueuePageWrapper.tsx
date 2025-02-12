@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import QueueTable from "./components/QueueTable";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Plus, Search } from "lucide-react";
+import { ChevronDown, Filter, Plus, Search, Tag } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -14,7 +14,6 @@ import { useQueueByStatus } from "../lib/actions/queues/hooks/useQueueByStatus";
 import { PaginationState } from "../types/queueApi";
 import Link from "next/link";
 
-// Define BullMQ status types
 type BullMQStatus = "delayed" | "active" | "completed" | "failed" | "paused";
 type Tag = "EMAIL" | "NOTIFICATION" | "REMINDER";
 
@@ -36,7 +35,6 @@ const queueStatuses: BullMQStatus[] = [
 ];
 
 const QueuePageWrapper = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
   const [currentStatus, setCurrentStatus] = useState<BullMQStatus>("delayed");
   const [paginationState, setPaginationState] = useState<PaginationState>({
@@ -71,7 +69,6 @@ const QueuePageWrapper = () => {
   };
 
   const handlePageChange = (newPage: number) => {
-    // Can only go forward one page at a time or backwards to any previous page
     if (
       newPage > paginationState.currentPage &&
       !paginationState.keys[paginationState.currentPage]
@@ -86,25 +83,26 @@ const QueuePageWrapper = () => {
   };
 
   return (
-    <div className="min-h-screen mt-[5%] p-6 max-w-6xl flex flex-col space-y-6">
+    <div className="min-h-screen mt-[5%] p-6 max-w-6xl flex flex-col space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Search Input */}
         <div className="relative bg-white">
           <Search className="absolute left-3 top-3 h-4 w-4  text-gray-400" />
-          <Input
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 w-full"
-          />
+          <Input placeholder="Search..." className="pl-9 w-full" />
         </div>
 
         {/* Tag Filter */}
         <DropdownMenu>
           <DropdownMenuTrigger className="border border-gray-300" asChild>
             <Button variant="outline" className="w-full justify-between">
-              {selectedTag || "Filter by Tag"}
-              <ChevronDown className="h-4 w-4 ml-2" />
+              <span className="flex items-center">
+                <Tag className="h-4 w-4 mr-2 text-gray-700"></Tag>
+                {selectedTag || "Filter by Tag"}
+              </span>
+
+              <span className="bg-gray-200 p-0.5 ml-2 rounded-sm">
+                <ChevronDown className=""></ChevronDown>
+              </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48 bg-white" align="start">
@@ -130,8 +128,14 @@ const QueuePageWrapper = () => {
         <DropdownMenu>
           <DropdownMenuTrigger className="border-gray-300" asChild>
             <Button variant="outline" className="w-full justify-between">
-              {statusDisplayNames[currentStatus]}
-              <ChevronDown className="h-4 w-4 ml-2" />
+              <span className="flex items-center">
+                <Filter className="h-4 w-4 mr-2 text-gray-700"></Filter>
+                {statusDisplayNames[currentStatus]}
+              </span>
+
+              <span className="bg-gray-200 p-0.5 ml-2 rounded-sm">
+                <ChevronDown className="h-4 w-4"></ChevronDown>
+              </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48 bg-white" align="start">
@@ -147,10 +151,13 @@ const QueuePageWrapper = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <button className="bg-dcoffe w-32 flex items-center px-2 h-9 F rounded-md hover:bg-vdcoffe text-db hover:text-gray-50 transition-colors duration-100">
+        <Link
+          href="/queues/create"
+          className="bg-dcoffe w-32 border border-gray-200 shadow-sm flex items-center px-2 h-9  rounded-md hover:bg-vdcoffe text-db hover:text-gray-50 transition-colors duration-100"
+        >
           <Plus className="h-4 w-4 mr-2"></Plus>
-          <Link href="/queues/create">Sukurti eilė</Link>
-        </button>
+          Sukurti eilė
+        </Link>
       </div>
 
       <QueueTable

@@ -13,5 +13,7 @@ export function useQueueByStatus(
     queryFn: () => getQueueItemsByStatus(status, lastEvaluatedKey),
     enabled: !!status,
     refetchOnMount: true,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }

@@ -1,16 +1,25 @@
 export interface QueuePayload {
   message: string;
 }
-export interface DynamoQueueItem {
-  payload: QueuePayload;
-  scheduledFor: number;
-  updatedAt: string;
-  status: "PENDING" | "COMPLETED" | "FAILED";
-  createdAt: string;
+export interface QueueItem {
   jobId: string;
-  attempts: number;
-  tag: "EMAIL" | "NOTIFICATION" | "REMINDER"; // add other possible tags
+  tagName: string;
+  createdAt: string;
+  scheduledFor: number;
+  status: string;
   email: string;
+  attempts: number;
+  updatedAt: string;
+}
+export interface Tag {
+  tagId: string;
+  tagName: string;
+  isActive: boolean;
+  waitDuration: number;
+  actionConfig: {
+    template: string;
+  };
+  jobCount: number;
 }
 
 export interface BullQueue {
@@ -20,7 +29,7 @@ export interface BullQueue {
 
 export interface DynamoQueue {
   dynamoJobCount: number;
-  items: DynamoQueueItem[];
+  items: QueueItem[];
 }
 
 export interface PaginationInfo {
