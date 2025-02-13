@@ -82,9 +82,12 @@ const Page = () => {
     }
   };
 
+  console.log(tags);
+
   const filteredTags = tags?.filter((tag) =>
     tag.tagName.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  console.log(filteredTags);
 
   return (
     <div className="p-6 max-w-6xl">
