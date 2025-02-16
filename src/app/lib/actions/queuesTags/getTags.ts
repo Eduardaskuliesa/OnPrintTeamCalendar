@@ -1,29 +1,31 @@
 "use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
-import { ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { getServerSession } from "next-auth";
 import { unstable_cache } from "next/cache";
-import { dynamoDb } from "../../dynamodb";
 
 async function fetchTagsFromDb() {
   console.log("Fetching all tag from DB at:", new Date().toISOString());
+  const url = new URL(`http://localhost:3000/api/tags`);
 
-  const result = await dynamoDb.send(
-    new ScanCommand({
-      TableName: process.env.QUEUE_TAG_DYNAMODB_TABLE_NAME,
-    })
-  );
+  const response = await fetch(url, {
+    method: "GET",
+  });
 
-  if (!result.Items) {
-    return [];
+  const data = await response.json();
+
+  if (!response.ok) {
+    return {
+      success: false,
+      message: data.message,
+    };
   }
 
-  return result.Items;
+  return data;
 }
 
 const getCachedTags = () =>
   unstable_cache(() => fetchTagsFromDb(), ["all-tag"], {
-    revalidate: 3600,
+    revalidate: 1,
     tags: ["all-tags"],
   });
 

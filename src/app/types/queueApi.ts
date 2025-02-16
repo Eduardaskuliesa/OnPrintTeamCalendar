@@ -12,14 +12,11 @@ export interface QueueItem {
   updatedAt: string;
 }
 export interface Tag {
-  tagId: string;
+  id: number;
   tagName: string;
   isActive: boolean;
-  waitDuration: number;
-  actionConfig: {
-    template: string;
-  };
-  jobCount: number;
+  scheduledFor: number;
+  jobsCount: number;
 }
 
 export interface BullQueue {

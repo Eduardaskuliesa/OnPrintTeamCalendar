@@ -1,17 +1,14 @@
-import { Mail, Timer } from "lucide-react";
+import {  Timer } from "lucide-react";
 
 interface TagCardProps {
   tag: {
-    tagId: string;
+    tagId: number;
     tagName: string;
     isActive: boolean;
-    waitDuration: number;
-    actionConfig: {
-      template: string;
-    };
-    jobCount: number;
+    scheduledFor: number;
+    jobsCount: number;
   };
-  onStatusUpdate: (tagId: string, newStatus: boolean) => void;
+  onStatusUpdate: (tagId: number, newStatus: boolean) => void;
   onDelete: (tag: any) => void;
   loadingTags: Record<string, boolean>;
 }
@@ -37,18 +34,14 @@ export const TagCardContent = ({ tag }: { tag: TagCardProps["tag"] }) => (
         <div className="flex items-center text-gray-700 mt-4">
           <Timer className="w-4 h-4 mr-2" />
           <span className="text-sm">
-            {formatWaitDuration(tag.waitDuration)} laukimas
+            {formatWaitDuration(tag.scheduledFor)} laukimas
           </span>
-        </div>
-        <div className="flex items-center text-gray-700">
-          <Mail className="w-4 h-4 mr-2" />
-          <span className="text-sm">{tag.actionConfig.template}</span>
         </div>
       </div>
       <div className="flex flex-col">
         <div className="text-right">
           <div className="text-xl font-semibold text-gray-900">
-            {tag.jobCount}
+            {tag.jobsCount}
           </div>
           <div className="text-sm text-gray-600">paveiktos eilės</div>
         </div>

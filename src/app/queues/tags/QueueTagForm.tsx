@@ -22,13 +22,11 @@ interface FormData {
   days: string;
   hours: string;
   minutes: string;
-  emailTemplate: string;
 }
 
 interface FormErrors {
   tagName?: string;
-  waitDuration?: string;
-  emailTemplate?: string;
+  scheduledFor?: string;
 }
 
 export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
@@ -39,7 +37,6 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
     days: "0",
     hours: "0",
     minutes: "0",
-    emailTemplate: "",
   });
 
   const queryClient = useQueryClient();
@@ -53,11 +50,7 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
 
     const totalMilliseconds = calculateTotalMilliseconds();
     if (totalMilliseconds <= 0) {
-      newErrors.waitDuration = "Laikas turi būti didesnis nei 0";
-    }
-
-    if (!formData.emailTemplate.trim()) {
-      newErrors.emailTemplate = "El. pašto šablonas yra privalomas";
+      newErrors.scheduledFor = "Laikas turi būti didesnis nei 0";
     }
 
     return newErrors;
@@ -86,11 +79,8 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
       setLoading(true);
 
       const tagData = {
-        tag: formData.tagName,
-        waitDuration: calculateTotalMilliseconds(),
-        actionConfig: {
-          template: formData.emailTemplate,
-        },
+        tagName: formData.tagName,
+        scheduledFor: calculateTotalMilliseconds(),
       };
 
       const response = await createTag(tagData);
@@ -106,7 +96,6 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
         days: "0",
         hours: "0",
         minutes: "0",
-        emailTemplate: "",
       });
       onCancel();
     } catch (error: any) {
@@ -147,9 +136,7 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-2xl font-bold">
-          Naujas tagas
-        </CardTitle>
+        <CardTitle className="text-2xl font-bold">Naujas tagas</CardTitle>
         <Button
           variant="ghost"
           size="icon"
@@ -176,7 +163,9 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
               placeholder="Įveskite pavadinimą"
               className="w-full"
             />
-            {errors.tagName && <p className="text-sm text-red-500">{errors.tagName}</p>}
+            {errors.tagName && (
+              <p className="text-sm text-red-500">{errors.tagName}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -275,31 +264,8 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
                 </div>
               </PopoverContent>
             </Popover>
-            {errors.waitDuration && (
-              <p className="text-sm text-red-500">{errors.waitDuration}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
-              El. pašto šablonas
-            </label>
-            <Input
-              value={formData.emailTemplate}
-              onChange={(e) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  emailTemplate: e.target.value,
-                }));
-                if (errors.emailTemplate) {
-                  setErrors((prev) => ({ ...prev, emailTemplate: undefined }));
-                }
-              }}
-              placeholder="Įveskite el. pašto šabloną"
-              className="w-full"
-            />
-            {errors.emailTemplate && (
-              <p className="text-sm text-red-500">{errors.emailTemplate}</p>
+            {errors.scheduledFor && (
+              <p className="text-sm text-red-500">{errors.scheduledFor}</p>
             )}
           </div>
 
@@ -325,4 +291,3 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
     </Card>
   );
 }
-

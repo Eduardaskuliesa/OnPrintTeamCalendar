@@ -14,29 +14,20 @@ import {
 } from "lucide-react";
 import { TagCardContent } from "./TagCardContent";
 
-
-
 interface TagCardProps {
   tag: {
-    tagId: string;
+    tagId: number;
     tagName: string;
     isActive: boolean;
-    waitDuration: number;
-    actionConfig: {
-      template: string;
-    };
-    jobCount: number;
+    scheduledFor: number;
+    jobsCount: number;
   };
-  onStatusUpdate: (tagId: string, newStatus: boolean) => void;
+  onStatusUpdate: (tagId: number, newStatus: boolean) => void;
   onDelete: (tag: any) => void;
   loadingTags: Record<string, boolean>;
 }
 
-export const TagCard = ({
-  tag,
-  onStatusUpdate,
-  onDelete,
-}: TagCardProps) => (
+export const TagCard = ({ tag, onStatusUpdate, onDelete }: TagCardProps) => (
   <div className="bg-slate-50 border-blue-50 border-2 rounded-lg shadow-md">
     <div className="flex justify-between items-center px-4 py-2 border-b border-gray-300">
       <div className="flex items-center">

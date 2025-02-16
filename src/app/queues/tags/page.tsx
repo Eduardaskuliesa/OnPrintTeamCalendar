@@ -13,7 +13,6 @@ import { TagCard } from "./TagCard";
 import { Tag } from "@/app/types/queueApi";
 
 const Page = () => {
-  const { data: tags, isLoading } = useGetTags();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedTag, setsSlectedTag] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -21,17 +20,21 @@ const Page = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [statusChangeInfo, setStatusChangeInfo] = useState<{
-    tagId: string;
+    tagId: number;
     newStatus: boolean;
   } | null>(null);
   const queryClient = useQueryClient();
+
+  const { data: tags, isLoading } = useGetTags();
+
+  console.log(tags);
 
   const handleDelete = async () => {
     if (!selectedTag) return;
 
     setLoading(true);
     try {
-      const response = await deleteTag(selectedTag.tagId);
+      const response = await deleteTag(selectedTag.id);
 
       if (!response) {
         throw new Error("Failed to delete tag");
@@ -49,7 +52,7 @@ const Page = () => {
     }
   };
 
-  const handleStatusUpdate = async (tagId: string, newStatus: boolean) => {
+  const handleStatusUpdate = async (tagId: number, newStatus: boolean) => {
     setStatusChangeInfo({ tagId, newStatus });
     setShowStatusDialog(true);
   };
@@ -84,9 +87,10 @@ const Page = () => {
 
   console.log(tags);
 
-  const filteredTags = tags?.filter((tag) =>
-    tag.tagName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTags =
+    tags?.data?.filter((tag) =>
+      tag.tagName.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
   console.log(filteredTags);
 
   return (
@@ -95,11 +99,11 @@ const Page = () => {
 
       {isLoading ? (
         <QueueStepSkeleton />
-      ) : (
+      ) : filteredTags.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredTags?.map((tag) => (
+          {filteredTags.map((tag) => (
             <TagCard
-              key={tag.tagId}
+              key={tag.id}
               tag={tag as Tag}
               onStatusUpdate={handleStatusUpdate}
               onDelete={(tag) => {
@@ -109,6 +113,10 @@ const Page = () => {
               loadingTags={loadingTags}
             />
           ))}
+        </div>
+      ) : (
+        <div className="text-center py-8">
+          <p className="text-gray-500">Nėra tagų</p>
         </div>
       )}
 
