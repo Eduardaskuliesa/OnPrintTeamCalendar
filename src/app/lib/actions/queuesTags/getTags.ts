@@ -25,7 +25,7 @@ async function fetchTagsFromDb() {
 
 const getCachedTags = () =>
   unstable_cache(() => fetchTagsFromDb(), ["all-tag"], {
-    revalidate: 1,
+    revalidate: 3600,
     tags: ["all-tags"],
   });
 

@@ -7,8 +7,9 @@ import {
   LogOut,
   Mail,
   ShieldCheck,
-  ListChecks,
   ChevronDown,
+  ShoppingCart,
+  Tags,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -32,7 +33,7 @@ const SubNavItem = ({
   onClick,
 }: Omit<NavItemProps, "subItems">) => {
   const pathname = usePathname();
-  const isActive = pathname === href 
+  const isActive = pathname === href
 
   return (
     <Link
@@ -163,14 +164,19 @@ const Sidebar = () => {
           text: "Eilės",
           subItems: [
             {
+              href: "/queues/orders",
+              icon: <ShoppingCart size={16} />,
+              text: "Užsakymai",
+            },
+            {
               href: "/queues",
               icon: <Mail size={16} />,
               text: "Visos eilės",
             },
             {
               href: "/queues/tags",
-              icon: <ListChecks size={16} />,
-              text: "Žingsniai",
+              icon: <Tags size={16} />,
+              text: "Tagai",
             },
           ],
         },
