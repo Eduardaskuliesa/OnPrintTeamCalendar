@@ -7,6 +7,7 @@ import { Order } from "@/app/types/orderApi";
 import { OrdersTable } from "./OrderTable";
 import { OrdersPagination } from "./OrderPagination";
 import { Loader2 } from "lucide-react";
+import FilterSection from "./components/filters/FilterSection";
 
 const OrderPageWrapper = () => {
   const [page, setPage] = useState(1);
@@ -38,15 +39,8 @@ const OrderPageWrapper = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Orders ({orders?.data?.data?.orders?.orderCount})
           </h1>
-          <button
-            onClick={toggleAllOrders}
-            className="w-full sm:w-auto px-4 py-2 bg-dcoffe text-white rounded-md hover:bg-vdcoffe transition-colors"
-          >
-            {selectedOrders.length === orders?.data?.data?.orders?.items.length
-              ? "Deselect All"
-              : "Select All"}
-          </button>
         </div>
+        <FilterSection></FilterSection>
         {isLoading ? (
           <div className="flex  justify-center">
             <Loader2 className="text-vdcoffe animate-spin h-10 w-10"></Loader2>

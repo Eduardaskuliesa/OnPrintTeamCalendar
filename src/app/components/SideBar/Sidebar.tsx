@@ -62,6 +62,10 @@ const NavItem = ({ href, icon, text, onClick, subItems }: NavItemProps) => {
     hasSubItems && subItems.some((item) => item.href === pathname);
   const isActive = pathname === href;
 
+  const activeIcon = React.cloneElement(icon as React.ReactElement, {
+    fill: isActive || isChildActive ? "#f8fafc" : "none"
+  });
+
   const toggleDropdown = (e: React.MouseEvent) => {
     if (hasSubItems) {
       e.preventDefault();
@@ -90,7 +94,7 @@ const NavItem = ({ href, icon, text, onClick, subItems }: NavItemProps) => {
           transition-colors duration-200`}
       >
         <div className="flex items-center">
-          {icon}
+          {activeIcon}
           <span className="ml-3 font-medium whitespace-nowrap overflow-hidden">
             {text}
           </span>
@@ -160,7 +164,7 @@ const Sidebar = () => {
         { href: "/admin", icon: <ShieldCheck size={20} />, text: "Adminas" },
         {
           href: "/",
-          icon: <Mail size={20} />,
+          icon: <Mail  size={20} />,
           text: "Eilės",
           subItems: [
             {

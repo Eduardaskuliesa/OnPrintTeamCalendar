@@ -56,37 +56,37 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
           />
         </TableHead>
         <TableHead className="py-3 px-4 border-x">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-db">
             <Package className="h-4 w-4" />
             Order ID
           </div>
         </TableHead>
         <TableHead className="py-3 px-4 border-x">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-db">
             <Calendar className="h-4 w-4" />
             Order Date
           </div>
         </TableHead>
         <TableHead className="py-3 border-x px-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-db">
             <User className="h-4 w-4" />
             Customer Info
           </div>
         </TableHead>
         <TableHead className="py-3 border-x px-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-db">
             <DollarSign className="h-4 w-4" />
             Product & Payment
           </div>
         </TableHead>
         <TableHead className="py-3 border-x px-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-db">
             <Tag className="h-4 w-4" />
             Status Tags
           </div>
         </TableHead>
         <TableHead className="w-32 py-3 px-4 rounded-tr-lg">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-db">
             <Settings2 className="h-4 w-4" />
             Actions
           </div>
