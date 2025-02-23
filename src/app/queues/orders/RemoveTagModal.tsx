@@ -62,7 +62,7 @@ export const RemoveTagModal: React.FC<RemoveTagModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[525px] max-h-[600px] overflow-y-auto custom-scrollbar">
         <DialogHeader>
           <DialogTitle className="flex items-center">
             <X className="mr-2 h-5 w-5 text-red-500" /> Šalinti tagus

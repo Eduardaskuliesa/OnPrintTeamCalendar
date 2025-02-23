@@ -91,7 +91,6 @@ const Page = () => {
     tags?.data?.filter((tag: TagType) =>
       tag.tagName.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
-  console.log(filteredTags);
 
   return (
     <div className="p-6 max-w-6xl">

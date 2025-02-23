@@ -151,14 +151,14 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
             className="py-2 px-4 cursor-pointer flex items-center"
           >
             <ArrowDownToLine className="h-4 w-4 mr-2" />
-            Pridėti žymą
+            Pridėti tagą
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={handleOpenRemoveTagModal}
             className="py-2 px-4 cursor-pointer flex items-center"
           >
             <ArrowUpToLine className="h-4 w-4 mr-2" />
-            Šalinti žymą
+            Šalinti tagą
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={handleInactive}

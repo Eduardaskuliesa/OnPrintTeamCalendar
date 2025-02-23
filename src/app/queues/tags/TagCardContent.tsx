@@ -36,7 +36,7 @@ export const TagCardContent = ({ tag }: { tag: TagCardProps["tag"] }) => (
       <div className="flex flex-col">
         <div className="text-right">
           <div className="text-xl font-semibold text-gray-900">
-            {tag.jobCounts}
+            {tag.jobsCount}
           </div>
           <div className="text-sm text-gray-600">paveiktos eilės</div>
         </div>

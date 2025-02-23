@@ -42,7 +42,7 @@ export interface TagType {
   id: number;
   tagName: string;
   scheduledFor: number;
-  jobCounts: number;
+  jobsCount: number;
   createdAt: string;
   updateAt: string;
   isActive: boolean;

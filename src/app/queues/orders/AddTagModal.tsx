@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Tag as TagIcon, Clock, Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Tag as TagIcon, Clock, Loader2, X } from "lucide-react";
 import { useGetTags } from "@/app/lib/actions/queuesTags/hooks/useGetTags";
 import { ordersActions } from "@/app/lib/actions/orders";
 import { useQueryClient } from "@tanstack/react-query";
@@ -28,7 +34,8 @@ export const AddTagModal: React.FC<AddTagModalProps> = ({
   isOpen,
   onOpenChange,
 }) => {
-  const [selectedTags, setSelectedTags] = useState<number[]>([]);
+  const [selectedTags, setSelectedTags] = useState<TagType[]>([]);
+  const [currentTagId, setCurrentTagId] = useState<string>("");
   const [isLoadingTags, setIsLoadingTags] = useState(false);
   const { data: tags, isLoading: isTagsLoading } = useGetTags();
   const queryClient = useQueryClient();
@@ -39,13 +46,13 @@ export const AddTagModal: React.FC<AddTagModalProps> = ({
     try {
       setIsLoadingTags(true);
       await ordersActions.addTagsToOrders({
-        tagIds: selectedTags,
+        tagIds: selectedTags.map((tag) => tag.id),
         orderIds: [order.id],
       });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
 
-      setSelectedTags([]);
       onOpenChange(false);
+      setSelectedTags([]);
     } catch (error) {
       console.error("Žymų pridėjimas nepavyko", error);
     } finally {
@@ -53,13 +60,26 @@ export const AddTagModal: React.FC<AddTagModalProps> = ({
     }
   };
 
-  const toggleTagSelection = (tagId: number) => {
-    setSelectedTags((prev) =>
-      prev.includes(tagId)
-        ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId]
+  const handleTagSelect = (tagId: string) => {
+    const selectedTag = tags?.data.find(
+      (tag: TagType) => tag.id.toString() === tagId
     );
+    if (selectedTag && !selectedTags.some((t) => t.id === selectedTag.id)) {
+      setSelectedTags((prev) => [...prev, selectedTag]);
+      setCurrentTagId("");
+    }
   };
+
+  const removeTag = (tagId: number) => {
+    setSelectedTags((prev) => prev.filter((tag) => tag.id !== tagId));
+  };
+  const availableTagsExist =
+    tags &&
+    tags.data.filter(
+      (tag: TagType) =>
+        tag.isActive &&
+        !selectedTags.some((selectedTag) => selectedTag.id === tag.id)
+    ).length > 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -73,47 +93,72 @@ export const AddTagModal: React.FC<AddTagModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {isTagsLoading ? (
-            <div className="col-span-full flex justify-center items-center">
-              <Loader2 className="mr-2 h-8 w-8 animate-spin" />
-              <span>Kraunama...</span>
-            </div>
-          ) : tags?.data.filter((tag: TagType) => tag.isActive).length > 0 ? (
-            tags.data
-              .filter((tag: TagType) => tag.isActive)
-              .map((tag: TagType) => (
-                <div
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <TagIcon className="w-4 h-4" />
+              Pasirinkite tagus
+            </label>
+            <Select
+              value={currentTagId}
+              onValueChange={handleTagSelect}
+              disabled={isTagsLoading || !availableTagsExist}
+            >
+              <SelectTrigger className="bg-white">
+                <SelectValue placeholder="Pasirinkite tagus" />
+              </SelectTrigger>
+              <SelectContent>
+                {isTagsLoading ? (
+                  <SelectItem className="bg-white" value="loading" disabled>
+                    Kraunama...
+                  </SelectItem>
+                ) : availableTagsExist ? (
+                  tags.data
+                    .filter(
+                      (tag: TagType) =>
+                        tag.isActive &&
+                        !selectedTags.some((t) => t.id === tag.id)
+                    )
+                    .map((tag: TagType) => (
+                      <SelectItem
+                        key={tag.id}
+                        value={tag.id.toString()}
+                        className="font-medium bg-white"
+                      >
+                        {tag.tagName} - {bullTimeConvert(tag.scheduledFor)}
+                      </SelectItem>
+                    ))
+                ) : (
+                  <SelectItem value="empty" disabled>
+                    Nėra galimų tagų
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectedTags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {selectedTags.map((tag) => (
+                <Badge
                   key={tag.id}
-                  className="flex items-center space-x-3 p-3 border rounded-lg"
+                  variant="secondary"
+                  className="flex items-center bg-slate-100 border-2 shadow-md rounded-md px-2 py-2 border-blue-50 gap-1 text-sm"
                 >
-                  <Checkbox
-                    id={`tag-${tag.id}`}
-                    checked={selectedTags.includes(tag.id)}
-                    onCheckedChange={() => toggleTagSelection(tag.id)}
-                  />
-                  <Label
-                    htmlFor={`tag-${tag.id}`}
-                    className="flex-grow cursor-pointer"
+                  {tag.tagName} - {bullTimeConvert(tag.scheduledFor)}
+                  <button
+                    onClick={() => removeTag(tag.id)}
+                    className="ml-1 bg-red-100 rounded-lg p-0.5 text-red-600 hover:text-red-800"
                   >
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">{tag.tagName}</span>
-                      <div className="text-sm text-gray-500 flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        {bullTimeConvert(tag.scheduledFor)}
-                      </div>
-                    </div>
-                  </Label>
-                </div>
-              ))
-          ) : (
-            <div className="col-span-full text-center text-gray-500">
-              Nėra galimų žymų
+                    <X className="h-4 w-4" />
+                  </button>
+                </Badge>
+              ))}
             </div>
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="mt-4">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
@@ -126,9 +171,14 @@ export const AddTagModal: React.FC<AddTagModalProps> = ({
             onClick={handleAddTags}
             disabled={selectedTags.length === 0 || isLoadingTags}
           >
-            {isLoadingTags
-              ? "Pridedama..."
-              : `Pridėti žymą (${selectedTags.length})`}
+            {isLoadingTags ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Pridedama...
+              </>
+            ) : (
+              `Pridėti žymą (${selectedTags.length})`
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
