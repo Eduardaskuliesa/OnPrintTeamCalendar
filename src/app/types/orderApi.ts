@@ -1,9 +1,16 @@
 export interface Job {
-  id: number;
-  status: string;
+  id: string;
+  orderId: number;
+  tagId: number;
   tagName: string;
-  processedAt?: string;
+  status: string;
+  scheduledFor: number;
   attempts: number;
+  error: string | null;
+  processedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Order {
@@ -29,4 +36,14 @@ export interface PaginationInfo {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
   totalPages: number;
+}
+
+export interface TagType {
+  id: number;
+  tagName: string;
+  scheduledFor: number;
+  jobCounts: number;
+  createdAt: string;
+  updateAt: string;
+  isActive: boolean;
 }

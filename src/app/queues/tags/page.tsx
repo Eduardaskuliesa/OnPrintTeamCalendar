@@ -10,7 +10,7 @@ import { updateTagStatus } from "@/app/lib/actions/queuesTags/dissableTag";
 import ConfirmModal from "@/app/ui/ConfirmModal";
 import { TagsHeader } from "./TagHeader";
 import { TagCard } from "./TagCard";
-import { Tag } from "@/app/types/queueApi";
+import { TagType } from "@/app/types/orderApi";
 
 const Page = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -88,7 +88,7 @@ const Page = () => {
   console.log(tags);
 
   const filteredTags =
-    tags?.data?.filter((tag) =>
+    tags?.data?.filter((tag: TagType) =>
       tag.tagName.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
   console.log(filteredTags);
@@ -101,10 +101,10 @@ const Page = () => {
         <QueueStepSkeleton />
       ) : filteredTags.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredTags.map((tag) => (
+          {filteredTags.map((tag: TagType) => (
             <TagCard
               key={tag.id}
-              tag={tag as Tag}
+              tag={tag}
               onStatusUpdate={handleStatusUpdate}
               onDelete={(tag) => {
                 setsSlectedTag(tag);

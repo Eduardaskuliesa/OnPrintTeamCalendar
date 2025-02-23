@@ -11,13 +11,6 @@ export interface QueueItem {
   attempts: number;
   updatedAt: string;
 }
-export interface Tag {
-  id: number;
-  tagName: string;
-  isActive: boolean;
-  scheduledFor: number;
-  jobsCount: number;
-}
 
 export interface BullQueue {
   bullJobCount: number;

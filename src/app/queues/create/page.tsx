@@ -75,7 +75,9 @@ const CreateQueueJob = () => {
   };
 
   const handleTagSelect = (tagId: string) => {
-    const selectedTag = availableTags?.find((tag) => tag.tagId === tagId);
+    const selectedTag = availableTags?.data.find(
+      (tag: Tag) => tag.tagId === tagId
+    );
     if (selectedTag && !formData.selectedTags.some((t) => t.tagId === tagId)) {
       setFormData((prev) => ({
         ...prev,
@@ -137,8 +139,8 @@ const CreateQueueJob = () => {
 
   const availableTagsExist =
     availableTags &&
-    availableTags.filter(
-      (tag) =>
+    availableTags.data.filter(
+      (tag: Tag) =>
         tag.isActive &&
         !formData.selectedTags.some((t) => t.tagId === tag.tagId)
     ).length > 0;
@@ -198,15 +200,15 @@ const CreateQueueJob = () => {
                         Kraunama...
                       </SelectItem>
                     ) : availableTagsExist ? (
-                      availableTags
+                      availableTags.data
                         .filter(
-                          (tag) =>
+                          (tag: Tag) =>
                             tag.isActive &&
                             !formData.selectedTags.some(
                               (t) => t.tagId === tag.tagId
                             )
                         )
-                        .map((tag) => (
+                        .map((tag: Tag) => (
                           <SelectItem
                             key={tag.tagId}
                             value={tag.tagId}

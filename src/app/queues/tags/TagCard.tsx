@@ -13,15 +13,10 @@ import {
   Trash2,
 } from "lucide-react";
 import { TagCardContent } from "./TagCardContent";
+import { TagType } from "@/app/types/orderApi";
 
 interface TagCardProps {
-  tag: {
-    tagId: number;
-    tagName: string;
-    isActive: boolean;
-    scheduledFor: number;
-    jobsCount: number;
-  };
+  tag: TagType
   onStatusUpdate: (tagId: number, newStatus: boolean) => void;
   onDelete: (tag: any) => void;
   loadingTags: Record<string, boolean>;
@@ -45,7 +40,7 @@ export const TagCard = ({ tag, onStatusUpdate, onDelete }: TagCardProps) => (
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:cursor-pointer"
-            onClick={() => onStatusUpdate(tag.tagId, !tag.isActive)}
+            onClick={() => onStatusUpdate(tag.id, !tag.isActive)}
           >
             {tag.isActive ? (
               <PowerOff className="mr-2 h-4 w-4" />

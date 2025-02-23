@@ -18,20 +18,14 @@ import {
   CreditCard,
   DollarSign,
   Settings2,
-  MoreVertical,
   Check,
   Tag,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { Order } from "@/app/types/orderApi";
 import { getStatusColor } from "./OrderCard";
 import { Button } from "@/components/ui/button";
+import OrderActions from "./OrderActions";
 
 interface OrdersTableProps {
   orders: Order[];
@@ -146,7 +140,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                 {order.subTotal.toFixed(2)}
               </div>
             </TableCell>
-            <TableCell className="py-4 border-x">
+            <TableCell className="border-x">
               <div className="flex flex-wrap gap-1">
                 {order.jobs.map((job) => (
                   <Badge
@@ -161,29 +155,9 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                 ))}
               </div>
             </TableCell>
-            <TableCell className="py-4" rowSpan={2}>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-                  >
-                    Actions
-                    <MoreVertical className="h-4 w-4 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem className="py-2 px-4 cursor-pointer">
-                    View Details
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="py-2 px-4 cursor-pointer">
-                    Edit Order
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="py-2 px-4 cursor-pointer text-red-600">
-                    Delete Order
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+            <TableCell className="py-2 flex flex-col gap-2" rowSpan={2}>
+              <OrderActions order={order}></OrderActions>
+              <Button variant="outline">Full info</Button>
             </TableCell>
           </TableRow>
           <TableRow className="bg-gray-50 border-b">

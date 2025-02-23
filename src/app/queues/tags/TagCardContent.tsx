@@ -1,13 +1,8 @@
-import {  Timer } from "lucide-react";
+import { TagType } from "@/app/types/orderApi";
+import { Timer } from "lucide-react";
 
 interface TagCardProps {
-  tag: {
-    tagId: number;
-    tagName: string;
-    isActive: boolean;
-    scheduledFor: number;
-    jobsCount: number;
-  };
+  tag: TagType;
   onStatusUpdate: (tagId: number, newStatus: boolean) => void;
   onDelete: (tag: any) => void;
   loadingTags: Record<string, boolean>;
@@ -41,7 +36,7 @@ export const TagCardContent = ({ tag }: { tag: TagCardProps["tag"] }) => (
       <div className="flex flex-col">
         <div className="text-right">
           <div className="text-xl font-semibold text-gray-900">
-            {tag.jobsCount}
+            {tag.jobCounts}
           </div>
           <div className="text-sm text-gray-600">paveiktos eilės</div>
         </div>

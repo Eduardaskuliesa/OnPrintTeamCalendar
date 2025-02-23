@@ -6,13 +6,38 @@ import { useGetOrders } from "@/app/lib/actions/orders/hooks/useGetOrders";
 import { Order } from "@/app/types/orderApi";
 import { OrdersTable } from "./OrderTable";
 import { OrdersPagination } from "./OrderPagination";
-import { Loader2 } from "lucide-react";
+import { Loader, Loader2 } from "lucide-react";
 import FilterSection from "./components/filters/FilterSection";
+import { FilterState } from "@/app/types/orderFilter";
+import { useFilteredOrders } from "@/app/lib/actions/orders/hooks/useFilteredOrders";
 
 const OrderPageWrapper = () => {
   const [page, setPage] = useState(1);
-  const { data: orders, isLoading } = useGetOrders(page);
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
+  const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
+
+  const {
+    data: unfilteredOrders,
+    isLoading: isUnfilteredLoading,
+    isFetching: isUnfilteredFetching,
+  } = useGetOrders(page, { enabled: !activeFilters });
+
+  const {
+    data: filteredOrders,
+    isLoading: isFilteredLoading,
+    isFetching: isFilteredFetching,
+  } = useFilteredOrders(activeFilters || ({} as FilterState), page, {
+    enabled: !!activeFilters,
+  });
+
+  const orders = activeFilters ? filteredOrders : unfilteredOrders;
+  const isLoading = activeFilters ? isFilteredLoading : isUnfilteredLoading;
+  const isFetching = activeFilters ? isFilteredFetching : isUnfilteredFetching;
+
+  const handleFilterSubmit = (filters: FilterState) => {
+    setActiveFilters(filters);
+    setPage(1);
+  };
 
   const toggleOrderSelection = (orderId: number) => {
     setSelectedOrders((prev) =>
@@ -23,33 +48,62 @@ const OrderPageWrapper = () => {
   };
 
   const toggleAllOrders = () => {
-    if (selectedOrders.length === orders?.data?.data?.orders?.items.length) {
+    if (selectedOrders.length === orders?.data?.items?.length) {
       setSelectedOrders([]);
     } else {
       setSelectedOrders(
-        orders?.data?.data?.orders?.items.map((order: Order) => order.id) || []
+        orders?.data?.items?.map((order: Order) => order.id) || []
       );
     }
   };
 
+  const handlePageChange = (newPage: number) => {
+    const scrollPosition = window.scrollY;
+    setSelectedOrders([]);
+
+    setPage(newPage);
+
+    window.requestAnimationFrame(() => {
+      window.scrollTo({
+        top: scrollPosition,
+        behavior: "instant",
+      });
+    });
+  };
+
+  const hasOrders = orders?.data?.items && orders.data.items.length > 0;
+  const selectedOrdersCount = selectedOrders.length;
   return (
     <div className="min-h-screen py-4 sm:py-8 px-4 md:px-4 lg:px-8">
-      <div className="mx-auto">
+      <div className="mx-auto overflow-anchor-none">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Orders ({orders?.data?.data?.orders?.orderCount})
+          <h1 className="text-2xl items-center justify-center flex sm:text-3xl font-bold text-gray-900">
+            Orders ({orders?.data?.pagination?.totalItems || 0})
+            {isFetching && (
+              <Loader className="animate-spin ml-2 text-2xl"></Loader>
+            )}
           </h1>
+          {selectedOrdersCount > 0 && (
+            <p className="text-sm text-gray-600">
+              Selected: {selectedOrdersCount}
+            </p>
+          )}
         </div>
-        <FilterSection></FilterSection>
+        <FilterSection onSubmit={handleFilterSubmit}></FilterSection>
+
         {isLoading ? (
-          <div className="flex  justify-center">
+          <div className="flex justify-center">
             <Loader2 className="text-vdcoffe animate-spin h-10 w-10"></Loader2>
+          </div>
+        ) : !hasOrders ? (
+          <div className="flex justify-center items-center">
+            <p className="text-gray-700 text-lg">Užsakymų nerasta</p>
           </div>
         ) : (
           <>
-            <div className="hidden md:block bg-white shadow-lg rounded-lg">
+            <div className="hidden md:block bg-white shadow-lg rounded-lg overflow-anchor-none">
               <OrdersTable
-                orders={orders?.data?.data?.orders?.items}
+                orders={orders.data.items}
                 selectedOrders={selectedOrders}
                 toggleOrderSelection={toggleOrderSelection}
                 toggleAllOrders={toggleAllOrders}
@@ -57,7 +111,7 @@ const OrderPageWrapper = () => {
             </div>
 
             <div className="md:hidden space-y-4">
-              {orders?.data?.data?.orders?.items.map((order: Order) => (
+              {orders.data.items.map((order: Order) => (
                 <OrderCard
                   key={order.id}
                   order={order}
@@ -69,7 +123,7 @@ const OrderPageWrapper = () => {
             <div className="w-auto">
               <OrdersPagination
                 page={page}
-                setPage={setPage}
+                setPage={handlePageChange}
                 pagination={orders?.data?.pagination}
               />
             </div>
@@ -79,5 +133,4 @@ const OrderPageWrapper = () => {
     </div>
   );
 };
-
 export default OrderPageWrapper;

@@ -1,13 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { getOrders } from "..";
+import { ordersActions } from "..";
 
-export function useGetOrders(page: number) {
-  console.log(page);
+export function useGetOrders(page: number, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["orders", page],
-    queryFn: () => getOrders(page),
+    queryFn: () => ordersActions.getOrders(page),
     refetchOnMount: true,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    enabled: options?.enabled !== false,
   });
 }
