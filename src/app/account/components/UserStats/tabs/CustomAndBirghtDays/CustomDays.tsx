@@ -1,5 +1,4 @@
-// CustomDayListCard.tsx
-import React from "react";
+import React, { useMemo } from "react";
 import { Pizza } from "lucide-react";
 import { CustomDay } from "./types";
 import Header from "./components/Header";
@@ -27,6 +26,18 @@ const CustomDayCard: React.FC<CustomDayListCardProps> = ({
   onDelete,
   formatDate,
 }) => {
+  const sortedCustomDays = useMemo(() => {
+    return [...filteredCustomDays].sort((a, b) => {
+      const [monthA, dayA] = a.fullDate.split("-").map(Number);
+      const [monthB, dayB] = b.fullDate.split("-").map(Number);
+
+      if (monthA !== monthB) {
+        return monthA - monthB;
+      }
+
+      return dayA - dayB;
+    });
+  }, [filteredCustomDays]);
   return (
     <div className="bg-[#fefaf6] rounded-xl p-4">
       <Header
@@ -45,12 +56,12 @@ const CustomDayCard: React.FC<CustomDayListCardProps> = ({
       <div className="space-y-2 overflow-y-auto max-h-[250px] custom-scrollbar">
         {customDaysLoading ? (
           <div className="text-center py-4 text-gray-500">Kraunama...</div>
-        ) : filteredCustomDays?.length === 0 ? (
+        ) : sortedCustomDays?.length === 0 ? (
           <div className="text-center py-4 text-gray-500">
             Pagal įvestą paiešką švenčių nerasta
           </div>
         ) : (
-          filteredCustomDays?.map((customDay) => (
+          sortedCustomDays?.map((customDay) => (
             <ListItem
               key={customDay.customDayId}
               item={customDay}

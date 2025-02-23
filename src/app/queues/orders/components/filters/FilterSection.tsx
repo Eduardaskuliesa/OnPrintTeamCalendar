@@ -62,7 +62,6 @@ const FilterSection: React.FC<FilterSectionProps> = ({ onSubmit }) => {
 
   return (
     <div className="space-y-4 mb-6">
-      {/* Replace grid with flex container */}
       <div className="flex flex-wrap gap-4">
         <div className="flex-[1_1_300px] max-w-[250px]">
           <SearchFilter

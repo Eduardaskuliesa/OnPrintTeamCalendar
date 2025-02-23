@@ -34,8 +34,8 @@ export interface FilterState {
   companyName: string;
   product: string | null;
   dateRange: {
-    from: Date | null;
-    to: Date | null;
+    from: string | null;
+    to: string | null;
   };
   priceRange: {
     min: string;

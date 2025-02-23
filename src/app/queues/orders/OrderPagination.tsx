@@ -1,5 +1,6 @@
 import React from "react";
 import { PaginationInfo } from "@/app/types/queueApi";
+import { Button } from "@/components/ui/button";
 
 interface OrdersPaginationProps {
   page: number;
@@ -47,17 +48,18 @@ export const OrdersPagination: React.FC<OrdersPaginationProps> = ({
             ···
           </span>
         ) : (
-          <button
+          <Button
+            variant="outline"
             key={pageNum}
             onClick={() => setPage(pageNum as number)}
             className={`w-10 h-10 rounded-lg text-sm ${
               page === pageNum
-                ? "bg-vdcoffe text-white"
+                ? "bg-dcoffe text-db"
                 : "border border-gray-300 bg-white hover:bg-slate-50"
             }`}
           >
             {pageNum}
-          </button>
+          </Button>
         )
       )}
 

@@ -146,7 +146,7 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
       <div className="bg-[#EADBC8] mb-6 w-full max-w-4xl p-6 rounded-2xl shadow-md">
         <div className="flex flex-row items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
-            Šio mėnesio valandos
+            Šių metų valandos
           </h2>
           <UserWorkRecordFilter
             currentYear={currentYear}

@@ -169,7 +169,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={handleDelete}
-            className="py-2 px-4 cursor-pointer text-red-600 flex items-center"
+            className="py-2 px-4 cursor-pointer  hover:text-red-800 focus:bg-red-50 text-red-600 focus:text-red-600 flex items-center"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Ištrinti
