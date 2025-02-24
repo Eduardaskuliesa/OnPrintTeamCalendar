@@ -12,7 +12,6 @@ import { FilterState } from "@/app/types/orderFilter";
 import { useFilteredOrders } from "@/app/lib/actions/orders/hooks/useFilteredOrders";
 import ActionSection from "./components/actions/ActionSection";
 
-
 const OrderPageWrapper = () => {
   const [page, setPage] = useState(1);
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
@@ -76,9 +75,6 @@ const OrderPageWrapper = () => {
   const hasOrders = orders?.data?.items && orders.data.items.length > 0;
   const selectedOrdersCount = selectedOrders.length;
 
-
-
-
   return (
     <div className="min-h-screen py-4 sm:py-8 px-4 md:px-4 lg:px-8">
       <div className="mx-auto overflow-anchor-none">
@@ -96,7 +92,7 @@ const OrderPageWrapper = () => {
           )}
         </div>
         <FilterSection onSubmit={handleFilterSubmit}></FilterSection>
-        <ActionSection orders={selectedOrders} />
+        <ActionSection orders={selectedOrders} filters={activeFilters} />
         {isLoading ? (
           <div className="flex justify-center">
             <Loader2 className="text-vdcoffe animate-spin h-10 w-10"></Loader2>

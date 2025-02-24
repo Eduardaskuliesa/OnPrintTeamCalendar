@@ -37,7 +37,7 @@ export const RemoveTagModal: React.FC<RemoveTagModalProps> = ({
     try {
 
 
-      await ordersActions.removeTagsFromoOrders({
+      await ordersActions.tagScope.removeTagsFromoOrders({
         orderIds: [order.id],
         tagIds: selectedTags,
       });

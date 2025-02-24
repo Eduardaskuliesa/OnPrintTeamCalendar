@@ -1,115 +1,156 @@
-"use client"
-
-import { useState } from "react"
-import { TagType } from "./useActionFlow"
-
-// import {
-//     pauseOrders, pauseSelectedOrders,
-//     resumeOrders, resumeSelectedOrders,
-//     inactiveOrders, inactiveSelectedOrders,
-//     deleteOrders, deleteSelectedOrders,
-//     addTagToOrders, addTagToSelectedOrders,
-//     removeTagFromOrders, removeTagFromSelectedOrders,
-//     pauseTagForOrders, pauseTagForSelectedOrders,
-//     resumeTagForOrders, resumeTagForSelectedOrders,
-//     inactiveTagForOrders, inactiveTagForSelectedOrders
-// } from "@/app/actions/orderActions"
+"use client";
+import { ordersActions } from "@/app/lib/actions/orders";
+import { TagType } from "@/app/types/orderApi";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 export function useBulkActions() {
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const executeAction = async (
+    actionType: string,
+    scope: "selected" | "filtered",
+    orderIds: number[],
+    where: any,
+    reset: () => void,
+    options?: { tags?: TagType[] }
+  ) => {
+    const tagsIds = options?.tags?.map((tag) => tag.id) || [];
+    console.log(where);
+    const sendData = {
+      tagIds: tagsIds,
+      orderIds: orderIds.map((order) => order),
+    };
 
-    const executeAction = async (
-        actionType: string,
-        scope: "selected" | "filtered",
-        orderIds: number[],
-        options?: { tags?: TagType[] }
-    ) => {
-        setIsLoading(true)
-        setError(null)
+    console.log("SendDATA:", sendData, actionType);
+    setIsLoading(true);
+    setError(null);
 
-        try {
-            // Map the action type and scope to the appropriate server action
-            if (scope === "selected") {
-                switch (actionType) {
-                    // case "pauseOrders":
-                    //     await pauseSelectedOrders(orderIds)
-                    //     break
-                    // case "resumeOrders":
-                    //     await resumeSelectedOrders(orderIds)
-                    //     break
-                    // case "inactiveOrders":
-                    //     await inactiveSelectedOrders(orderIds)
-                    //     break
-                    // case "deleteOrders":
-                    //     await deleteSelectedOrders(orderIds)
-                    //     break
-                    // case "addTag":
-                    //     await addTagToSelectedOrders(orderIds, options?.tags || [])
-                    //     break
-                    // case "removeTag":
-                    //     await removeTagFromSelectedOrders(orderIds, options?.tags || [])
-                    //     break
-                    // case "pauseTag":
-                    //     await pauseTagForSelectedOrders(orderIds, options?.tags || [])
-                    //     break
-                    // case "resumeTag":
-                    //     await resumeTagForSelectedOrders(orderIds, options?.tags || [])
-                    //     break
-                    // case "inactiveTag":
-                    //     await inactiveTagForSelectedOrders(orderIds, options?.tags || [])
-                    //     break
-                    default:
-                        throw new Error(`Unknown action type: ${actionType}`)
-                }
-            } else if (scope === "filtered") {
-                // For filtered actions, we don't need orderIds
-                switch (actionType) {
-                    // case "pauseOrders":
-                    //     await pauseOrders()
-                    //     break
-                    // case "resumeOrders":
-                    //     await resumeOrders()
-                    //     break
-                    // case "inactiveOrders":
-                    //     await inactiveOrders()
-                    //     break
-                    // case "deleteOrders":
-                    //     await deleteOrders()
-                    //     break
-                    // case "addTag":
-                    //     await addTagToOrders(options?.tags || [])
-                    //     break
-                    // case "removeTag":
-                    //     await removeTagFromOrders(options?.tags || [])
-                    //     break
-                    // case "pauseTag":
-                    //     await pauseTagForOrders(options?.tags || [])
-                    //     break
-                    // case "resumeTag":
-                    //     await resumeTagForOrders(options?.tags || [])
-                    //     break
-                    // case "inactiveTag":
-                    //     await inactiveTagForOrders(options?.tags || [])
-                    //     break
-                    default:
-                        throw new Error(`Unknown action type: ${actionType}`)
-                }
+    try {
+      if (scope === "selected") {
+        switch (actionType) {
+          case "pauseOrders":
+            break;
+          // case "resumeOrders":
+          //     await resumeSelectedOrders(orderIds)
+          //     break
+          // case "inactiveOrders":
+          //     await inactiveSelectedOrders(orderIds)
+          //     break
+          // case "deleteOrders":
+          //     await deleteSelectedOrders(orderIds)
+          //     break
+          // case "addTag":
+          //     await addTagToSelectedOrders(orderIds, options?.tags || [])
+          //     break
+          // case "removeTag":
+          //     await removeTagFromSelectedOrders(orderIds, options?.tags || [])
+          //     break
+          case "resumeTag":
+            try {
+              const result = await ordersActions.tagScope.resumeTagsOrders(
+                sendData
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Pasirinkti tagai buvo pratęsti");
+              reset();
+            } catch (error) {
+              console.log(error);
             }
 
-            return { success: true }
-        } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : "Unknown error occurred"
-            setError(errorMessage)
-            throw err
-        } finally {
-            setIsLoading(false)
-        }
-    }
+            break;
+          case "pauseTag":
+            try {
+              const result = await ordersActions.tagScope.pauseTagsOrders(
+                sendData
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Pasirinkti tagai buvo sustabdyti");
+              reset();
+            } catch (error) {
+              console.log(error);
+            }
 
-    return {
-        executeAction,
-        isLoading,
-        error
+            break;
+          case "inactiveTag":
+            try {
+              const result = await ordersActions.tagScope.inactiveTagsOrders(
+                sendData
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Pasirinkti tagai buvo sustabdyti");
+              reset();
+            } catch (error) {
+              console.log(error);
+            }
+
+            break;
+          default:
+            throw new Error(`Unknown action type: ${actionType}`);
+        }
+      } else if (scope === "filtered") {
+        // For filtered actions, we don't need orderIds
+        switch (actionType) {
+          // case "pauseOrders":
+          //     await pauseOrders()
+          //     break
+          // case "resumeOrders":
+          //     await resumeOrders()
+          //     break
+          // case "inactiveOrders":
+          //     await inactiveOrders()
+          //     break
+          // case "deleteOrders":
+          //     await deleteOrders()
+          //     break
+          // case "addTag":
+          //     await addTagToOrders(options?.tags || [])
+          //     break
+          // case "removeTag":
+          //     await removeTagFromOrders(options?.tags || [])
+          //     break
+          // case "pauseTag":
+          //     await pauseTagForOrders(options?.tags || [])
+          //     break
+          // case "resumeTag":
+          //     await resumeTagForOrders(options?.tags || [])
+          //     break
+          // case "inactiveTag":
+          //     await inactiveTagForOrders(options?.tags || [])
+          //     break
+          default:
+            throw new Error(`Unknown action type: ${actionType}`);
+        }
+      }
+
+      return { success: true };
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Unknown error occurred";
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  return {
+    executeAction,
+    isLoading,
+    error,
+  };
 }

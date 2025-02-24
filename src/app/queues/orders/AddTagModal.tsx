@@ -44,8 +44,7 @@ export const AddTagModal: React.FC<AddTagModalProps> = ({
     if (selectedTags.length === 0) return;
     setIsLoadingTags(true);
     try {
-
-      await ordersActions.addTagsToOrders({
+      await ordersActions.tagScope.addTagsToOrders({
         tagIds: selectedTags.map((tag) => tag.id),
         orderIds: [order.id],
       });
@@ -54,7 +53,6 @@ export const AddTagModal: React.FC<AddTagModalProps> = ({
       setSelectedTags([]);
       setIsLoadingTags(false);
       onOpenChange(false);
-
     } catch (error) {
       console.error("Žymų pridėjimas nepavyko", error);
     } finally {

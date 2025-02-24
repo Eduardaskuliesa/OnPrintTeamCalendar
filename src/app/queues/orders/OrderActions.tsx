@@ -50,7 +50,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
       const orderData = {
         orderIds: [order.id],
       };
-      const result = await ordersActions.deleteOrders(orderData);
+      const result = await ordersActions.orderScope.deleteOrders(orderData);
       if (result.success) {
         setIsLoading(false);
       }
@@ -68,7 +68,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
         orderIds: [order.id],
       };
 
-      const result = await ordersActions.pauseOrders(orderData);
+      const result = await ordersActions.orderScope.pauseOrders(orderData);
       if (result.success) {
         setIsLoading(false);
       }
@@ -86,7 +86,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
         orderIds: [order.id],
       };
 
-      const result = await ordersActions.resumeOrders(orderData);
+      const result = await ordersActions.orderScope.resumeOrders(orderData);
       if (result.success) {
         setIsLoading(false);
       }
@@ -103,7 +103,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
       const orderData = {
         orderIds: [order.id],
       };
-      const result = await ordersActions.inactiveOrders(orderData);
+      const result = await ordersActions.orderScope.inactiveOrders(orderData);
       if (result.success) {
         setIsLoading(false);
       }
