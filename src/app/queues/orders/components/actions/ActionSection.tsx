@@ -14,9 +14,14 @@ import { useBulkActions } from "./hooks/useBoolkActions";
 interface ActionSectionProps {
   orders: number[];
   filters: any;
+  setSelectedOrders: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
-export default function ActionSection({ orders, filters }: ActionSectionProps) {
+export default function ActionSection({
+  orders,
+  filters,
+  setSelectedOrders,
+}: ActionSectionProps) {
   const { state, actions } = useActionFlow({ orders });
   const { executeAction, isLoading } = useBulkActions();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,7 +60,10 @@ export default function ActionSection({ orders, filters }: ActionSectionProps) {
         state.target,
         orders,
         filters,
-        actions.reset,
+        () => {
+          actions.reset();
+          setSelectedOrders([]);
+        },
         state.selectedTags.length > 0 ? { tags: state.selectedTags } : undefined
       );
       console.log(executeAction);

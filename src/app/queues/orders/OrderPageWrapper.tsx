@@ -72,6 +72,10 @@ const OrderPageWrapper = () => {
     });
   };
 
+  const clearAllOrderSelections = () => {
+    setSelectedOrders([]);
+  };
+
   const hasOrders = orders?.data?.items && orders.data.items.length > 0;
   const selectedOrdersCount = selectedOrders.length;
 
@@ -92,7 +96,11 @@ const OrderPageWrapper = () => {
           )}
         </div>
         <FilterSection onSubmit={handleFilterSubmit}></FilterSection>
-        <ActionSection orders={selectedOrders} filters={activeFilters} />
+        <ActionSection
+          orders={selectedOrders}
+          filters={activeFilters}
+          setSelectedOrders={setSelectedOrders}
+        />
         {isLoading ? (
           <div className="flex justify-center">
             <Loader2 className="text-vdcoffe animate-spin h-10 w-10"></Loader2>

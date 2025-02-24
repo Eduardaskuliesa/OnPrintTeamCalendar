@@ -14,17 +14,19 @@ export function useBulkActions() {
     scope: "selected" | "filtered",
     orderIds: number[],
     where: any,
-    reset: () => void,
+    resetAndClear: () => void,
     options?: { tags?: TagType[] }
   ) => {
     const tagsIds = options?.tags?.map((tag) => tag.id) || [];
     console.log(where);
-    const sendData = {
+    const sendDataTagScope = {
       tagIds: tagsIds,
       orderIds: orderIds.map((order) => order),
     };
+    const sendDataOrderScope = {
+      orderIds: orderIds.map((order) => order),
+    };
 
-    console.log("SendDATA:", sendData, actionType);
     setIsLoading(true);
     setError(null);
 
@@ -32,26 +34,111 @@ export function useBulkActions() {
       if (scope === "selected") {
         switch (actionType) {
           case "pauseOrders":
+            try {
+              const result = await ordersActions.orderScope.pauseOrders(
+                sendDataOrderScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Pasirinkti užsakymai buvo sustabdyti");
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+
             break;
-          // case "resumeOrders":
-          //     await resumeSelectedOrders(orderIds)
-          //     break
-          // case "inactiveOrders":
-          //     await inactiveSelectedOrders(orderIds)
-          //     break
-          // case "deleteOrders":
-          //     await deleteSelectedOrders(orderIds)
-          //     break
-          // case "addTag":
-          //     await addTagToSelectedOrders(orderIds, options?.tags || [])
-          //     break
-          // case "removeTag":
-          //     await removeTagFromSelectedOrders(orderIds, options?.tags || [])
-          //     break
+          case "resumeOrders":
+            try {
+              const result = await ordersActions.orderScope.resumeOrders(
+                sendDataOrderScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Pasirinkti užsakymai buvo pratęsti");
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+
+            break;
+          case "inactiveOrders":
+            try {
+              const result = await ordersActions.orderScope.inactiveOrders(
+                sendDataOrderScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Pasirinkti užsakymai buvo išjungti");
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+
+            break;
+          case "deleteOrders":
+            try {
+              const result = await ordersActions.orderScope.deleteOrders(
+                sendDataOrderScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Pasirinkti užsakymai buvo ištrynti");
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+
+            break;
+          case "addTag":
+            try {
+              const result = await ordersActions.tagScope.addTagsToOrders(
+                sendDataTagScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Pasirinkti tagai buvo pridėti");
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+
+            break;
+          case "removeTag":
+            try {
+              const result = await ordersActions.tagScope.removeTagsFromoOrders(
+                sendDataTagScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Pasirinkti tagai buvo ištryntį");
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+
+            break;
           case "resumeTag":
             try {
               const result = await ordersActions.tagScope.resumeTagsOrders(
-                sendData
+                sendDataTagScope
               );
               if (!result.success) {
                 toast.error("Įvyko klaida");
@@ -59,7 +146,7 @@ export function useBulkActions() {
               }
               await queryClient.invalidateQueries({ queryKey: ["orders"] });
               toast.success("Pasirinkti tagai buvo pratęsti");
-              reset();
+              resetAndClear();
             } catch (error) {
               console.log(error);
             }
@@ -68,7 +155,7 @@ export function useBulkActions() {
           case "pauseTag":
             try {
               const result = await ordersActions.tagScope.pauseTagsOrders(
-                sendData
+                sendDataTagScope
               );
               if (!result.success) {
                 toast.error("Įvyko klaida");
@@ -76,7 +163,7 @@ export function useBulkActions() {
               }
               await queryClient.invalidateQueries({ queryKey: ["orders"] });
               toast.success("Pasirinkti tagai buvo sustabdyti");
-              reset();
+              resetAndClear();
             } catch (error) {
               console.log(error);
             }
@@ -85,15 +172,15 @@ export function useBulkActions() {
           case "inactiveTag":
             try {
               const result = await ordersActions.tagScope.inactiveTagsOrders(
-                sendData
+                sendDataTagScope
               );
               if (!result.success) {
                 toast.error("Įvyko klaida");
                 break;
               }
               await queryClient.invalidateQueries({ queryKey: ["orders"] });
-              toast.success("Pasirinkti tagai buvo sustabdyti");
-              reset();
+              toast.success("Pasirinkti tagai buvo išjungti");
+              resetAndClear();
             } catch (error) {
               console.log(error);
             }
