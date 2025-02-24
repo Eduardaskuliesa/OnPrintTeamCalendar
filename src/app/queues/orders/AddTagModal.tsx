@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Tag as TagIcon, Clock, Loader2, X } from "lucide-react";
+import { Tag as TagIcon, Loader2, X } from "lucide-react";
 import { useGetTags } from "@/app/lib/actions/queuesTags/hooks/useGetTags";
 import { ordersActions } from "@/app/lib/actions/orders";
 import { useQueryClient } from "@tanstack/react-query";
@@ -42,17 +42,19 @@ export const AddTagModal: React.FC<AddTagModalProps> = ({
 
   const handleAddTags = async () => {
     if (selectedTags.length === 0) return;
-
+    setIsLoadingTags(true);
     try {
-      setIsLoadingTags(true);
+
       await ordersActions.addTagsToOrders({
         tagIds: selectedTags.map((tag) => tag.id),
         orderIds: [order.id],
       });
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
 
-      onOpenChange(false);
+      await queryClient.invalidateQueries({ queryKey: ["orders"] });
       setSelectedTags([]);
+      setIsLoadingTags(false);
+      onOpenChange(false);
+
     } catch (error) {
       console.error("Žymų pridėjimas nepavyko", error);
     } finally {

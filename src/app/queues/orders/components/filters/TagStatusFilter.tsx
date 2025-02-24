@@ -39,7 +39,7 @@ export const TagStatusFilter = ({
           <span className="flex items-center truncate">
             <Filter className="h-4 w-4 mr-2 text-gray-700" />
             {selectedTagStatuses.length > 0
-              ? `Pasirinkta ${selectedTagStatuses.length} statusų`
+              ? `Pasirinkta ${selectedTagStatuses.length} statusao`
               : "Tago statusas"}
           </span>
           <span className="bg-gray-200 p-0.5 ml-2 rounded-sm">

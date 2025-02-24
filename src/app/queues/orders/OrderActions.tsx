@@ -43,8 +43,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
       setRemoveTagModalOpen(true);
     }, 100);
   };
-
-  console.log(addTagModalOpen);
+  
   const handleDelete = async () => {
     setIsLoading(true);
     try {

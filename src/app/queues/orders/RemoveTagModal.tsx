@@ -33,18 +33,19 @@ export const RemoveTagModal: React.FC<RemoveTagModalProps> = ({
 
   const handleRemoveTags = async () => {
     if (selectedTags.length === 0) return;
-
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+
 
       await ordersActions.removeTagsFromoOrders({
         orderIds: [order.id],
         tagIds: selectedTags,
       });
 
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-      onOpenChange(false);
+      await queryClient.invalidateQueries({ queryKey: ["orders"] });
       setSelectedTags([]);
+      setIsLoading(false);
+      onOpenChange(false);
     } catch (error) {
       console.error("Žymų šalinimas nepavyko", error);
     } finally {
@@ -86,11 +87,10 @@ export const RemoveTagModal: React.FC<RemoveTagModalProps> = ({
             <div
               key={job.id}
               onClick={() => toggleTagSelection(job.tagId)}
-              className={`flex items-center justify-between p-2 rounded-lg cursor-pointer ${
-                selectedTags.includes(job.tagId)
-                  ? "bg-slate-50 border border-gray-200"
-                  : "hover:bg-gray-50"
-              }`}
+              className={`flex items-center justify-between p-2 rounded-lg cursor-pointer ${selectedTags.includes(job.tagId)
+                ? "bg-slate-50 border border-gray-200"
+                : "hover:bg-gray-50"
+                }`}
             >
               <div className="flex items-center space-x-3">
                 <Badge

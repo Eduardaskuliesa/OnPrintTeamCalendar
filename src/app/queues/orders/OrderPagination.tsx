@@ -54,7 +54,7 @@ export const OrdersPagination: React.FC<OrdersPaginationProps> = ({
             onClick={() => setPage(pageNum as number)}
             className={`w-10 h-10 rounded-lg text-sm ${
               page === pageNum
-                ? "bg-dcoffe text-db"
+                ? "bg-dcoffe text-db hover:bg-vdcoffe hover:text-gray-50"
                 : "border border-gray-300 bg-white hover:bg-slate-50"
             }`}
           >

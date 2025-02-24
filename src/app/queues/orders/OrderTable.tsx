@@ -40,7 +40,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
   toggleOrderSelection,
   toggleAllOrders,
 }) => (
-  <Table className="w-full  sticky">
+  <Table className="w-full ">
     <TableHeader className="bg-lcoffe sticky top-0 z-10">
       <TableRow>
         <TableHead className="w-12 py-3 px-4 rounded-tl-lg">
