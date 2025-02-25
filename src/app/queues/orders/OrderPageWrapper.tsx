@@ -12,6 +12,27 @@ import { FilterState } from "@/app/types/orderFilter";
 import { useFilteredOrders } from "@/app/lib/actions/orders/hooks/useFilteredOrders";
 import ActionSection from "./components/actions/ActionSection";
 
+
+const defaultFilterState: FilterState = {
+  searchTerm: "",
+  tagIds: [],
+  tagStatuses: [],
+  location: null,
+  agent: "",
+  paymentMethod: null,
+  companyName: "",
+  product: "",
+  dateRange: {
+    from: null,
+    to: null,
+  },
+  priceRange: {
+    min: "",
+    max: "",
+  },
+  isNot: false,
+};
+
 const OrderPageWrapper = () => {
   const [page, setPage] = useState(1);
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
@@ -72,9 +93,7 @@ const OrderPageWrapper = () => {
     });
   };
 
-  const clearAllOrderSelections = () => {
-    setSelectedOrders([]);
-  };
+
 
   const hasOrders = orders?.data?.items && orders.data.items.length > 0;
   const selectedOrdersCount = selectedOrders.length;
@@ -98,7 +117,7 @@ const OrderPageWrapper = () => {
         <FilterSection onSubmit={handleFilterSubmit}></FilterSection>
         <ActionSection
           orders={selectedOrders}
-          filters={activeFilters}
+          filters={activeFilters ? activeFilters : defaultFilterState}
           setSelectedOrders={setSelectedOrders}
         />
         {isLoading ? (

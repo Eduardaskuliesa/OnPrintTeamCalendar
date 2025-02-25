@@ -48,6 +48,5 @@ export async function getFilteredOrders(filters: FilterState, page: number = 1) 
 
   const result = await getCachedOrders()(filters, page);
 
-  console.log(result);
   return { data: result };
 }

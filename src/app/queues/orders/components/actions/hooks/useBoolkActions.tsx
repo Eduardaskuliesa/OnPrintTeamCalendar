@@ -27,6 +27,14 @@ export function useBulkActions() {
       orderIds: orderIds.map((order) => order),
     };
 
+    const sendDataFilteredTagScope = {
+      where,
+      tagIds: tagsIds
+    }
+
+    const sendDataFilteredOrderScope = {
+      where
+    }
     setIsLoading(true);
     setError(null);
 
@@ -190,35 +198,170 @@ export function useBulkActions() {
             throw new Error(`Unknown action type: ${actionType}`);
         }
       } else if (scope === "filtered") {
-        // For filtered actions, we don't need orderIds
         switch (actionType) {
-          // case "pauseOrders":
-          //     await pauseOrders()
-          //     break
-          // case "resumeOrders":
-          //     await resumeOrders()
-          //     break
-          // case "inactiveOrders":
-          //     await inactiveOrders()
-          //     break
-          // case "deleteOrders":
-          //     await deleteOrders()
-          //     break
-          // case "addTag":
-          //     await addTagToOrders(options?.tags || [])
-          //     break
-          // case "removeTag":
-          //     await removeTagFromOrders(options?.tags || [])
-          //     break
-          // case "pauseTag":
-          //     await pauseTagForOrders(options?.tags || [])
-          //     break
-          // case "resumeTag":
-          //     await resumeTagForOrders(options?.tags || [])
-          //     break
-          // case "inactiveTag":
-          //     await inactiveTagForOrders(options?.tags || [])
-          //     break
+          case "pauseOrders":
+            try {
+              const result = await ordersActions.bulk.pauseOrdersBulk(
+                sendDataFilteredOrderScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Sėkmingai gavome užklausą, prašome palaukti, gali užtrukti iki kelių minučių", {
+                autoClose: 6000
+              });
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+            break;
+          case "resumeOrders":
+            try {
+              const result = await ordersActions.bulk.resumeOrdersBulk(
+                sendDataFilteredOrderScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Sėkmingai gavome užklausą, prašome palaukti, gali užtrukti iki kelių minučių", {
+                autoClose: 6000
+              });
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+            break;
+          case "inactiveOrders":
+            try {
+              const result = await ordersActions.bulk.inactiveOrdersBulk(
+                sendDataFilteredOrderScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Sėkmingai gavome užklausą, prašome palaukti, gali užtrukti iki kelių minučių", {
+                autoClose: 6000
+              });
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+            break;
+          case "deleteOrders":
+            try {
+              const result = await ordersActions.bulk.deleteOrdersBulk(
+                sendDataFilteredOrderScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Sėkmingai gavome užklausą, prašome palaukti, gali užtrukti iki kelių minučių", {
+                autoClose: 6000
+              });
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+            break;
+
+          case "addTag":
+            try {
+              const result = await ordersActions.bulk.addTagsToFilteredOrders(
+                sendDataFilteredTagScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Sėkmingai gavome užklausą, prašome palaukti, gali užtrukti iki kelių minučių", {
+                autoClose: 6000
+              });
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+            break;
+          case "removeTag":
+            try {
+              const result = await ordersActions.bulk.removeTagsToFilteredOrders(
+                sendDataFilteredTagScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Sėkmingai gavome užklausą, prašome palaukti, gali užtrukti iki kelių minučių", {
+                autoClose: 6000
+              });
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+            break
+          case "pauseTag":
+            try {
+              const result = await ordersActions.bulk.pauseTagsToFilteredOrders(
+                sendDataFilteredTagScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Sėkmingai gavome užklausą, prašome palaukti, gali užtrukti iki kelių minučių", {
+                autoClose: 6000
+              });
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+            break
+          case "resumeTag":
+            try {
+              const result = await ordersActions.bulk.resumeTagsToFilteredOrders(
+                sendDataFilteredTagScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Sėkmingai gavome užklausą, prašome palaukti, gali užtrukti iki kelių minučių", {
+                autoClose: 6000
+              });
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+            break
+          case "inactiveTag":
+            try {
+              const result = await ordersActions.bulk.inactiveTagsToFilteredOrders(
+                sendDataFilteredTagScope
+              );
+              if (!result.success) {
+                toast.error("Įvyko klaida");
+                break;
+              }
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              toast.success("Sėkmingai gavome užklausą, prašome palaukti, gali užtrukti iki kelių minučių", {
+                autoClose: 6000
+              });
+              resetAndClear();
+            } catch (error) {
+              console.log(error);
+            }
+            break
           default:
             throw new Error(`Unknown action type: ${actionType}`);
         }

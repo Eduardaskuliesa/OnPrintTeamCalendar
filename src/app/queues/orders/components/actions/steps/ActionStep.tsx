@@ -33,7 +33,7 @@ export function ActionStep({ actionScope, setAction }: ActionStepProps) {
                     />
                     <ActionButton
                         icon={Play}
-                        label="Atnaujinti tagą"
+                        label="Tęsti tagą"
                         onClick={() => setAction("resumeTag")}
                     />
                     <ActionButton
@@ -51,7 +51,7 @@ export function ActionStep({ actionScope, setAction }: ActionStepProps) {
                     />
                     <ActionButton
                         icon={Play}
-                        label="Atnaujinti užsakymus"
+                        label="Tęsti užsakymus"
                         onClick={() => setAction("resumeOrders")}
                     />
                     <ActionButton

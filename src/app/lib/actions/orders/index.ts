@@ -1,3 +1,4 @@
+import { bulk } from "./bulk";
 import { getOrders } from "./getAllOrders";
 import { getFilteredOrders } from "./getFilteredOrders";
 import { orderScope } from "./orderScope";
@@ -8,4 +9,5 @@ export const ordersActions = {
   tagScope,
   getOrders,
   getFilteredOrders,
+  bulk
 };

@@ -25,7 +25,7 @@ export function ConfirmStep({
   goBack,
   handleConfirm,
 }: ConfirmStepProps) {
-  const noOrders = orders.length === 0;
+  const noOrders = orders.length === 0 && target === 'selected';
   console.log(noOrders);
   return (
     <div className="px-2 py-2 space-y-3">
