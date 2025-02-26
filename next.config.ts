@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
     SALT_ROUNDS: process.env.SALT_ROUNDS,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     REVALIDATE_SECRET_QUEUES: process.env.REVALIDATE_SECRET_QUEUES,
-    NEXT_PUBLIC_VPS_QUEUE_ENDPOIN: process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOIN,
+    VPS_QUEUE_ENDPOIN: process.env.VPS_QUEUE_ENDPOIN,
   },
 };
 

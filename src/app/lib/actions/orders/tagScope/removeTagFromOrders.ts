@@ -10,7 +10,7 @@ interface Data {
 export async function removeTagsFromoOrders(data: Data) {
   console.log(data);
   const url = new URL(
-    `${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/orders/selected/tscope/remove`
+    `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/selected/tscope/remove`
   );
 
   const orderIds = data.orderIds;

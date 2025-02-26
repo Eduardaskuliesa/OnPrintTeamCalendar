@@ -7,7 +7,7 @@ interface Data {
 
 export async function inactiveOrders(data: Data) {
   const url = new URL(
-    `${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/orders/selected/dscope/inactive`
+    `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/selected/dscope/inactive`
   );
 
   const orderIds = data.orderIds;

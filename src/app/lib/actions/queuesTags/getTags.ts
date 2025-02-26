@@ -4,8 +4,7 @@ import { getServerSession } from "next-auth";
 
 async function fetchTagsFromDb() {
   console.log("Fetching all tag from DB at:", new Date().toISOString());
-  console.log("endpoint: ", process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT);
-  const url = new URL(`${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/tags`);
+  const url = new URL(`${process.env.VPS_QUEUE_ENDPOINT}/api/tags`);
 
   const response = await fetch(url, {
     method: "GET",

@@ -5,7 +5,7 @@ import { unstable_cache } from "next/cache";
 
 async function fetchTagFromDb(tagId: number) {
   console.log("Fetching tag from DB at:", new Date().toISOString());
-  const url = new URL(`${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/tag/${tagId}`);
+  const url = new URL(`${process.env.VPS_QUEUE_ENDPOINT}/api/tag/${tagId}`);
 
   const response = await fetch(url, {
     method: "GET",

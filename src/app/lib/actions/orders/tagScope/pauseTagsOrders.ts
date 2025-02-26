@@ -8,7 +8,7 @@ interface Data {
 }
 
 export async function pauseTagsOrders(data: Data) {
-  const url = new URL(`${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/orders/selected/tscope/pause`);
+  const url = new URL(`${process.env.VPS_QUEUE_ENDPOINT}/api/orders/selected/tscope/pause`);
 
   const orderIds = data.orderIds;
   const tagIds = data.tagIds;

@@ -10,7 +10,7 @@ interface Data {
 export async function inactiveTagsOrders(data: Data) {
   console.log(data);
   const url = new URL(
-    `${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/orders/selected/tscope/inactive`
+    `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/selected/tscope/inactive`
   );
 
   const orderIds = data.orderIds;

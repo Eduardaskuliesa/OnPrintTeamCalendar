@@ -8,7 +8,7 @@ export async function deleteTag(tagId: number) {
   if (session?.user?.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
-  const url = new URL(`${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/tag/${tagId}`);
+  const url = new URL(`${process.env.VPS_QUEUE_ENDPOINT}/api/tag/${tagId}`);
 
   const response = await fetch(url, {
     cache: "no-cache",

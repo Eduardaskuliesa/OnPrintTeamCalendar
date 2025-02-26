@@ -7,7 +7,7 @@ interface Data {
 
 export async function resumeOrders(data: Data) {
   const url = new URL(
-    `${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/orders/selected/dscope/resume`
+    `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/selected/dscope/resume`
   );
 
   const orderIds = data.orderIds;
