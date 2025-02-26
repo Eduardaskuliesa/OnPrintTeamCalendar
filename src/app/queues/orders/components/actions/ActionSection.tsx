@@ -129,7 +129,7 @@ export default function ActionSection({
       </Button>
 
       {state.open && (
-        <Card className="absolute z-50 bg-white top-[calc(100%+4px)] left-0 w-[320px] py-1.5 rounded-md px-2 shadow-lg animate-in fade-in-0 zoom-in-95">
+        <Card className="absolute z-50 bg-white top-[calc(100%+4px)] left-0 w-[320px] py-1.5 rounded-md px-2 shadow-lg animate-in fade-in-0 border-gray-100 border">
           <div className="max-h-[450px] overflow-y-auto">
             {state.step !== "scope" && state.step !== "confirm" && (
               <Button
