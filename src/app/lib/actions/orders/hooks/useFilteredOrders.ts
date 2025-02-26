@@ -12,5 +12,7 @@ export function useFilteredOrders(
     queryFn: () => ordersActions.getFilteredOrders(filters, page),
     refetchOnMount: true,
     enabled: options?.enabled !== false,
+    staleTime: 0,
+    gcTime: 0,
   });
 }

@@ -9,7 +9,7 @@ interface Data {
 export async function resumeOrdersBulk(data: Data) {
 
     const url = new URL(
-        `http://localhost:3000/api/orders/resume`
+        `${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOIN}/api/orders/resume`
     );
 
     const extractedData = data.where;

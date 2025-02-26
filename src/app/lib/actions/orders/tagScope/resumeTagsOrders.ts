@@ -8,7 +8,7 @@ interface Data {
 }
 
 export async function resumeTagsOrders(data: Data) {
-  const url = new URL(`http://localhost:3000/api/orders/selected/tscope/resume`);
+  const url = new URL(`${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/orders/selected/tscope/resume`);
 
   const orderIds = data.orderIds;
   const tagIds = data.tagIds;

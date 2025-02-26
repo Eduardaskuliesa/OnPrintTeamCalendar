@@ -7,7 +7,7 @@ interface Data {
 }
 
 export async function pauseOrders(data: Data) {
-  const url = new URL(`http://localhost:3000/api/orders/selected/dscope/pause`);
+  const url = new URL(`${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/orders/selected/dscope/pause`);
 
   const orderIds = data.orderIds;
 

@@ -16,7 +16,7 @@ export async function createTag(tagData: QueueTag) {
       throw new Error("Unauthorized");
     }
     console.log(tagData);
-    const url = new URL(`http://localhost:3000/api/tag`);
+    const url = new URL(`${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/tag`);
 
     const response = await fetch(url, {
       method: "POST",

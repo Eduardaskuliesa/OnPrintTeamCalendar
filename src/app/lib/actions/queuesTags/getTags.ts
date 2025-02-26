@@ -1,11 +1,11 @@
 "use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { getServerSession } from "next-auth";
-import { unstable_cache } from "next/cache";
 
 async function fetchTagsFromDb() {
   console.log("Fetching all tag from DB at:", new Date().toISOString());
-  const url = new URL(`http://localhost:3000/api/tags`);
+  console.log("endpoint: ", process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT);
+  const url = new URL(`${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOINT}/api/tags`);
 
   const response = await fetch(url, {
     method: "GET",
@@ -23,18 +23,12 @@ async function fetchTagsFromDb() {
   return data;
 }
 
-const getCachedTags = () =>
-  unstable_cache(() => fetchTagsFromDb(), ["all-tag"], {
-    revalidate: 3600,
-    tags: ["all-tags"],
-  });
-
 export async function getTags() {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
 
-  const result = await getCachedTags()();
+  const result = await fetchTagsFromDb();
   return { data: result };
 }
