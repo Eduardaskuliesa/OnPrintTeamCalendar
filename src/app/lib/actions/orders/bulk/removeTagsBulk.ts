@@ -10,7 +10,7 @@ interface Data {
 export async function removeTagsToFilteredOrders(data: Data) {
 
     const url = new URL(
-        `${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOIN}/api/orders/remove/tags`
+        `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/remove/tags`
     );
 
     const filters = data.where

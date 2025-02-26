@@ -9,7 +9,7 @@ interface Data {
 
 export async function addTagsToFilteredOrders(data: Data) {
   const url = new URL(
-    `${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOIN}/api/orders/tags/filter`
+    `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/tags/filter`
   );
 
   const filters = data.where;

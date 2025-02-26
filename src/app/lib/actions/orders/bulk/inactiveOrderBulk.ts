@@ -9,7 +9,7 @@ interface Data {
 export async function inactiveOrdersBulk(data: Data) {
 
     const url = new URL(
-        `${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOIN}/api/orders/inactive`
+        `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/inactive`
     );
 
     const extractedData = data.where;

@@ -9,7 +9,7 @@ interface Data {
 export async function pauseOrdersBulk(data: Data) {
 
     const url = new URL(
-        `${process.env.NEXT_PUBLIC_VPS_QUEUE_ENDPOIN}/api/orders/pause`
+        `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/pause`
     );
 
     const extractedData = data.where;
