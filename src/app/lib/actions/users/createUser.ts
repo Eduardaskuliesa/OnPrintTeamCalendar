@@ -1,5 +1,5 @@
 "use server";
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
