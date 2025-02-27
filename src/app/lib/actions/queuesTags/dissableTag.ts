@@ -15,7 +15,7 @@ export async function updateTagStatus(tagId: number, isActive: boolean) {
       };
     }
 
-    const url = new URL(`http://localhost:3000/api/tag/${tagId}`);
+    const url = new URL(`${process.env.VPS_QUEUE_ENDPOINT}/api/tag/${tagId}`);
 
     const response = await fetch(url, {
       cache: "no-cache",

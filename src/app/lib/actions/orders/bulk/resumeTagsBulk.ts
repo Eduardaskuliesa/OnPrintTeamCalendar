@@ -10,7 +10,7 @@ interface Data {
 export async function resumeTagsToFilteredOrders(data: Data) {
 
     const url = new URL(
-        `http://localhost:3000/api/orders/resume/tags`
+        `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/resume/tags`
     );
 
     const filters = data.where

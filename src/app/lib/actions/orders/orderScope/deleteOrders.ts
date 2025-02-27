@@ -8,7 +8,7 @@ interface Data {
 
 export async function deleteOrders(data: Data) {
   const url = new URL(
-    `http://localhost:3000/api/orders/selected/dscope/delete`
+    `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/selected/dscope/delete`
   );
 
   const orderIds = data.orderIds;

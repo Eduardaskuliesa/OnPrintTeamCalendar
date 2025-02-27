@@ -5,7 +5,7 @@ import { unstable_cache } from "next/cache";
 
 async function fetchTagFromDb(tagId: number) {
   console.log("Fetching tag from DB at:", new Date().toISOString());
-  const url = new URL(`http://localhost:3000/api/tag/${tagId}`);
+  const url = new URL(`${process.env.VPS_QUEUE_ENDPOINT}/api/tag/${tagId}`);
 
   const response = await fetch(url, {
     method: "GET",
@@ -25,7 +25,7 @@ async function fetchTagFromDb(tagId: number) {
 
 const getCachedTag = (tagId: number) =>
   unstable_cache(() => fetchTagFromDb(tagId), [`tag-${tagId}`], {
-    revalidate: 10,
+    revalidate: 1000,
     tags: [`tag-${tagId}`],
   });
 

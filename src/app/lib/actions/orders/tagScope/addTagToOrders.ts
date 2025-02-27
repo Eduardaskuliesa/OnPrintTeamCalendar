@@ -10,7 +10,7 @@ interface Data {
 export async function addTagsToOrders(data: Data) {
   console.log(data);
   const url = new URL(
-    `http://localhost:3000/api/orders/selected/tscope/create`
+    `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/selected/tscope/create`
   );
 
   const orderIds = data.orderIds;

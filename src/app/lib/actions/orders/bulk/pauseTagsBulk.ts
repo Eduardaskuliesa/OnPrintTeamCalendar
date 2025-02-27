@@ -10,7 +10,7 @@ interface Data {
 export async function pauseTagsToFilteredOrders(data: Data) {
 
     const url = new URL(
-        `http://localhost:3000/api/orders/pause/tags`
+        `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/pause/tags`
     );
 
     const filters = data.where

@@ -9,7 +9,7 @@ interface Data {
 export async function deleteOrdersBulk(data: Data) {
 
     const url = new URL(
-        `http://localhost:3000/api/orders/filter`
+        `${process.env.VPS_QUEUE_ENDPOINT}/api/orders/filter`
     );
 
     const filterData = data.where;
