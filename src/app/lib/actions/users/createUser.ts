@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
 import { dynamoName, settingsDynamoName } from "@/app/lib/dynamodb";
 import { dynamoDb } from "@/app/lib/dynamodb";
-import { FormData } from "@/app/admin/components/forms/CreateUserForm";
+import { FormData } from "@/app/(main)/admin/components/forms/CreateUserForm";
 import bcrypt from "bcryptjs";
 import { PutCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { GlobalSettingsType } from "@/app/types/bookSettings";

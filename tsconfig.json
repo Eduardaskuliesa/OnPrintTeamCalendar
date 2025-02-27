@@ -28,6 +28,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "types/**/*.ts"
-, "src/app/account/components/UserStats/tabs/VacationContent"  ],
+, "src/app/(main)/account/components/UserStats/tabs/VacationContent"  ],
   "exclude": ["node_modules", "scripts/**/*"]
 }
