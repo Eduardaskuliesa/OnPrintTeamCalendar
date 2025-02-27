@@ -62,7 +62,7 @@ export const TagFilter = ({
                     : [...selectedTags, tag.id];
                   onChange(newSelected);
                 }}
-                className="py-2 px-4 hover:bg-gray-100 cursor-pointer flex items-center"
+                className="py-2 px-2 hover:bg-gray-100 cursor-pointer flex items-center"
               >
                 <Checkbox checked={selectedTags.includes(tag.id)} />
                 {tag.tagName}

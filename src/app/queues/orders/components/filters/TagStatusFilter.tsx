@@ -25,6 +25,16 @@ const tagStatuses: Record<TagStatus, string> = {
   PAUSED: "Sustabdytas",
 };
 
+
+const statusColors: Record<TagStatus, string> = {
+  QUEUED: "border-yellow-600",
+  PENDING: "border-orange-600",
+  SENT: "border-green-600",
+  FAILED: "border-red-600",
+  INACTIVE: "border-gray-600",
+  PAUSED: "border-blue-600",
+};
+
 export const TagStatusFilter = ({
   selectedTagStatuses,
   onChange,
@@ -47,33 +57,37 @@ export const TagStatusFilter = ({
           </span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48 bg-white" align="start">
-        {Object.entries(tagStatuses).map(([key, value]) => (
-          <DropdownMenuItem
-            key={key}
-            onSelect={(e) => {
-              e.preventDefault();
-              const status = key as TagStatus;
-              const newSelected = selectedTagStatuses.includes(status)
-                ? selectedTagStatuses.filter((s) => s !== status)
-                : [...selectedTagStatuses, status];
-              onChange(newSelected);
-            }}
-            className="py-2 px-4 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
-          >
-            <Checkbox
-              checked={selectedTagStatuses.includes(key as TagStatus)}
-            />
-            {value}
-          </DropdownMenuItem>
-        ))}
+      <DropdownMenuContent className="w-48 flex gap-2 flex-col bg-white" align="start">
+        {Object.entries(tagStatuses).map(([key, value]) => {
+          const status = key as TagStatus;
+          const colorClass = statusColors[status];
+
+          return (
+            <DropdownMenuItem
+              key={key}
+              onSelect={(e) => {
+                e.preventDefault();
+                const newSelected = selectedTagStatuses.includes(status)
+                  ? selectedTagStatuses.filter((s) => s !== status)
+                  : [...selectedTagStatuses, status];
+                onChange(newSelected);
+              }}
+              className={`py-2 px-2 hover:bg-gray-100 rounded-none cursor-pointer flex items-center gap-2 border-l-4 ${colorClass}`}
+            >
+              <Checkbox
+                checked={selectedTagStatuses.includes(status)}
+              />
+              {value}
+            </DropdownMenuItem>
+          );
+        })}
         {selectedTagStatuses.length > 0 && (
           <DropdownMenuItem
             onSelect={(e) => {
               e.preventDefault();
               onClear();
             }}
-            className="py-2 px-4 hover:bg-gray-100 cursor-pointer text-gray-500"
+            className="py-2 px-2 hover:bg-gray-100 cursor-pointer text-gray-500"
           >
             Išvalyti
           </DropdownMenuItem>
