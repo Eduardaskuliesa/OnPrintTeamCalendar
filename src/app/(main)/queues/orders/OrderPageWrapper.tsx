@@ -10,14 +10,14 @@ import FilterSection from "./components/filters/FilterSection";
 import { FilterState } from "@/app/types/orderFilter";
 import { useFilteredOrders } from "@/app/lib/actions/orders/hooks/useFilteredOrders";
 import ActionSection from "./components/ActionSection";
-
+import { useGetAllSalesAgents } from "@/app/lib/actions/salesAgent/hooks/useGetAllSalesAgents";
 
 const defaultFilterState: FilterState = {
   searchTerm: "",
   tagIds: [],
   tagStatuses: [],
   location: null,
-  agent: "",
+  agent: null,
   paymentMethod: null,
   companyName: "",
   product: "",
@@ -43,6 +43,8 @@ const OrderPageWrapper = () => {
     isFetching: isUnfilteredFetching,
   } = useGetOrders(page, { enabled: !activeFilters });
 
+  console.log(unfilteredOrders);
+
   const {
     data: filteredOrders,
     isLoading: isFilteredLoading,
@@ -50,6 +52,10 @@ const OrderPageWrapper = () => {
   } = useFilteredOrders(activeFilters || ({} as FilterState), page, {
     enabled: !!activeFilters,
   });
+
+  const { data: salesAgentData } = useGetAllSalesAgents();
+  const salesAgents = salesAgentData?.data.salesAgents || [];
+  console.log("SalesAgents:", salesAgents);
 
   const orders = activeFilters ? filteredOrders : unfilteredOrders;
   const isLoading = activeFilters ? isFilteredLoading : isUnfilteredLoading;
@@ -92,8 +98,6 @@ const OrderPageWrapper = () => {
     });
   };
 
-
-
   const hasOrders = orders?.data?.items && orders.data.items.length > 0;
   const selectedOrdersCount = selectedOrders.length;
 
@@ -131,6 +135,7 @@ const OrderPageWrapper = () => {
           <>
             <div className="hidden md:block bg-white shadow-lg rounded-lg overflow-anchor-none">
               <OrdersTable
+                salesAgents={salesAgents}
                 orders={orders.data.items}
                 selectedOrders={selectedOrders}
                 toggleOrderSelection={toggleOrderSelection}

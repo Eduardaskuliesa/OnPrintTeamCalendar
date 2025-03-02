@@ -12,7 +12,7 @@ export const TagsHeader = ({
   onSearchChange,
 }: TagsHeaderProps) => (
   <div className="mb-8">
-    <h1 className="text-2xl font-bold mb-6">Žingsniai</h1>
+    <h1 className="text-2xl font-bold mb-6">Tagai</h1>
     <div className="flex flex-col sm:flex-row gap-4">
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />

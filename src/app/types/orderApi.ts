@@ -18,17 +18,19 @@ export interface Order {
   createdAt: string;
   updatedAt: string;
   userName: string;
+  orderDate: string;
   userSurname: string;
   companyName: string;
   phoneNumber: string;
   city: string;
   country: string;
-  productName: string;
-  subTotal: number;
-  paymentDetails: string;
-  salesAgentId: string;
+  productNames: string[];
+  productIds: string[];
+  totalAmount: number;
+  paymentMethodName: string;
+  salesAgentId: number;
   customerId: string;
-  productId: string;
+  email: string;
   jobs: Job[];
 }
 
@@ -46,4 +48,12 @@ export interface TagType {
   createdAt: string;
   updateAt: string;
   isActive: boolean;
+}
+
+export interface SalesAgent {
+  id: number;
+  name: string;
+  phoneNumber: string;
+  fullText: string;
+  orderCount: number;
 }

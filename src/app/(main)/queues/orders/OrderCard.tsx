@@ -105,13 +105,13 @@ export const OrderCard: React.FC<OrderCardProps> = ({
       <div className="flex items-start">
         <DollarSign className="h-5 w-5 text-gray-400 mr-2 mt-1" />
         <div>
-          <div className="font-medium">{order.productName}</div>
+          <div className="font-medium">{order.productNames}</div>
           <div className="text-sm text-gray-500">
-            ${order.subTotal.toFixed(2)}
+            ${order.totalAmount}
           </div>
           <div className="text-sm text-gray-500 flex items-center mt-1">
             <CreditCard className="h-4 w-4 mr-1" />
-            {order.paymentDetails}
+            {order.paymentMethodName}
           </div>
         </div>
       </div>
@@ -133,7 +133,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({
       <div className="text-xs text-gray-500 mt-2">
         <div>Sales Agent ID: {order.salesAgentId}</div>
         <div>Customer ID: {order.customerId}</div>
-        <div>Product ID: {order.productId}</div>
+        <div>Product ID: {order.productIds}</div>
         <div>
           Attempts: {order.jobs.reduce((sum, job) => sum + job.attempts, 0)}
         </div>

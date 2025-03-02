@@ -29,7 +29,7 @@ export interface FilterState {
   tagIds: number[] | null;
   tagStatuses: TagStatus[] | null;
   location: Location | null;
-  agent: string | null;
+  agent: number | null;
   paymentMethod: PaymentMethod | null;
   companyName: string;
   product: string | null;
