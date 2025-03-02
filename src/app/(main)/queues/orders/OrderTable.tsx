@@ -21,6 +21,8 @@ import {
   Check,
   Tag,
   Mail,
+  ClockIcon,
+  CalendarIcon,
 } from "lucide-react";
 import { Order, SalesAgent } from "@/app/types/orderApi";
 import { getStatusColor } from "./OrderCard";
@@ -109,8 +111,15 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                 </div>
               </TableCell>
               <TableCell className="py-2 border-x">
-                <div className="text-sm text-gray-500">
-                  Orderio data: {order.orderDate}
+                <div className="flex flex-col space-y-1">
+                  <div className="flex items-center text-sm text-gray-900">
+                    <CalendarIcon className="h-4 w-4 mr-1 text-gray-500" />
+                    {order.orderDate.split(" ")[0]}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-900">
+                    <ClockIcon className="h-4 w-4 mr-1 text-gray-500" />
+                    {order.orderDate.split(" ")[1]}
+                  </div>
                 </div>
               </TableCell>
               <TableCell className="py-2 border-x">
