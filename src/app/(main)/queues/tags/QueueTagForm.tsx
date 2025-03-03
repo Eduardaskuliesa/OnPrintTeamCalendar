@@ -1,5 +1,5 @@
 import React, { useState, FormEvent } from "react";
-import { X, Clock } from "lucide-react";
+import { X, Clock, Globe, Users, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,8 +9,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useQueryClient } from "@tanstack/react-query";
 import { createTag } from "@/app/lib/actions/queuesTags/createTag";
+import { TagType } from "@/app/types/orderApi";
 
 interface QueueTagFormProps {
   onCancel: () => void;
@@ -19,6 +27,7 @@ interface QueueTagFormProps {
 
 interface FormData {
   tagName: string;
+  tagType: TagType['tagType'];
   days: string;
   hours: string;
   minutes: string;
@@ -34,6 +43,7 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
   const [errors, setErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState<FormData>({
     tagName: "",
+    tagType: "All",
     days: "0",
     hours: "0",
     minutes: "0",
@@ -58,9 +68,9 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
 
   const calculateTotalMilliseconds = () => {
     return (
-      parseInt(formData.days || "0") * 24 * 60 * 60 * 1000 + // days to ms
-      parseInt(formData.hours || "0") * 60 * 60 * 1000 + // hours to ms
-      parseInt(formData.minutes || "0") * 60 * 1000 // minutes to ms
+      parseInt(formData.days || "0") * 24 * 60 * 60 * 1000 +
+      parseInt(formData.hours || "0") * 60 * 60 * 1000 +
+      parseInt(formData.minutes || "0") * 60 * 1000
     );
   };
 
@@ -80,6 +90,7 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
 
       const tagData = {
         tagName: formData.tagName,
+        tagType: formData.tagType,
         scheduledFor: calculateTotalMilliseconds(),
       };
 
@@ -93,6 +104,7 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
       await queryClient.invalidateQueries({ queryKey: ["all-tags"] });
       setFormData({
         tagName: "",
+        tagType: "All",
         days: "0",
         hours: "0",
         minutes: "0",
@@ -133,6 +145,17 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
     return parts.length > 0 ? parts.join(" ") : "Pasirinkite laiką";
   };
 
+  const tagTypeOptions = [
+    { value: "Global", label: "Global", icon: <Globe className="h-4 w-4 mr-2" /> },
+    { value: "Subscriber", label: "Subscriber", icon: <Users className="h-4 w-4 mr-2" /> },
+    { value: "All", label: "All", icon: <LayoutGrid className="h-4 w-4 mr-2" /> }
+  ];
+
+  const getTagTypeIcon = (type: string) => {
+    const option = tagTypeOptions.find(opt => opt.value === type);
+    return option ? option.icon : null;
+  };
+
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -170,6 +193,37 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">
+              Tago tipas
+            </label>
+            <Select
+              value={formData.tagType}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, tagType: value as TagType['tagType'] }))
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Pasirinkite tago tipą">
+                  <div className="flex items-center">
+                    {getTagTypeIcon(formData.tagType)}
+                    {formData.tagType}
+                  </div>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {tagTypeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    <div className="flex items-center">
+                      {option.icon}
+                      {option.label}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
               Laukimo laikas
             </label>
             <Popover
@@ -194,7 +248,6 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
                     <Input
                       type="number"
                       min={0}
-                      max={24}
                       value={formData.days}
                       onChange={(e) =>
                         setFormData((prev) => ({

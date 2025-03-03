@@ -1,5 +1,7 @@
 import { TagType } from "@/app/types/orderApi";
-import { Timer } from "lucide-react";
+import { Timer, Globe, Users, LayoutGrid } from "lucide-react";
+
+export type tagType = "Global" | "Subscriber" | "All";
 
 interface TagCardProps {
   tag: TagType;
@@ -22,29 +24,51 @@ const formatWaitDuration = (milliseconds: number) => {
   return `${Math.floor(minutes)} ${minutes === 1 ? "minutė" : "minučių"}`;
 };
 
+const getTagTypeIcon = (tagType: tagType) => {
+  switch (tagType) {
+    case "Global":
+      return <Globe className="w-4 h-4 mr-1" />;
+    case "Subscriber":
+      return <Users className="w-4 h-4 mr-1" />;
+    case "All":
+      return <LayoutGrid className="w-4 h-4 mr-1" />;
+    default:
+      return null;
+  }
+};
+
 export const TagCardContent = ({ tag }: { tag: TagCardProps["tag"] }) => (
   <div className="p-4">
-    <div className="flex justify-between items-start">
-      <div className="space-y-2">
-        <div className="flex items-center text-gray-700 mt-4">
+    <div className="flex flex-col justify-between h-full">
+
+      <div className="flex justify-between items-center">
+        <div className="flex items-center text-gray-700">
           <Timer className="w-4 h-4 mr-2" />
           <span className="text-sm">
             {formatWaitDuration(tag.scheduledFor)} laukimas
           </span>
         </div>
-      </div>
-      <div className="flex flex-col">
+
         <div className="text-right">
           <div className="text-xl font-semibold text-gray-900">
             {tag.jobsCount}
           </div>
           <div className="text-sm text-gray-600">paveiktos eilės</div>
         </div>
-        <div className="flex justify-end mt-2">
+      </div>
+
+
+      <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center text-gray-700">
+          {getTagTypeIcon(tag.tagType as tagType)}
+          <span className="text-sm">{tag.tagType}</span>
+        </div>
+
+        <div>
           {tag.isActive ? (
-            <span className="text-emerald-600 text-center">Aktyvus</span>
+            <span className="text-emerald-600 text-center text-sm">Aktyvus</span>
           ) : (
-            <span className="text-red-600">Išjungtas</span>
+            <span className="text-red-600 text-sm">Išjungtas</span>
           )}
         </div>
       </div>

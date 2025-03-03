@@ -22,6 +22,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { toast } from "react-toastify";
 
 interface AddTagModalProps {
   order: Order;
@@ -50,11 +51,13 @@ export const AddTagModal: React.FC<AddTagModalProps> = ({
       });
 
       await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      toast.success('Sėkmingai pridėti nauji tagai')
       setSelectedTags([]);
       setIsLoadingTags(false);
       onOpenChange(false);
     } catch (error) {
-      console.error("Žymų pridėjimas nepavyko", error);
+      toast.error('Įvyko klaida')
+      console.error("Tagų pridėjimas nepavyko", error);
     } finally {
       setIsLoadingTags(false);
     }

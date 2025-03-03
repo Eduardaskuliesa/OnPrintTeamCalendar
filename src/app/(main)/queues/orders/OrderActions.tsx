@@ -19,8 +19,9 @@ import {
   Loader,
 } from "lucide-react";
 import React, { useState } from "react";
-import { AddTagModal } from "../tags/AddTagModal";
+import { AddTagModal } from "./AddTagModal";
 import { RemoveTagModal } from "./RemoveTagModal";
+import { toast } from "react-toastify";
 
 interface OrderActionsProps {
   order: Order;
@@ -29,21 +30,17 @@ interface OrderActionsProps {
 const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
-  const [addTagModalOpen, setAddTagModalOpen] = useState(false);
-  const [removeTagModalOpen, setRemoveTagModalOpen] = useState(false);
 
-  const handleOpenTagModal = () => {
-    setTimeout(() => {
-      setAddTagModalOpen(true);
-    }, 100);
-  };
 
-  const handleOpenRemoveTagModal = () => {
-    setTimeout(() => {
-      setRemoveTagModalOpen(true);
-    }, 100);
-  };
-  
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [modalState, setModalState] = useState<{
+    type: 'addTag' | 'removeTag' | null;
+    isOpen: boolean;
+  }>({
+    type: null,
+    isOpen: false,
+  });
+
   const handleDelete = async () => {
     setIsLoading(true);
     try {
@@ -54,6 +51,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
       if (result.success) {
         setIsLoading(false);
       }
+      toast.success('Orderis sėkmingai ištryntas')
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     } catch (error) {
       setIsLoading(false);
@@ -72,8 +70,10 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
       if (result.success) {
         setIsLoading(false);
       }
+      toast.success('Orderis sėkmingai sustabdytas')
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     } catch (error) {
+      toast.error('Įvyko klaida')
       setIsLoading(false);
       console.log(error);
     }
@@ -90,8 +90,10 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
       if (result.success) {
         setIsLoading(false);
       }
+      toast.success('Orderis sėkmingai pratęstas')
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     } catch (error) {
+      toast.error('Įvyko klaida')
       setIsLoading(false);
       console.log(error);
     }
@@ -107,16 +109,28 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
       if (result.success) {
         setIsLoading(false);
       }
+      toast.success('Orderis sėkmingai tapo neaktyviu')
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     } catch (error) {
+      toast.error('Įvyko klaida')
       setIsLoading(false);
       console.log(error);
     }
   };
 
+  const handleOpenModal = (type: 'addTag' | 'removeTag') => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDropdownOpen(false);
+    setModalState({ type, isOpen: true });
+  };
+
+  const handleCloseModal = () => {
+    setModalState({ type: null, isOpen: false });
+  };
+
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
@@ -146,15 +160,17 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
             Tęsti
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={handleOpenTagModal}
+            onClick={handleOpenModal('addTag')}
             className="py-2 px-4 cursor-pointer flex items-center"
+            onSelect={(e) => e.preventDefault()}
           >
             <ArrowDownToLine className="h-4 w-4 mr-2" />
             Pridėti tagą
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={handleOpenRemoveTagModal}
+            onClick={handleOpenModal('removeTag')}
             className="py-2 px-4 cursor-pointer flex items-center"
+            onSelect={(e) => e.preventDefault()}
           >
             <ArrowUpToLine className="h-4 w-4 mr-2" />
             Šalinti tagą
@@ -176,16 +192,25 @@ const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AddTagModal
-        order={order}
-        isOpen={addTagModalOpen}
-        onOpenChange={setAddTagModalOpen}
-      />
-      <RemoveTagModal
-        order={order}
-        isOpen={removeTagModalOpen}
-        onOpenChange={setRemoveTagModalOpen}
-      />
+      {modalState.type === 'addTag' && (
+        <AddTagModal
+          order={order}
+          isOpen={modalState.isOpen}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) handleCloseModal();
+          }}
+        />
+      )}
+
+      {modalState.type === 'removeTag' && (
+        <RemoveTagModal
+          order={order}
+          isOpen={modalState.isOpen}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) handleCloseModal();
+          }}
+        />
+      )}
     </>
   );
 };

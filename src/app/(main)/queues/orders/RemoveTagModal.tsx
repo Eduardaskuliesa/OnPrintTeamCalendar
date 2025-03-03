@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { getStatusColor } from "./OrderCard";
 import { format } from "date-fns";
 import { lt } from "date-fns/locale";
+import { toast } from "react-toastify";
 
 interface RemoveTagModalProps {
   order: Order;
@@ -28,36 +29,38 @@ export const RemoveTagModal: React.FC<RemoveTagModalProps> = ({
   onOpenChange,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedTags, setSelectedTags] = useState<number[]>([]);
+  const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
   const queryClient = useQueryClient();
 
   const handleRemoveTags = async () => {
-    if (selectedTags.length === 0) return;
+    if (selectedJobs.length === 0) return;
     setIsLoading(true);
     try {
 
 
-      await ordersActions.tagScope.removeTagsFromoOrders({
-        orderIds: [order.id],
-        tagIds: selectedTags,
+      await ordersActions.jobScope.deleteJobs({
+
+        jobIds: selectedJobs,
       });
 
       await queryClient.invalidateQueries({ queryKey: ["orders"] });
-      setSelectedTags([]);
+      toast.success('Sėkmingai buvo ištryntį tagai')
+      setSelectedJobs([]);
       setIsLoading(false);
       onOpenChange(false);
     } catch (error) {
-      console.error("Žymų šalinimas nepavyko", error);
+      toast.error('Įvyko klaida')
+      console.error("Tagų šalinimas nepavyko", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const toggleTagSelection = (tagId: number) => {
-    setSelectedTags((prev) =>
-      prev.includes(tagId)
-        ? prev.filter((tagId) => tagId !== tagId)
-        : [...prev, tagId]
+  const toggleTagSelection = (jobId: string) => {
+    setSelectedJobs((prev) =>
+      prev.includes(jobId)
+        ? prev.filter((jobId) => jobId !== jobId)
+        : [...prev, jobId]
     );
   };
 
@@ -86,8 +89,8 @@ export const RemoveTagModal: React.FC<RemoveTagModalProps> = ({
           return (
             <div
               key={job.id}
-              onClick={() => toggleTagSelection(job.tagId)}
-              className={`flex items-center justify-between p-2 rounded-lg cursor-pointer ${selectedTags.includes(job.tagId)
+              onClick={() => toggleTagSelection(job.id)}
+              className={`flex items-center justify-between p-2 rounded-lg cursor-pointer ${selectedJobs.includes(job.id)
                 ? "bg-slate-50 border border-gray-200"
                 : "hover:bg-gray-50"
                 }`}
@@ -106,7 +109,7 @@ export const RemoveTagModal: React.FC<RemoveTagModalProps> = ({
                   {job.scheduledFor && job.createdAt ? formattedTime : "N/A"}
                 </div>
               </div>
-              {selectedTags.includes(job.tagId) && (
+              {selectedJobs.includes(job.id) && (
                 <X className="h-4 w-4 text-red-500" />
               )}
             </div>
@@ -130,11 +133,11 @@ export const RemoveTagModal: React.FC<RemoveTagModalProps> = ({
             variant="outline"
             className="bg-dcoffe text-db hover:bg-vdcoffe hover:text-gray-50 transition-colors"
             onClick={handleRemoveTags}
-            disabled={selectedTags.length === 0 || isLoading}
+            disabled={selectedJobs.length === 0 || isLoading}
           >
             {isLoading
               ? "Šalinama..."
-              : `Šalinti tagus (${selectedTags.length})`}
+              : `Šalinti tagus (${selectedJobs.length})`}
           </Button>
         </div>
       </DialogContent>

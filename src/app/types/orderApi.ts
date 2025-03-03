@@ -1,3 +1,4 @@
+
 export interface Job {
   id: string;
   orderId: number;
@@ -40,11 +41,13 @@ export interface PaginationInfo {
   totalPages: number;
 }
 
+export type tagType = "Global" | "Subscriber" | "All"
 export interface TagType {
   id: number;
   tagName: string;
   scheduledFor: number;
   jobsCount: number;
+  tagType: tagType,
   createdAt: string;
   updateAt: string;
   isActive: boolean;
