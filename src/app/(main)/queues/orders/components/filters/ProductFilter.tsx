@@ -70,7 +70,7 @@ export const ProductFilter = ({ value, onChange, onClear }: ProductFilterProps) 
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-                className="w-auto max-h-[450px] bg-white"
+                className="w-auto  bg-white"
                 align="start"
             >
                 <div className="p-2 border-b sticky top-0 bg-white z-10">
