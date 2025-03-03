@@ -32,7 +32,7 @@ export interface FilterState {
   agent: number | null;
   paymentMethod: PaymentMethod | null;
   companyName: string;
-  product: string | null;
+  products: string[] | null;
   dateRange: {
     from: string | null;
     to: string | null;

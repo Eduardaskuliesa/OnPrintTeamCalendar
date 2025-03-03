@@ -6,8 +6,8 @@ export function useGetOrders(page: number, options?: { enabled?: boolean }) {
     queryKey: ["orders", page],
     queryFn: () => ordersActions.getOrders(page),
     refetchOnMount: true,
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: 600000,
+    gcTime: 600000,
     enabled: options?.enabled !== false,
   });
 }

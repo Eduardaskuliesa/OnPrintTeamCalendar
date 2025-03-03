@@ -10,7 +10,6 @@ export const useGetAllSalesAgents = () =>
       return response;
     },
     refetchOnMount: true,
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnWindowFocus: true,
+    staleTime: 600000,
+    gcTime: 600000,
   });

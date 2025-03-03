@@ -20,7 +20,7 @@ const defaultFilterState: FilterState = {
   agent: null,
   paymentMethod: null,
   companyName: "",
-  product: "",
+  products: [],
   dateRange: {
     from: null,
     to: null,

@@ -27,7 +27,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ onSubmit }) => {
     agent: null,
     paymentMethod: null,
     companyName: "",
-    product: null,
+    products: null,
     dateRange: { from: null, to: null },
     priceRange: { min: "", max: "" },
     isNot: false,
@@ -49,7 +49,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ onSubmit }) => {
       agent: null,
       paymentMethod: null,
       companyName: "",
-      product: null,
+      products: null,
       dateRange: { from: null, to: null },
       priceRange: { min: "", max: "" },
       isNot: false,
@@ -111,11 +111,11 @@ const FilterSection: React.FC<FilterSectionProps> = ({ onSubmit }) => {
           />
         </div>
 
-        <div className="flex-[1_1_300px] max-w-[250px]">
+        <div className="max-w-max">
           <ProductFilter
-            value={filters.product}
-            onChange={(value) => handleFilterChange("product", value)}
-            onClear={() => handleFilterChange("product", null)}
+            value={filters.products}
+            onChange={(value) => handleFilterChange("products", value)}
+            onClear={() => handleFilterChange("products", null)}
           />
         </div>
 
