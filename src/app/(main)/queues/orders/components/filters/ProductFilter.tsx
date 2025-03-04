@@ -103,12 +103,12 @@ export const ProductFilter = ({ value, onChange, onClear }: ProductFilterProps) 
                                     key={product.id}
                                     onSelect={(e) => {
                                         e.preventDefault();
-                                        handleToggleProduct(product.productTitle);
+                                        handleToggleProduct(product.id);
                                     }}
                                     className="py-2 px-2 hover:bg-gray-100 cursor-pointer flex items-center"
                                 >
                                     <Checkbox
-                                        checked={value?.includes(product.productTitle) || false}
+                                        checked={value?.includes(product.id) || false}
                                         className="mr-2"
                                     />
                                     <span className="truncate">{product.productTitle}</span>
