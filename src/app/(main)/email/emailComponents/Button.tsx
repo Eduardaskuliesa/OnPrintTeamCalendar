@@ -2,6 +2,9 @@ import React from "react";
 import { Link } from "@react-email/components";
 
 export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
+export type TextAlignment = "left" | "center" | "right";
+export type ButtonWidth = "25%" | "50%" | "90%" | "auto";
+export type ContentAlignment = "flex-start" | "center" | "flex-end";
 
 export interface EmailButtonProps {
   text: string;
@@ -18,12 +21,18 @@ export interface EmailButtonProps {
   borderStyle?: BorderStyle;
   borderWidth?: number;
   borderColor?: string;
-  width?: "auto" | "full";
+  width?: ButtonWidth;
 
-  centerAlign?: boolean;
-  margin?: {
+  textAlignment?: TextAlignment;
+
+  containerBackgroundColor?: string;
+  containerBorderRadius?: number;
+  contentAlignment?: ContentAlignment;
+  padding?: {
     top?: number;
     bottom?: number;
+    left?: number;
+    right?: number;
   };
 }
 
@@ -41,9 +50,12 @@ const Button: React.FC<EmailButtonProps> = ({
   borderStyle = "none",
   borderWidth = 1,
   borderColor = "#000000",
-  width = "auto",
-  centerAlign = true,
-  margin = { top: 16, bottom: 16 },
+  width = "25%",
+  textAlignment = "center",
+  containerBackgroundColor = "transparent",
+  containerBorderRadius = 0,
+  contentAlignment = "center",
+  padding = { top: 5, bottom: 5, left: 0, right: 0 }, // Changed default to 0
 }) => {
   const fontWeightMap = {
     normal: "400",
@@ -64,18 +76,23 @@ const Button: React.FC<EmailButtonProps> = ({
     borderWidth: borderStyle !== "none" ? `${borderWidth}px` : 0,
     borderColor: borderStyle !== "none" ? borderColor : "transparent",
     textDecoration: "none",
-    textAlign: width === "full" ? "center" : "left",
-    width: width === "full" ? "100%" : "auto",
-    marginTop: margin.top ? `${margin.top}px` : "0",
-    marginBottom: margin.bottom ? `${margin.bottom}px` : "0",
+    textAlign: textAlignment,
+    width: width,
     msoLineHeightRule: "exactly",
     lineHeight: "100%",
   } as React.CSSProperties;
 
   const containerStyle = {
-    textAlign: centerAlign ? "center" : "left",
-    marginTop: margin.top ? `${margin.top}px` : "0",
-    marginBottom: margin.bottom ? `${margin.bottom}px` : "0",
+    display: "flex",
+    justifyContent: contentAlignment,
+    backgroundColor: containerBackgroundColor,
+    borderRadius: containerBorderRadius
+      ? `${containerBorderRadius}px`
+      : undefined,
+    paddingTop: padding.top !== undefined ? `${padding.top}px` : "0",
+    paddingBottom: padding.bottom !== undefined ? `${padding.bottom}px` : "0",
+    paddingLeft: padding.left !== undefined ? `${padding.left}px` : "0",
+    paddingRight: padding.right !== undefined ? `${padding.right}px` : "0",
   } as React.CSSProperties;
 
   return (

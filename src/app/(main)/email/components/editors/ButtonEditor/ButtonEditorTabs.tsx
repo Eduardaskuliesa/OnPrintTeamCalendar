@@ -11,7 +11,7 @@ const ButtonEditorTabs: React.FC<ButtonEditorTabsProps> = ({
   setActiveTab,
 }) => {
   return (
-    <div className="flex flex-row gap-4 border-b w-1/2 relative mb-6">
+    <div className="flex flex-row gap-4 border-b w-1/2 relative mb-6 ">
       <button
         className={`py-2 px-4 font-medium relative z-10 text-lg ${
           activeTab === "content" ? "text-vdcoffe" : "text-gray-900"

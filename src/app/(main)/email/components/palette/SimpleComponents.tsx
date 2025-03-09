@@ -21,7 +21,7 @@ const SimpleComponents = ({ onAddComponent }: SimpleComponentsProps) => {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-3 max-w-[320px]">
+    <div className="grid grid-cols-3 gap-3 max-w-[320px] ">
       {components.map((component) => (
         <button
           key={component.id}

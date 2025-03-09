@@ -1,8 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, lazy } from "react";
 import ButtonEditorTabs from "./ButtonEditorTabs";
 import ButtonContentTab from "./ButtonContentTab";
 import ButtonStylesTab from "./ButtonStylesTab";
-import { EmailButtonProps } from "../../../emailComponents/Button";
+
+import {
+  ButtonWidth,
+  ContentAlignment,
+  EmailButtonProps,
+  TextAlignment,
+} from "../../../emailComponents/Button";
+import { defaultProps } from "../../../emailComponents";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 interface ButtonComponent {
   id: string;
@@ -25,7 +34,34 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     target: component.props.target || "_blank",
     borderRadius: component.props.borderRadius || 0,
     borderStyle: component.props.borderStyle || "none",
+    textAlignment: component.props.textAlignment || "center",
+    contentAlignment: component.props.contentAlignment || "center",
+    width: component.props.width || "25%",
+    padding: component.props.padding || {
+      top: 5,
+      bottom: 5,
+      left: 0,
+      right: 0,
+    },
   });
+
+  useEffect(() => {
+    setLocalProps({
+      ...component.props,
+      target: component.props.target || "_blank",
+      borderRadius: component.props.borderRadius || 0,
+      borderStyle: component.props.borderStyle || "none",
+      textAlignment: component.props.textAlignment || "center",
+      contentAlignment: component.props.contentAlignment || "center",
+      width: component.props.width || "25%",
+      padding: component.props.padding || {
+        top: 5,
+        bottom: 5,
+        left: 0,
+        right: 0,
+      },
+    });
+  }, [component.id, component.props]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -90,7 +126,7 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     updateComponent(component.id, { props: updatedProps });
   };
 
-  const handleBackgroundColorChange = (backgroundColor: string) => {
+  const handleButtonColorChange = (backgroundColor: string) => {
     const updateProps = {
       ...localProps,
       backgroundColor,
@@ -109,6 +145,92 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     updateComponent(component.id, { props: updateProps });
   };
 
+  const handleBackgroundColorChange = (containerBackgroundColor: string) => {
+    const updateProps = {
+      ...localProps,
+      containerBackgroundColor,
+    };
+    setLocalProps(updateProps);
+    updateComponent(component.id, { props: updateProps });
+  };
+
+  const handleWidthChange = (width: ButtonWidth) => {
+    const updatedProps = {
+      ...localProps,
+      width,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handleTextAlignmentChange = (textAlignment: TextAlignment) => {
+    const updatedProps = {
+      ...localProps,
+      textAlignment,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handleContentAlignmentChange = (contentAlignment: ContentAlignment) => {
+    const updatedProps = {
+      ...localProps,
+      contentAlignment,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handlePaddingChange = (
+    type: "top" | "bottom" | "left" | "right",
+    value: number
+  ) => {
+    const updatedProps = {
+      ...localProps,
+      padding: {
+        ...localProps.padding,
+        [type]: value,
+      },
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handleResetDefault = () => {
+    const buttonDefaults = defaultProps.button;
+    const resetProps: EmailButtonProps = {
+      ...localProps,
+      backgroundColor: buttonDefaults.backgroundColor,
+      textColor: buttonDefaults.textColor,
+      fontWeight: buttonDefaults.fontWeight,
+      fontSize: buttonDefaults.fontSize,
+      paddingX: buttonDefaults.paddingX,
+      paddingY: buttonDefaults.paddingY,
+      borderRadius: buttonDefaults.borderRadius,
+      borderStyle: buttonDefaults.borderStyle,
+      borderWidth: buttonDefaults.borderWidth,
+      borderColor: buttonDefaults.borderColor,
+      width: buttonDefaults.width as ButtonWidth,
+      textAlignment: buttonDefaults.textAlignment,
+      containerBackgroundColor: buttonDefaults.containerBackgroundColor,
+      containerBorderRadius: buttonDefaults.containerBorderRadius,
+      contentAlignment: buttonDefaults.contentAlignment,
+      target: buttonDefaults.target,
+      padding: { ...buttonDefaults.padding },
+
+      // Keep the current text and URL
+      text: localProps.text,
+      url: localProps.url,
+    };
+
+    setLocalProps(resetProps);
+    updateComponent(component.id, { props: resetProps });
+  };
+
   return (
     <div className="">
       <ButtonEditorTabs
@@ -124,12 +246,18 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
         />
       ) : (
         <ButtonStylesTab
+          handleResetDefault={handleResetDefault}
+          handleWidthChange={handleWidthChange}
+          handleContentAlignmentChange={handleContentAlignmentChange}
+          handlePaddingChange={handlePaddingChange}
+          handleTextAlignmentChange={handleTextAlignmentChange}
           handleBorderColorChange={handleBorderColorChange}
           handleBorderWidthChange={handleBorderWidthChange}
           handleBorderStyleChange={handleBorderStyleChange}
-          handleBackgroundColorChange={handleBackgroundColorChange}
+          handleButtonColorChange={handleButtonColorChange}
           handleTextColorChange={handleTextColorChange}
           handleShapeChange={handleShapeChange}
+          handleBackgroundColorChange={handleBackgroundColorChange}
           localProps={localProps}
         />
       )}
