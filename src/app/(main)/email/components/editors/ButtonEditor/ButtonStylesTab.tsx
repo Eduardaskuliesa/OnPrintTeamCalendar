@@ -2,13 +2,7 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Plus,
-  Minus,
-  ChevronRight,
-  MoreHorizontal,
-  RefreshCw,
-} from "lucide-react";
+import { Plus, Minus, ChevronRight } from "lucide-react";
 import {
   BorderStyle,
   ButtonWidth,
@@ -23,6 +17,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+
+import {
+  RiShapeLine, // For general shape options
+} from "react-icons/ri";
+
+import { MdColorLens } from "react-icons/md";
+
+import { RxPadding } from "react-icons/rx";
 
 interface ButtonStylesTabProps {
   localProps: EmailButtonProps;
@@ -56,11 +58,10 @@ const ButtonStylesTab: React.FC<ButtonStylesTabProps> = ({
   handleTextAlignmentChange,
   handleContentAlignmentChange,
   handlePaddingChange,
-  handleResetDefault,
 }) => {
-  const [colorsOpen, setColorsOpen] = useState(true);
-  const [borderOpen, setBorderOpen] = useState(true);
-  const [sizesOpen, setSizesOpen] = useState(true);
+  const [colorsOpen, setColorsOpen] = useState(false);
+  const [borderOpen, setBorderOpen] = useState(false);
+  const [sizesOpen, setSizesOpen] = useState(false);
   return (
     <>
       <div className="space-y-4 ">
@@ -72,7 +73,10 @@ const ButtonStylesTab: React.FC<ButtonStylesTabProps> = ({
           <CollapsibleTrigger
             className={`flex w-full items-center justify-between p-2 font-medium ${borderOpen && "border-b-2 border-gray-300"}`}
           >
-            <span>Shapes & Borders</span>
+            <span className="flex items-center">
+              <RiShapeLine className="mr-2 h-5 w-5"></RiShapeLine> Shapes &
+              Borders
+            </span>
             <div className="p-1 bg-vdcoffe rounded-md">
               <ChevronRight
                 className={`h-4 w-4 text-gray-100 transition-transform ${borderOpen ? "rotate-90" : ""}`}
@@ -269,7 +273,9 @@ const ButtonStylesTab: React.FC<ButtonStylesTabProps> = ({
           <CollapsibleTrigger
             className={`flex w-full items-center justify-between p-2 font-medium ${colorsOpen && "border-b-2 border-gray-300"}`}
           >
-            <span>Colors</span>
+            <span className="flex items-center">
+              <MdColorLens className="mr-2 w-5 h-5"></MdColorLens>Colors
+            </span>
             <div className="p-1 bg-vdcoffe rounded-md">
               <ChevronRight
                 className={`h-4 w-4 text-gray-100 transition-transform ${colorsOpen ? "rotate-90" : ""}`}
@@ -385,7 +391,9 @@ const ButtonStylesTab: React.FC<ButtonStylesTabProps> = ({
           <CollapsibleTrigger
             className={`flex w-full items-center justify-between p-2 font-medium ${sizesOpen && "border-b-2 border-gray-300"}`}
           >
-            <span>Size & Layout</span>
+            <span className="flex items-center">
+              <RxPadding className="mr-2 h-5 w-5"></RxPadding>Size & Layout
+            </span>
             <div className="p-1 bg-vdcoffe rounded-md">
               <ChevronRight
                 className={`h-4 w-4 text-gray-100 transition-transform ${sizesOpen ? "rotate-90" : ""}`}

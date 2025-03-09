@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
-import { Edit, Trash2, GripVertical } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import Button from "./emailComponents/Button";
 
 const COMPONENT_TYPE = "EMAIL_COMPONENT";
@@ -37,23 +37,27 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   const [, drop] = useDrop({
     accept: COMPONENT_TYPE,
     hover: (item: any, monitor) => {
-      if (!ref.current) return;
-
       const dragIndex = item.index;
       const hoverIndex = index;
 
       if (dragIndex === hoverIndex) return;
 
-      const hoverBoundingRect = ref.current.getBoundingClientRect();
+      const hoverBoundingRect = ref.current?.getBoundingClientRect();
+      if (!hoverBoundingRect) return;
+
       const hoverMiddleY =
         (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-      const clientOffset = monitor.getClientOffset();
-      const hoverClientY = (clientOffset?.y || 0) - hoverBoundingRect.top;
 
+      const clientOffset = monitor.getClientOffset();
+      if (!clientOffset) return;
+
+      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
       if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) return;
       if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) return;
 
       moveComponent(dragIndex, hoverIndex);
+
+      // Note: we're mutating the monitor item here!
       item.index = hoverIndex;
     },
   });
@@ -72,27 +76,36 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   return (
     <div
       ref={ref}
-      className={`relative ${isDragging ? "opacity-50" : ""} group`}
+      className={`
+        relative 
+        ${isDragging ? "opacity-50" : ""} 
+        group
+      `}
       onClick={() => onSelectComponent(id)}
     >
       <div
-        className={`hover:outline hover:rounded hover:outline-2 hover:outline-db ${isSelected ? "outline outline-2 outline-db rounded" : ""}`}
+        className={`
+          ${isSelected ? "outline outline-2 outline-vdcoffe rounded" : ""}
+          hover:outline hover:outline-2 hover:outline-vdcoffe hover:rounded
+          cursor-grab
+        `}
       >
         {renderEmailComponent()}
       </div>
-      <div
-        className={`absolute top-2 -right-10  ${isSelected ? "flex" : "hidden"}   bg-gray-800 bg-opacity-80 rounded text-white py-1 px-2 gap-2 z-10`}
-      >
-        <button
-          className="hover:text-red-300"
+
+      {isSelected && (
+        <div
           onClick={(e) => {
             e.stopPropagation();
             removeComponent(id);
           }}
+          className="absolute top-2 group hover:cursor-pointer -right-10 flex bg-gray-800 bg-opacity-80 rounded text-white py-1 px-2 gap-2 z-10"
         >
-          <Trash2 size={20} />
-        </button>
-      </div>
+          <button className="group-hover:text-red-300">
+            <Trash2 size={20} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

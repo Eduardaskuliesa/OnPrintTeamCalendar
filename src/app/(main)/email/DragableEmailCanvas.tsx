@@ -1,7 +1,6 @@
 import React from "react";
 import DraggableComponent from "./DragableComponent";
 
-
 interface DraggableEmailCanvasProps {
   components: any[];
   setComponents: (components: any[]) => void;
