@@ -79,7 +79,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
       className={`
         relative 
         ${isDragging ? "opacity-50" : ""} 
-        group
+        
       `}
       onClick={() => onSelectComponent(id)}
     >

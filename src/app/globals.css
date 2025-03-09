@@ -7,7 +7,13 @@ body {
   background-color: #fefaf6;
 }
 
-/* Add to your CSS */
+body.dragging * {
+  cursor: grabbing !important;
+}
+
+.cursor-grab {
+  cursor: grab;
+}
 
 .fc-multimonth-month > .fc-daygrid-body {
   cursor: pointer;
@@ -170,7 +176,3 @@ body {
   display: grid;
   width: 100%;
 }
-
-
-
-
