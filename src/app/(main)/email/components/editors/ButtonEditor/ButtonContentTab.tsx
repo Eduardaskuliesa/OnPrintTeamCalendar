@@ -2,16 +2,12 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { EmailButtonProps } from "../../../emailComponents/Button";
 
 interface ButtonContentTabProps {
-  localProps: {
-    text?: string;
-    url?: string;
-    target?: string;
-    [key: string]: any;
-  };
+  localProps: EmailButtonProps;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleTargetChange: (value: string) => void;
+  handleTargetChange: (value: "_blank" | "_self") => void;
 }
 
 const ButtonContentTab: React.FC<ButtonContentTabProps> = ({
@@ -24,7 +20,7 @@ const ButtonContentTab: React.FC<ButtonContentTabProps> = ({
       <div className="grid w-full items-center gap-1.5">
         <Label
           htmlFor="buttonUrl"
-          className="text-sm font-medium text-gray-900"
+          className="text-base font-medium text-gray-900"
         >
           URL
         </Label>
@@ -38,7 +34,7 @@ const ButtonContentTab: React.FC<ButtonContentTabProps> = ({
       </div>
 
       <div className="grid w-full items-center gap-1.5">
-        <Label className="text-sm font-medium text-gray-900">
+        <Label className="text-base font-medium text-gray-900">
           Open Link In
         </Label>
         <div className="bg-white p-0.5 rounded-md border border-gray-200">

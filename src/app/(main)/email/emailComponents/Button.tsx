@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "@react-email/components";
 
+export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
+
 export interface EmailButtonProps {
   text: string;
   url: string;
@@ -9,10 +11,13 @@ export interface EmailButtonProps {
   textColor: string;
   fontWeight?: "normal" | "medium" | "semibold" | "bold";
   fontSize?: number;
-
+  target: "_blank" | "_self";
   paddingX?: number;
   paddingY?: number;
   borderRadius?: number;
+  borderStyle?: BorderStyle;
+  borderWidth?: number;
+  borderColor?: string;
   width?: "auto" | "full";
 
   centerAlign?: boolean;
@@ -25,13 +30,17 @@ export interface EmailButtonProps {
 const Button: React.FC<EmailButtonProps> = ({
   text,
   url,
+  target = "_blank",
   backgroundColor = "#3B82F6",
   textColor = "#FFFFFF",
   fontWeight = "medium",
   fontSize = 16,
   paddingX = 24,
   paddingY = 12,
-  borderRadius = 6,
+  borderRadius = 0,
+  borderStyle = "none",
+  borderWidth = 1,
+  borderColor = "#000000",
   width = "auto",
   centerAlign = true,
   margin = { top: 16, bottom: 16 },
@@ -51,6 +60,9 @@ const Button: React.FC<EmailButtonProps> = ({
     fontSize: `${fontSize}px`,
     padding: `${paddingY}px ${paddingX}px`,
     borderRadius: `${borderRadius}px`,
+    borderStyle: borderStyle !== "none" ? borderStyle : "none",
+    borderWidth: borderStyle !== "none" ? `${borderWidth}px` : 0,
+    borderColor: borderStyle !== "none" ? borderColor : "transparent",
     textDecoration: "none",
     textAlign: width === "full" ? "center" : "left",
     width: width === "full" ? "100%" : "auto",
@@ -68,7 +80,7 @@ const Button: React.FC<EmailButtonProps> = ({
 
   return (
     <div style={containerStyle}>
-      <Link href={url} style={buttonStyle} target="_blank">
+      <Link href={url} style={buttonStyle} target={target}>
         {text}
       </Link>
     </div>
