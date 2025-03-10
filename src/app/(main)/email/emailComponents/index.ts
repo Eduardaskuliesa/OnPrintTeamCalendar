@@ -68,7 +68,8 @@ export const defaultProps = {
   image: {
     src: "https://placehold.co/600x400",
     width: "100%",
-    target: "_blank"
+    target: "_blank",
+    containerBackgroundColor: "transparent"
   },
 };
 

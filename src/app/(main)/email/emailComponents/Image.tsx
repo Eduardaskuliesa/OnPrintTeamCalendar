@@ -2,7 +2,7 @@ import React from "react";
 import { Img, Link } from "@react-email/components";
 
 export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
-export type ImageWidth = "25%" | "50%" | "75%";
+export type ImageWidth = string;
 export type ContentAlignment = "flex-start" | "center" | "flex-end";
 
 export interface EmailImageProps {

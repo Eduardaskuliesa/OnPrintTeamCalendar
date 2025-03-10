@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from "react";
 import ImageEditorTabs from "./ImageEditorTabs";
-import ImageContnetTab from "./ImageContnetTab";
 import ImageStylesTab from "./ImageStylesTab";
-import { EmailImageProps } from "../../../emailComponents/Image";
+import {
+  BorderStyle,
+  ContentAlignment,
+  EmailImageProps,
+  ImageWidth,
+} from "../../../emailComponents/Image";
+import ImageContentTab from "./ImageContnetTab";
 
-interface ButtonComponent {
+
+interface ImageComponent {
   id: string;
   type: string;
   props: EmailImageProps;
 }
 
-interface ButtonEditorProps {
-  component: ButtonComponent;
-  updateComponent: (id: string, updates: Partial<ButtonComponent>) => void;
+interface ImageEditorProps {
+  component: ImageComponent;
+  updateComponent: (id: string, updates: Partial<ImageComponent>) => void;
 }
 
-const ButtonEditor: React.FC<ButtonEditorProps> = ({
+const ImageEditor: React.FC<ImageEditorProps> = ({
   component,
   updateComponent,
 }) => {
@@ -25,13 +31,15 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     target: component.props.target || "_blank",
     borderRadius: component.props.borderRadius || 0,
     borderStyle: component.props.borderStyle || "none",
-    width: component.props.width || "25%",
+    contentAlignment: component.props.contentAlignment || "center",
+    width: component.props.width || "50%",
     padding: component.props.padding || {
       top: 5,
       bottom: 5,
       left: 0,
       right: 0,
     },
+    objectFit: component.props.objectFit || "cover",
   });
 
   useEffect(() => {
@@ -40,13 +48,15 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
       target: component.props.target || "_blank",
       borderRadius: component.props.borderRadius || 0,
       borderStyle: component.props.borderStyle || "none",
-      width: component.props.width || "25%",
+      contentAlignment: component.props.contentAlignment || "center",
+      width: component.props.width || "50%",
       padding: component.props.padding || {
         top: 5,
         bottom: 5,
         left: 0,
         right: 0,
       },
+      objectFit: component.props.objectFit || "cover",
     });
   }, [component.id, component.props]);
 
@@ -71,11 +81,98 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     updateComponent(component.id, { props: updatedProps });
   };
 
-  const handleAltChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const handleShapeChange = (borderRadius: number) => {
     const updatedProps = {
       ...localProps,
-      [name]: value,
+      borderRadius,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handleBorderStyleChange = (
+    borderStyle: BorderStyle
+  ) => {
+    const updatedProps = {
+      ...localProps,
+      borderStyle,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handleBorderWidthChange = (borderWidth: number) => {
+    const updatedProps = {
+      ...localProps,
+      borderWidth,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handleBorderColorChange = (borderColor: string) => {
+    const updatedProps = {
+      ...localProps,
+      borderColor,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handleBackgroundColorChange = (containerBackgroundColor: string) => {
+    const updateProps = {
+      ...localProps,
+      containerBackgroundColor,
+    };
+    setLocalProps(updateProps);
+    updateComponent(component.id, { props: updateProps });
+  };
+
+  const handleWidthChange = (width: ImageWidth) => {
+    console.log("Width change handler called with:", width);
+    const updatedProps = {
+      ...localProps,
+      width,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handleContentAlignmentChange = (contentAlignment: ContentAlignment) => {
+    const updatedProps = {
+      ...localProps,
+      contentAlignment,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handleObjectFitChange = (objectFit: "cover" | "contain" | "fill" | "none" | "scale-down") => {
+    const updatedProps = {
+      ...localProps,
+      objectFit,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handlePaddingChange = (
+    type: "top" | "bottom" | "left" | "right",
+    value: number
+  ) => {
+    const updatedProps = {
+      ...localProps,
+      padding: {
+        ...localProps.padding,
+        [type]: value,
+      },
     };
 
     setLocalProps(updatedProps);
@@ -91,18 +188,25 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
       />
 
       {activeTab === "content" ? (
-        <ImageContnetTab
+        <ImageContentTab
+          handleWidthChange={handleWidthChange}
+          handleObjectFitChange={handleObjectFitChange}
           localProps={localProps}
           handleChange={handleChange}
-          handleAltChange={handleAltChange}
           handleTargetChange={handleTargetChange}
         />
       ) : (
         <ImageStylesTab
+          handleBorderWidthChange={handleBorderWidthChange}
+          handleBorderColorChange={handleBorderColorChange}
+          handleBorderStyleChange={handleBorderStyleChange}
+          handleBackgroundColorChange={handleBackgroundColorChange}
+          handleShapeChange={handleShapeChange}
+          localProps={localProps}
         />
       )}
     </div>
   );
 };
 
-export default ButtonEditor;
+export default ImageEditor;

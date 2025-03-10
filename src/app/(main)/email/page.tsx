@@ -7,6 +7,10 @@ import { getDefaultProps } from "./utils/componentRegistry";
 const ComponentPanel = React.lazy(() => import('./ComponentPanel'));
 import DraggableEmailCanvas from "./DragableEmailCanvas";
 import ComponentPanelSkeleton from "./components/skeletons/ComponentPanelSkeleton";
+// import EmailPreview from "./EmailPreview";
+// import EmailTemplate from "./EmailTemplate";
+// import ViewModeToggle from "./ViewModeToggle";
+// import { render } from '@react-email/render';
 
 interface EmailComponent {
   id: string;
@@ -17,7 +21,8 @@ interface EmailComponent {
 const EmailBuilderPage = () => {
   const [emailComponents, setEmailComponents] = useState<EmailComponent[]>([]);
   const [selectedComponent, setSelectedComponent] = useState<EmailComponent | null>(null);
-
+  // const [viewMode, setViewMode] = useState("dekstop")
+  // const [emailHtml, setEmailHtml] = useState()
 
   const panelRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);

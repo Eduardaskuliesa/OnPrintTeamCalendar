@@ -1,7 +1,7 @@
 import React from 'react';
 import { Html, Head, Body, Tailwind } from '@react-email/components';
 import Button from './emailComponents/Button';
-import Image from './emailComponents/Image';
+import EmailImage from './emailComponents/Image';
 
 interface EmailComponent {
     id: string;
@@ -25,7 +25,7 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({ emailComponents: componen
                                 return <Button text={''} url={''} backgroundColor={''} textColor={''} target={'_blank'} key={component.id} {...component.props} />;
 
                             case 'image':
-                                return <Image src={''} alt={''} key={component.id} {...component.props} />;
+                                return <EmailImage src={''} alt={''} key={component.id} {...component.props} />;
                             default:
                                 return (
                                     <div key={component.id} style={{ padding: '10px', border: '1px dashed #ccc', textAlign: 'center', margin: '10px 0' }}>
