@@ -114,7 +114,7 @@ const EmailBuilderPage = () => {
           <Suspense fallback={<ComponentPanelSkeleton />}>
             <div
               ref={panelRef}
-              className="max-h-[calc(95vh-120px)] min-h-[400px] overflow-y-auto custom-scrollbar"
+              className="max-h-[calc(95vh-50px)] min-h-[400px] overflow-y-auto custom-scrollbar"
             >
               <ComponentPanel
                 selectedComponent={selectedComponent}

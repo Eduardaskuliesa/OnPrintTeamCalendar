@@ -52,19 +52,17 @@ const EmailImage: React.FC<EmailImageProps> = ({
   padding = { top: 5, bottom: 5, left: 0, right: 0 },
   objectFit = "cover",
 }) => {
-  const widthValue = typeof width === "number" ? `${width}px` : width;
-  const heightValue = typeof height === "number" ? `${height}px` : height;
-
   const imageStyle = {
     borderRadius: borderRadius > 0 ? `${borderRadius}px` : undefined,
-    border: borderStyle !== "none"
-      ? `${borderWidth}px ${borderStyle} ${borderColor}`
-      : "none",
+    border:
+      borderStyle !== "none"
+        ? `${borderWidth}px ${borderStyle} ${borderColor}`
+        : "none",
     maxWidth,
-    width: widthValue,
-    height: heightValue,
+    width: width,
+    height: height,
     objectFit,
-    objectPosition: 'center',
+    objectPosition: "center",
     display: "block",
   } as React.CSSProperties;
 
@@ -82,13 +80,7 @@ const EmailImage: React.FC<EmailImageProps> = ({
   } as React.CSSProperties;
 
   const renderImage = () => (
-    <Img
-      src={src}
-      alt={alt}
-      width={widthValue}
-      height={heightValue}
-      style={imageStyle}
-    />
+    <Img src={src} alt={alt} width={width} height={height} style={imageStyle} />
   );
 
   return (
