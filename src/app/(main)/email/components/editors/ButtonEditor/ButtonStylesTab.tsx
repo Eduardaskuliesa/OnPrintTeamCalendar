@@ -144,7 +144,7 @@ const ButtonStylesTab: React.FC<ButtonStylesTabProps> = ({
                 <SelectTrigger className="bg-white px-2 py-2 text-start rounded-md border border-gray-300">
                   <SelectValue placeholder="Select border style" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent data-keep-component="true">
                   <SelectItem
                     value="none"
                     className="flex py-2 items-center gap-2"
@@ -430,8 +430,8 @@ const ButtonStylesTab: React.FC<ButtonStylesTabProps> = ({
                   <Button
                     type="button"
                     className="w-full duration-75 rounded-sm border-none"
-                    variant={localProps.width === "90%" ? "default" : "outline"}
-                    onClick={() => handleWidthChange("90%")}
+                    variant={localProps.width === "75%" ? "default" : "outline"}
+                    onClick={() => handleWidthChange("75%")}
                   >
                     Big
                   </Button>

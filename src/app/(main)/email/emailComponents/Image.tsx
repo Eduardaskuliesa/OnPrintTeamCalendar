@@ -1,66 +1,84 @@
-// src/features/emailBuilder/emailComponents/Image.tsx
 import React from "react";
 import { Img, Link } from "@react-email/components";
+
+export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
+export type ImageWidth = "25%" | "50%" | "75%";
+export type ContentAlignment = "flex-start" | "center" | "flex-end";
 
 export interface EmailImageProps {
   src: string;
   alt: string;
 
-  href?: string;
-
-  width?: number | string;
+  width?: ImageWidth;
   height?: number | string;
   maxWidth?: string;
 
   borderRadius?: number;
-  border?: {
-    width?: number;
-    color?: string;
-    style?: "solid" | "dashed" | "dotted";
-  };
+  borderStyle?: BorderStyle;
+  borderWidth?: number;
+  borderColor?: string;
 
-  align?: "left" | "center" | "right";
-  margin?: {
+  containerBackgroundColor?: string;
+  containerBorderRadius?: number;
+  contentAlignment?: ContentAlignment;
+
+  padding?: {
     top?: number;
-    right?: number;
     bottom?: number;
     left?: number;
+    right?: number;
   };
+
+  href?: string;
+  target?: "_blank" | "_self";
+  objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
 }
 
-const Image: React.FC<EmailImageProps> = ({
+const EmailImage: React.FC<EmailImageProps> = ({
   src,
   alt,
   href,
-  width = "100%",
+  target = "_blank",
+  width = "50%",
   height = "auto",
   maxWidth = "600px",
   borderRadius = 0,
-  border,
-  align = "center",
-  margin = { top: 16, bottom: 16 },
+  borderStyle = "none",
+  borderWidth = 1,
+  borderColor = "#000000",
+  containerBackgroundColor = "transparent",
+  containerBorderRadius = 0,
+  contentAlignment = "center",
+  padding = { top: 5, bottom: 5, left: 0, right: 0 },
+  objectFit = "cover",
 }) => {
   const widthValue = typeof width === "number" ? `${width}px` : width;
   const heightValue = typeof height === "number" ? `${height}px` : height;
 
-  const borderStyle = border
-    ? `${border.width || 1}px ${border.style || "solid"} ${border.color || "#e2e8f0"}`
-    : undefined;
-
   const imageStyle = {
     borderRadius: borderRadius > 0 ? `${borderRadius}px` : undefined,
-    border: borderStyle,
+    border: borderStyle !== "none"
+      ? `${borderWidth}px ${borderStyle} ${borderColor}`
+      : "none",
     maxWidth,
     width: widthValue,
     height: heightValue,
+    objectFit,
+    objectPosition: 'center',
+    display: "block",
   } as React.CSSProperties;
 
   const containerStyle = {
-    textAlign: align,
-    marginTop: margin.top ? `${margin.top}px` : "0",
-    marginRight: margin.right ? `${margin.right}px` : "0",
-    marginBottom: margin.bottom ? `${margin.bottom}px` : "0",
-    marginLeft: margin.left ? `${margin.left}px` : "0",
+    display: "flex",
+    justifyContent: contentAlignment,
+    backgroundColor: containerBackgroundColor,
+    borderRadius: containerBorderRadius
+      ? `${containerBorderRadius}px`
+      : undefined,
+    paddingTop: padding.top !== undefined ? `${padding.top}px` : "0",
+    paddingBottom: padding.bottom !== undefined ? `${padding.bottom}px` : "0",
+    paddingLeft: padding.left !== undefined ? `${padding.left}px` : "0",
+    paddingRight: padding.right !== undefined ? `${padding.right}px` : "0",
   } as React.CSSProperties;
 
   const renderImage = () => (
@@ -76,7 +94,7 @@ const Image: React.FC<EmailImageProps> = ({
   return (
     <div style={containerStyle}>
       {href ? (
-        <Link href={href} target="_blank" style={{ textDecoration: "none" }}>
+        <Link href={href} style={{ textDecoration: "none" }} target={target}>
           {renderImage()}
         </Link>
       ) : (
@@ -86,4 +104,4 @@ const Image: React.FC<EmailImageProps> = ({
   );
 };
 
-export default Image;
+export default EmailImage;

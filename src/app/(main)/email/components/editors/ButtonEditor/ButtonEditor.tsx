@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy } from "react";
+import React, { useState, useEffect } from "react";
 import ButtonEditorTabs from "./ButtonEditorTabs";
 import ButtonContentTab from "./ButtonContentTab";
 import ButtonStylesTab from "./ButtonStylesTab";
@@ -10,8 +10,6 @@ import {
   TextAlignment,
 } from "../../../emailComponents/Button";
 import { defaultProps } from "../../../emailComponents";
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
 
 interface ButtonComponent {
   id: string;

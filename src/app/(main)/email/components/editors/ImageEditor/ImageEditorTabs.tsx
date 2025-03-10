@@ -1,12 +1,12 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-interface ButtonEditorTabsProps {
+interface ImageEditorTabsProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-const ButtonEditorTabs: React.FC<ButtonEditorTabsProps> = ({
+const ImageEditorTabs: React.FC<ImageEditorTabsProps> = ({
   activeTab,
   setActiveTab,
 }) => {
@@ -41,4 +41,4 @@ const ButtonEditorTabs: React.FC<ButtonEditorTabsProps> = ({
   );
 };
 
-export default ButtonEditorTabs;
+export default ImageEditorTabs;

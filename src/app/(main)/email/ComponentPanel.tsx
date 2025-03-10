@@ -3,10 +3,8 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ComponentPalette from "./components/palette/ComponentPalette";
 import ButtonEditor from "./components/editors/ButtonEditor/ButtonEditor";
-import ImageEditor from "./components/editors/ImageEditor";
+import ImageEditor from "./components/editors/ImageEditor/ImageEditor";
 import { FiArrowLeft } from "react-icons/fi";
-import { RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface ComponentPanelProps {
   selectedComponent: any | null;

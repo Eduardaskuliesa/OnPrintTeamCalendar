@@ -67,8 +67,8 @@ export const defaultProps = {
   } as ButtonDefaultProps,
   image: {
     src: "https://placehold.co/600x400",
-    alt: "Placeholder image",
     width: "100%",
+    target: "_blank"
   },
 };
 

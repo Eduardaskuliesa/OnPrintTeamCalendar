@@ -1,12 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getDefaultProps } from "./utils/componentRegistry";
-import ComponentPanel from "./ComponentPanel";
+const ComponentPanel = React.lazy(() => import('./ComponentPanel'));
 import DraggableEmailCanvas from "./DragableEmailCanvas";
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import ComponentPanelSkeleton from "./components/skeletons/ComponentPanelSkeleton";
 
 interface EmailComponent {
   id: string;
@@ -16,10 +16,12 @@ interface EmailComponent {
 
 const EmailBuilderPage = () => {
   const [emailComponents, setEmailComponents] = useState<EmailComponent[]>([]);
-  const [selectedComponent, setSelectedComponent] =
-    useState<EmailComponent | null>(null);
+  const [selectedComponent, setSelectedComponent] = useState<EmailComponent | null>(null);
+
+
   const panelRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+
   const handleAddComponent = (type: string) => {
     const newComponent = {
       id: `${type}-${Date.now()}`,
@@ -29,8 +31,6 @@ const EmailBuilderPage = () => {
 
     setEmailComponents([...emailComponents, newComponent]);
     setSelectedComponent(newComponent);
-
-    console.log("Added component:", type);
   };
 
   const handleUpdateComponent = (
@@ -58,19 +58,37 @@ const EmailBuilderPage = () => {
     const component = emailComponents.find((c) => c.id === id);
     if (component) {
       setSelectedComponent(component);
-      console.log("Selected component props:", component.props);
     }
   };
 
+  // useEffect(() => {
+  //   const updateEmailHtml = async () => {
+  //     try {
+  //       const template = <EmailTemplate emailComponents={emailComponents} />;
+  //       const html = await render(template);
+  //       setEmailHtml(html);
+  //     } catch (error) {
+  //       console.error("Error rendering email:", error);
+  //     }
+  //   };
+
+  //   updateEmailHtml();
+  // }, [emailComponents]);
+
   const clickOutsideHandler = (e: MouseEvent) => {
     if (!selectedComponent) return;
+    const closestKeepElement =
+      e.target instanceof Element
+        ? e.target.closest('[data-keep-component="true"]')
+        : null;
 
-    const clickedInsidePanel =
-      panelRef.current && panelRef.current.contains(e.target as Node);
-    const clickedInsideCanvas =
-      canvasRef.current && canvasRef.current.contains(e.target as Node);
+    if (closestKeepElement) return;
 
-    if (!clickedInsidePanel && !clickedInsideCanvas) {
+    const isClickInCriticalArea =
+      panelRef.current?.contains(e.target as Node) ||
+      canvasRef.current?.contains(e.target as Node);
+
+    if (!isClickInCriticalArea) {
       setSelectedComponent(null);
     }
   };
@@ -80,35 +98,24 @@ const EmailBuilderPage = () => {
     return () => {
       document.removeEventListener("mousedown", clickOutsideHandler);
     };
-  }, [selectedComponent]);
-
+  }, [selectedComponent, panelRef, canvasRef]);
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex flex-row min-h-screen w-full p-6 gap-6">
+      <div className="flex flex-row min-h-screen w-full p-2 gap-6">
+        {/* Left Panel - Component Palette */}
         <div className="w-full max-w-md sticky top-5 h-fit">
-          <div
-            ref={panelRef}
-            className="max-h-[calc(95vh-120px)] min-h-[400px] overflow-y-auto custom-scrollbar"
-          >
-            <ComponentPanel
-              selectedComponent={selectedComponent}
-              updateComponent={handleUpdateComponent}
-              onAddComponent={handleAddComponent}
-              onBackToComponentPalette={() => setSelectedComponent(null)}
-            />
-          </div>
-          {/* Implement later reset button */}
-          {/* <div className="mt-4 border-t border-gray-200 pt-4">
-            <Button
-              variant="outline"
-              className="w-full flex items-center justify-center gap-2"
-              size="sm"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Restore default styles
-            </Button>
-          </div> */}
+          <Suspense fallback={<ComponentPanelSkeleton />}>
+            <div ref={panelRef} className="max-h-[calc(95vh-120px)] min-h-[400px] overflow-y-auto custom-scrollbar">
+              <ComponentPanel
+                selectedComponent={selectedComponent}
+                updateComponent={handleUpdateComponent}
+                onAddComponent={handleAddComponent}
+                onBackToComponentPalette={() => setSelectedComponent(null)}
+              />
+            </div>
+          </Suspense>
         </div>
+
         {/* Middle - Email Canvas */}
         <div ref={canvasRef} className="max-w-2xl w-full">
           <div className="border border-gray-300 rounded-lg p-4 shadow-sm bg-white">
@@ -130,6 +137,16 @@ const EmailBuilderPage = () => {
             />
           </div>
         </div>
+
+        {/* Right Side - Email Preview */}
+        {/* <div className="w-full max-w-2xl">
+          <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
+
+          <div className="border border-gray-300 rounded-lg p-4 shadow-sm bg-[#E4E4E7]">
+            <h2 className="text-lg font-semibold text-gray-700 mb-3">Email Preview</h2>
+            <EmailPreview emailHtml={emailHtml} viewMode={viewMode} />
+          </div>
+        </div> */}
       </div>
     </DndProvider>
   );

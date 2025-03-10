@@ -3,7 +3,7 @@ import { Link } from "@react-email/components";
 
 export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
 export type TextAlignment = "left" | "center" | "right";
-export type ButtonWidth = "25%" | "50%" | "90%" | "auto";
+export type ButtonWidth = "25%" | "50%" | "75%";
 export type ContentAlignment = "flex-start" | "center" | "flex-end";
 
 export interface EmailButtonProps {
