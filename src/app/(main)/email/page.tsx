@@ -4,7 +4,7 @@ import React, { Suspense, useEffect, useRef, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getDefaultProps } from "./utils/componentRegistry";
-const ComponentPanel = React.lazy(() => import('./ComponentPanel'));
+const ComponentPanel = React.lazy(() => import("./ComponentPanel"));
 import DraggableEmailCanvas from "./DragableEmailCanvas";
 import ComponentPanelSkeleton from "./components/skeletons/ComponentPanelSkeleton";
 // import EmailPreview from "./EmailPreview";
@@ -16,11 +16,13 @@ interface EmailComponent {
   id: string;
   type: string;
   props: Record<string, any>;
+  richText?: string;
 }
 
 const EmailBuilderPage = () => {
   const [emailComponents, setEmailComponents] = useState<EmailComponent[]>([]);
-  const [selectedComponent, setSelectedComponent] = useState<EmailComponent | null>(null);
+  const [selectedComponent, setSelectedComponent] =
+    useState<EmailComponent | null>(null);
   // const [viewMode, setViewMode] = useState("dekstop")
   // const [emailHtml, setEmailHtml] = useState()
 
@@ -110,7 +112,10 @@ const EmailBuilderPage = () => {
         {/* Left Panel - Component Palette */}
         <div className="w-full max-w-md sticky top-5 h-fit">
           <Suspense fallback={<ComponentPanelSkeleton />}>
-            <div ref={panelRef} className="max-h-[calc(95vh-120px)] min-h-[400px] overflow-y-auto custom-scrollbar">
+            <div
+              ref={panelRef}
+              className="max-h-[calc(95vh-120px)] min-h-[400px] overflow-y-auto custom-scrollbar"
+            >
               <ComponentPanel
                 selectedComponent={selectedComponent}
                 updateComponent={handleUpdateComponent}

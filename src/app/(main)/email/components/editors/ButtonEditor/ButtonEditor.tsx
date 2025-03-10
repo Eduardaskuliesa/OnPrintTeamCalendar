@@ -10,6 +10,7 @@ import {
   TextAlignment,
 } from "../../../emailComponents/Button";
 import { defaultProps } from "../../../emailComponents";
+import TextTab from "./TextTab";
 
 interface ButtonComponent {
   id: string;
@@ -26,7 +27,9 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
   component,
   updateComponent,
 }) => {
-  const [activeTab, setActiveTab] = useState<"content" | "styles">("content");
+  const [activeTab, setActiveTab] = useState<"content" | "styles" | "text">(
+    "content"
+  );
   const [localProps, setLocalProps] = useState<EmailButtonProps>({
     ...component.props,
     target: component.props.target || "_blank",
@@ -229,14 +232,57 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     updateComponent(component.id, { props: resetProps });
   };
 
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const updatedProps = {
+      ...localProps,
+      [name]: value,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const renderTab = () => {
+    switch (activeTab) {
+      case "content":
+        return (
+          <ButtonContentTab
+            localProps={localProps}
+            handleChange={handleChange}
+            handleTargetChange={handleTargetChange}
+          />
+        );
+      case "styles":
+        return (
+          <ButtonStylesTab
+            handleResetDefault={handleResetDefault}
+            handleWidthChange={handleWidthChange}
+            handleContentAlignmentChange={handleContentAlignmentChange}
+            handlePaddingChange={handlePaddingChange}
+            handleTextAlignmentChange={handleTextAlignmentChange}
+            handleBorderColorChange={handleBorderColorChange}
+            handleBorderWidthChange={handleBorderWidthChange}
+            handleBorderStyleChange={handleBorderStyleChange}
+            handleButtonColorChange={handleButtonColorChange}
+            handleTextColorChange={handleTextColorChange}
+            handleShapeChange={handleShapeChange}
+            handleBackgroundColorChange={handleBackgroundColorChange}
+            localProps={localProps}
+          />
+        );
+      case "text":
+        return <TextTab handleTextChange={handleTextChange}></TextTab>;
+    }
+  };
   return (
     <div className="">
       <ButtonEditorTabs
         activeTab={activeTab}
         setActiveTab={(tab) => setActiveTab(tab as "content" | "styles")}
       />
-
-      {activeTab === "content" ? (
+      {renderTab()}
+      {/* {activeTab === "content" ? (
         <ButtonContentTab
           localProps={localProps}
           handleChange={handleChange}
@@ -258,7 +304,7 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
           handleBackgroundColorChange={handleBackgroundColorChange}
           localProps={localProps}
         />
-      )}
+      )} */}
     </div>
   );
 };

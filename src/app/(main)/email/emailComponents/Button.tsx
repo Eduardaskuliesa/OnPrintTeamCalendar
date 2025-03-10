@@ -55,7 +55,7 @@ const Button: React.FC<EmailButtonProps> = ({
   containerBackgroundColor = "transparent",
   containerBorderRadius = 0,
   contentAlignment = "center",
-  padding = { top: 5, bottom: 5, left: 0, right: 0 }, // Changed default to 0
+  padding = { top: 5, bottom: 5, left: 0, right: 0 },
 }) => {
   const fontWeightMap = {
     normal: "400",
