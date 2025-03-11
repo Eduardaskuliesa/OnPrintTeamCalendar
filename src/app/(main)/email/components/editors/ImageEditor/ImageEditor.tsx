@@ -9,7 +9,6 @@ import {
 } from "../../../emailComponents/Image";
 import ImageContentTab from "./ImageContnetTab";
 
-
 interface ImageComponent {
   id: string;
   type: string;
@@ -91,9 +90,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     updateComponent(component.id, { props: updatedProps });
   };
 
-  const handleBorderStyleChange = (
-    borderStyle: BorderStyle
-  ) => {
+  const handleBorderStyleChange = (borderStyle: BorderStyle) => {
     const updatedProps = {
       ...localProps,
       borderStyle,
@@ -133,7 +130,6 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   };
 
   const handleWidthChange = (width: ImageWidth) => {
-    console.log("Width change handler called with:", width);
     const updatedProps = {
       ...localProps,
       width,
@@ -153,7 +149,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     updateComponent(component.id, { props: updatedProps });
   };
 
-  const handleObjectFitChange = (objectFit: "cover" | "contain" | "fill" | "none" | "scale-down") => {
+  const handleObjectFitChange = (
+    objectFit: "cover" | "contain" | "fill" | "none" | "scale-down"
+  ) => {
     const updatedProps = {
       ...localProps,
       objectFit,
@@ -179,6 +177,34 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     updateComponent(component.id, { props: updatedProps });
   };
 
+  const handleImageWidthPx = (width: string) => {
+    const updatedProps = {
+      ...localProps,
+      width: `${width}px`,
+    };
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handleImageHeightPx = (height: string) => {
+    const updatedProps = {
+      ...localProps,
+      height: `${height}px`,
+    };
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+  
+  const resetImageDimensions = () => {
+    const updatedProps = {
+      ...localProps,
+      width: "100%",
+      height: "auto",
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
 
   return (
     <div className="">
@@ -197,6 +223,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
         />
       ) : (
         <ImageStylesTab
+          resetImageDimensions={resetImageDimensions}
+          handleImageHeightPx={handleImageHeightPx}
+          handleImageWidthPx={handleImageWidthPx}
+          handlePaddingChange={handlePaddingChange}
+          handleContentAlignmentChange={handleContentAlignmentChange}
           handleBorderWidthChange={handleBorderWidthChange}
           handleBorderColorChange={handleBorderColorChange}
           handleBorderStyleChange={handleBorderStyleChange}

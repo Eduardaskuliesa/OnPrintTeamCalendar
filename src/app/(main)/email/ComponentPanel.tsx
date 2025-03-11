@@ -5,6 +5,7 @@ import ComponentPalette from "./components/palette/ComponentPalette";
 import ButtonEditor from "./components/editors/ButtonEditor/ButtonEditor";
 import ImageEditor from "./components/editors/ImageEditor/ImageEditor";
 import { FiArrowLeft } from "react-icons/fi";
+import HeaderEditor from "./components/editors/HeaderEditor/HeaderEditor";
 
 interface ComponentPanelProps {
   selectedComponent: any | null;
@@ -46,6 +47,14 @@ const ComponentPanel: React.FC<ComponentPanelProps> = ({
             updateComponent={updateComponent}
           />
         );
+      case "header":
+        return (
+          <HeaderEditor
+            component={selectedComponent}
+            updateComponent={updateComponent}
+          />
+        );
+
       default:
         return <div>No editor available for this component type.</div>;
     }

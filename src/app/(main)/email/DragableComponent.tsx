@@ -3,6 +3,7 @@ import { useDrag, useDrop } from "react-dnd";
 import { Trash2 } from "lucide-react";
 import Button from "./emailComponents/Button";
 import EmailImage from "./emailComponents/Image";
+import EmailHeading from "./emailComponents/Header";
 
 const COMPONENT_TYPE = "EMAIL_COMPONENT";
 
@@ -46,7 +47,8 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
       const hoverBoundingRect = ref.current?.getBoundingClientRect();
       if (!hoverBoundingRect) return;
 
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       const clientOffset = monitor.getClientOffset();
       if (!clientOffset) return;
 
@@ -71,6 +73,8 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
         return <Button {...component.props} />;
       case "image":
         return <EmailImage {...component.props} />;
+      case "header":
+        return <EmailHeading {...component.props} />;
       default:
         return <div>Unknown component type</div>;
     }
@@ -84,7 +88,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
     >
       <div
         className={`
-          ${isSelected ? "outline outline-2 outline-vdcoffe rounded" : ""}
+          ${isSelected ? "outline outline-2 overflow-hidden outline-vdcoffe rounded" : ""}
           ${isOver ? "outline outline-4 outline-vdcoffe rounded" : ""}
           hover:outline hover:outline-2 hover:outline-vdcoffe hover:rounded
           cursor-grab transition-all duration-75

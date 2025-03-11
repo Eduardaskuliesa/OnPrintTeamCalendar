@@ -1,44 +1,63 @@
-import React from 'react';
-import { Html, Head, Body, Tailwind } from '@react-email/components';
-import Button from './emailComponents/Button';
-import EmailImage from './emailComponents/Image';
+import React from "react";
+import { Html, Head, Body, Tailwind } from "@react-email/components";
+import Button from "./emailComponents/Button";
+import EmailImage from "./emailComponents/Image";
+import EmailHeading from "./emailComponents/Header";
 
 interface EmailComponent {
-    id: string;
-    type: string;
-    props: Record<string, any>;
+  id: string;
+  type: string;
+  props: Record<string, any>;
 }
 
 interface EmailTemplateProps {
-    emailComponents: EmailComponent[];
+  emailComponents: EmailComponent[];
 }
 
-const EmailTemplate: React.FC<EmailTemplateProps> = ({ emailComponents: components }) => {
-    return (
-        <Tailwind>
-            <Html>
-                <Head />
-                <Body className='p-0 m-0 box-content'>
-                    {components.map((component) => {
-                        switch (component.type) {
-                            case 'button':
-                                return <Button text={''} url={''} backgroundColor={''} textColor={''} target={'_blank'} key={component.id} {...component.props} />;
+const EmailTemplate: React.FC<EmailTemplateProps> = ({
+  emailComponents: components,
+}) => {
+  return (
+    <Tailwind>
+      <Html>
+        <Head />
+        <Body className="p-0 m-0 box-content">
+          {components.map((component) => {
+            switch (component.type) {
+              case "button":
+                return <Button key={component.id} {...component.props} />;
 
-                            case 'image':
-                                return <EmailImage src={''} alt={''} key={component.id} {...component.props} />;
-                            default:
-                                return (
-                                    <div key={component.id} style={{ padding: '10px', border: '1px dashed #ccc', textAlign: 'center', margin: '10px 0' }}>
-                                        Unsupported component type: {component.type}
-                                    </div>
-                                );
-                        }
-                    })}
-
-                </Body>
-            </Html>
-        </Tailwind>
-    );
+              case "image":
+                return (
+                  <EmailImage
+                    src={""}
+                    alt={""}
+                    key={component.id}
+                    {...component.props}
+                  />
+                );
+              case "header":
+                return <EmailHeading key={component.id} {...component.props} />;
+              default:
+                return (
+                  <div
+                    key={component.id}
+                    style={{
+                      padding: "10px",
+                      border: "1px dashed #ccc",
+                      textAlign: "center",
+                      margin: "10px 0",
+                    }}
+                  >
+                    Unsupported component type: {component.type}
+                  </div>
+                );
+            }
+          })}
+        </Body>
+      </Html>
+    </Tailwind>
+  );
 };
 
 export default EmailTemplate;
