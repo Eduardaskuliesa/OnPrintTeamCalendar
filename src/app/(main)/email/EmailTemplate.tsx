@@ -4,6 +4,7 @@ import Button from "./emailComponents/Button";
 import EmailImage from "./emailComponents/Image";
 import EmailHeading from "./emailComponents/Header";
 import EmailSpacer from "./emailComponents/Spacer";
+import EmailText from "./emailComponents/Text";
 
 interface EmailComponent {
   id: string;
@@ -41,6 +42,8 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({
                 return <EmailHeading key={component.id} {...component.props} />;
               case "spacer":
                 return <EmailSpacer key={component.id} {...component.props} />;
+              case "text":
+                return <EmailText key={component.id} {...component.props} />;
               default:
                 return (
                   <div
