@@ -7,14 +7,14 @@ export type ButtonWidth = "25%" | "50%" | "75%";
 export type ContentAlignment = "flex-start" | "center" | "flex-end";
 
 export interface EmailButtonProps {
-  text: string;
-  url: string;
+  text?: string;
+  url?: string;
 
-  backgroundColor: string;
-  textColor: string;
+  backgroundColor?: string;
+  textColor?: string;
   fontWeight?: "normal" | "medium" | "semibold" | "bold";
   fontSize?: number;
-  target: "_blank" | "_self";
+  target?: "_blank" | "_self";
   paddingX?: number;
   paddingY?: number;
   borderRadius?: number;

@@ -5,6 +5,7 @@ import {
   TextAlignment,
   ContentAlignment,
 } from "../emailComponents/Button";
+import { EmailHeadingProps } from "./Header";
 
 type ButtonDefaultProps = {
   text: string;
@@ -69,8 +70,24 @@ export const defaultProps = {
     src: "https://placehold.co/600x400",
     width: "100%",
     target: "_blank",
-    containerBackgroundColor: "transparent"
+    containerBackgroundColor: "transparent",
   },
+  header: {
+    headingSize: "h1",
+    containerBackgroundColor: "transparent",
+    padding: {
+      top: 5,
+      bottom: 5,
+      left: 0,
+      right: 0,
+    },
+    margin: {
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+    },
+  } as EmailHeadingProps,
 };
 
 export function getDefaultProps(type: string) {
