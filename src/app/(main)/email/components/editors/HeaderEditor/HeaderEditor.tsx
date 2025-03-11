@@ -51,15 +51,6 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({
     });
   }, [component.id, component.props]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const updatedProps = {
-      ...localProps,
-      [name]: value,
-    };
-    setLocalProps(updatedProps);
-    updateComponent(component.id, { props: updatedProps });
-  };
 
   const handleBorderRadius = (containerBorderRadius: number) => {
     const updatedProps = {
@@ -121,7 +112,6 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({
         [type]: value,
       },
     };
-
     setLocalProps(updatedProps);
     updateComponent(component.id, { props: updatedProps });
   };
@@ -142,6 +132,37 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({
     updateComponent(component.id, { props: updatedProps });
   };
 
+  const handlePaddingChangeAll = (value: number) => {
+    const updatedProps = {
+      ...localProps,
+      padding: {
+        ...localProps.padding,
+        top: value,
+        bottom: value,
+        left: value,
+        right: value,
+      },
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
+  const handleMarginChangeAll = (value: number) => {
+    const updatedProps = {
+      ...localProps,
+      margin: {
+        ...localProps.margin,
+        top: value,
+        bottom: value,
+        left: value,
+        right: value,
+      },
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
   return (
     <div className="">
       <HeaderEditorTab
@@ -154,6 +175,8 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({
       ) : (
         <HeaderStylesTab
           localProps={localProps}
+          handleMarginChangeAll={handleMarginChangeAll}
+          handlePaddingChangeAll={handlePaddingChangeAll}
           handlePaddingChange={handlePaddingChange}
           handleMarginChange={handleMarginChange}
           handleBackgroundColor={handleBackgroundColor}

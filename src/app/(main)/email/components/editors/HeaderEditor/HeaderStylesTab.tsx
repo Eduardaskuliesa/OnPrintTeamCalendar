@@ -29,6 +29,8 @@ interface HeaderStyleTabProps {
   handleBorderStyle: (value: BorderStyle) => void;
   handleBorderWidth: (value: number) => void;
   handleBorderColor: (value: string) => void;
+  handleMarginChangeAll: (value: number) => void;
+  handlePaddingChangeAll: (value: number) => void;
   handleBackgroundColor: (value: string) => void;
   handlePaddingChange: (
     side: "top" | "bottom" | "left" | "right",
@@ -48,6 +50,8 @@ const HeaderStylesTab: React.FC<HeaderStyleTabProps> = ({
   handleBorderColor,
   handleBackgroundColor,
   handlePaddingChange,
+  handleMarginChangeAll,
+  handlePaddingChangeAll,
   handleMarginChange,
 }) => {
   const [borderOpen, setBorderOpen] = useState(false);
@@ -57,19 +61,6 @@ const HeaderStylesTab: React.FC<HeaderStyleTabProps> = ({
   const [applyPaddingToAll, setApplyPaddingToAll] = useState(false);
   const [applyMarginToAll, setApplyMarginToAll] = useState(false);
 
-  const handlePaddingChangeAll = (value: number) => {
-    handlePaddingChange("top", value);
-    handlePaddingChange("bottom", value);
-    handlePaddingChange("left", value);
-    handlePaddingChange("right", value);
-  };
-
-  const handleMarginChangeAll = (value: number) => {
-    handleMarginChange("top", value);
-    handleMarginChange("bottom", value);
-    handleMarginChange("left", value);
-    handleMarginChange("right", value);
-  };
   return (
     <div className="space-y-4">
       <Collapsible
@@ -355,9 +346,13 @@ const HeaderStylesTab: React.FC<HeaderStyleTabProps> = ({
                 <Checkbox
                   id="applyPaddingToAll"
                   checked={applyPaddingToAll}
-                  onCheckedChange={(checked) =>
-                    setApplyPaddingToAll(checked === true)
-                  }
+                  onCheckedChange={(checked) => {
+                    const isChecked = checked === true;
+                    setApplyPaddingToAll(isChecked);
+                    if (isChecked) {
+                      const topValue = localProps.padding?.top || 0;
+                    }
+                  }}
                 />
                 <Label
                   htmlFor="applyPaddingToAll"
@@ -600,9 +595,9 @@ const HeaderStylesTab: React.FC<HeaderStyleTabProps> = ({
                 <Checkbox
                   id="applyMarginToAll"
                   checked={applyMarginToAll}
-                  onCheckedChange={(checked) =>
-                    setApplyMarginToAll(checked === true)
-                  }
+                  onCheckedChange={(checked) => {
+                    setApplyMarginToAll(checked === true);
+                  }}
                 />
                 <Label
                   htmlFor="applyMarginToAll"
@@ -612,7 +607,6 @@ const HeaderStylesTab: React.FC<HeaderStyleTabProps> = ({
                 </Label>
               </div>
             </div>
-
             {applyMarginToAll ? (
               <div>
                 <Label htmlFor="marginAll" className="text-xs text-gray-500">

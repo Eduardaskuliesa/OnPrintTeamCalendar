@@ -6,6 +6,7 @@ import ButtonEditor from "./components/editors/ButtonEditor/ButtonEditor";
 import ImageEditor from "./components/editors/ImageEditor/ImageEditor";
 import { FiArrowLeft } from "react-icons/fi";
 import HeaderEditor from "./components/editors/HeaderEditor/HeaderEditor";
+import SpaceEditor from "./components/editors/SpaceEditor/SpacerEditor";
 
 interface ComponentPanelProps {
   selectedComponent: any | null;
@@ -50,6 +51,13 @@ const ComponentPanel: React.FC<ComponentPanelProps> = ({
       case "header":
         return (
           <HeaderEditor
+            component={selectedComponent}
+            updateComponent={updateComponent}
+          />
+        );
+      case "spacer":
+        return (
+          <SpaceEditor
             component={selectedComponent}
             updateComponent={updateComponent}
           />
