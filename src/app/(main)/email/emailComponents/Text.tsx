@@ -33,7 +33,7 @@ export interface EmailText {
 }
 
 const EmailText: React.FC<EmailText> = ({
-  text = "This is heading",
+  text = "This is simple text",
   borderStyle,
   borderWidth,
   containerBackgroundColor = "transparent",
