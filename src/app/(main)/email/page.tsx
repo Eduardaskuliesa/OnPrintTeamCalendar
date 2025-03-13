@@ -7,6 +7,8 @@ import { getDefaultProps } from "./utils/componentRegistry";
 const ComponentPanel = React.lazy(() => import("./ComponentPanel"));
 import DraggableEmailCanvas from "./DragableEmailCanvas";
 import ComponentPanelSkeleton from "./components/skeletons/ComponentPanelSkeleton";
+import EmailTemplate from "./EmailTemplate";
+import { render } from "@react-email/render";
 // import EmailPreview from "./EmailPreview";
 // import EmailTemplate from "./EmailTemplate";
 // import ViewModeToggle from "./ViewModeToggle";
@@ -25,6 +27,17 @@ const EmailBuilderPage = () => {
     useState<EmailComponent | null>(null);
   // const [viewMode, setViewMode] = useState("dekstop")
   // const [emailHtml, setEmailHtml] = useState()
+
+  useEffect(() => {
+    const savedComponents = localStorage.getItem("emailBuilderComponents");
+    if (savedComponents) {
+      try {
+        setEmailComponents(JSON.parse(savedComponents));
+      } catch (error) {
+        console.error("Error parsing saved components:", error);
+      }
+    }
+  }, []);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -73,13 +86,15 @@ const EmailBuilderPage = () => {
   //     try {
   //       const template = <EmailTemplate emailComponents={emailComponents} />;
   //       const html = await render(template);
-  //       setEmailHtml(html);
+  //       console.log("Generated HTML:", html);
   //     } catch (error) {
   //       console.error("Error rendering email:", error);
   //     }
   //   };
 
-  //   updateEmailHtml();
+  //   if (emailComponents.length) {
+  //     updateEmailHtml();
+  //   }
   // }, [emailComponents]);
 
   const clickOutsideHandler = (e: MouseEvent) => {
@@ -106,6 +121,16 @@ const EmailBuilderPage = () => {
       document.removeEventListener("mousedown", clickOutsideHandler);
     };
   }, [selectedComponent, panelRef, canvasRef]);
+
+  useEffect(() => {
+    if (emailComponents.length) {
+      localStorage.setItem(
+        "emailBuilderComponents",
+        JSON.stringify(emailComponents)
+      );
+      console.log("Template", JSON.stringify(emailComponents));
+    }
+  }, [emailComponents]);
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-row min-h-screen w-full p-2 gap-6">
