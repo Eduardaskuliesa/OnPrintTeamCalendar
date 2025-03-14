@@ -23,7 +23,7 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({
     <Tailwind>
       <Html>
         <Head />
-        <Body className="p-0 m-0 box-content">
+        <Body className="p-0 box-content max-w-2xl mx-auto">
           {components.map((component) => {
             switch (component.type) {
               case "button":

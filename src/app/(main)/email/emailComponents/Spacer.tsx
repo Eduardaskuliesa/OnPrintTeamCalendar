@@ -11,6 +11,7 @@ const EmailSpacer: React.FC<EmailSpacerProps> = ({
 }) => {
   const sectionStyles = {
     backgroundColor: containerBackgroundColor,
+    maxWidth: '620px',
     height: `${height}px`,
   } as React.CSSProperties;
   return <Container style={sectionStyles} />;
