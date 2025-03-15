@@ -1,9 +1,13 @@
-import React from 'react'
+import React from "react";
+import NewEmailBuilder from "./NewEmailBuilder";
 
-const page = () => {
+const NewEmailPage = () => {
   return (
-    <div>page</div>
-  )
-}
+    <div className="container">
+      <h1 className="text-2xl font-bold mb-6">Create New Email Template</h1>
+      <NewEmailBuilder />
+    </div>
+  );
+};
 
-export default page
+export default NewEmailPage;

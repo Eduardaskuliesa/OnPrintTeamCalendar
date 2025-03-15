@@ -39,9 +39,8 @@ const EmailImage: React.FC<EmailImageProps> = ({
   alt,
   href,
   target = "_blank",
-  width = "50%",
+  width = "100%",
   height = "auto",
-  maxWidth = "620px",
   borderRadius = 0,
   borderStyle = "none",
   borderWidth = 1,
@@ -58,7 +57,6 @@ const EmailImage: React.FC<EmailImageProps> = ({
       borderStyle !== "none"
         ? `${borderWidth}px ${borderStyle} ${borderColor}`
         : "none",
-    maxWidth,
     width: width,
     height: height,
     objectFit,

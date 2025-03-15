@@ -1,5 +1,3 @@
-import { Container } from "@react-email/components";
-
 export interface EmailSpacerProps {
   containerBackgroundColor?: string;
   height?: number;
@@ -11,10 +9,11 @@ const EmailSpacer: React.FC<EmailSpacerProps> = ({
 }) => {
   const sectionStyles = {
     backgroundColor: containerBackgroundColor,
-    maxWidth: '620px',
     height: `${height}px`,
+    display: "flex",
+    width: "100%",
   } as React.CSSProperties;
-  return <Container style={sectionStyles} />;
+  return <div style={sectionStyles} />;
 };
 
 export default EmailSpacer;
