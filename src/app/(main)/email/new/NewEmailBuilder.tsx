@@ -13,7 +13,6 @@ import MiddlePanel from "./MiddlePanel";
 import { useEmailBuilder } from "../hooks/useEmailBuilder";
 import CreateTemplateModal from "./CreateTemplateModal";
 import EmailTemplate from "../EmailTemplate";
-import UnsavedChangesDialog from "./UnsavedChangesDialog";
 
 const NewEmailBuilder: React.FC = () => {
   const router = useRouter();
@@ -23,7 +22,6 @@ const NewEmailBuilder: React.FC = () => {
   const [dialogStatus, setDialogStatus] = useState<
     "idle" | "saving" | "navigating"
   >("idle");
-  const [isUnsavedDialogOpen, setIsUnsavedDialogOpen] = useState(false);
   const {
     emailComponents,
     setEmailComponents,
@@ -36,6 +34,7 @@ const NewEmailBuilder: React.FC = () => {
     moveComponent,
     handleSelectComponent,
     removeComponent,
+    markAsSaved,
   } = useEmailBuilder([]);
 
   useEffect(() => {
@@ -43,6 +42,7 @@ const NewEmailBuilder: React.FC = () => {
     if (savedComponents) {
       try {
         setEmailComponents(JSON.parse(savedComponents));
+        markAsSaved();
       } catch (error) {
         console.error("Error parsing saved components:", error);
       }
@@ -112,6 +112,8 @@ const NewEmailBuilder: React.FC = () => {
         setDialogStatus("idle");
         return;
       }
+      markAsSaved();
+      localStorage.removeItem('emailBuilderComponents')
       toast.success("Šablonas sėkmingai sukurtas");
 
       if (

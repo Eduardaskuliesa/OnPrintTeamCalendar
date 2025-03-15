@@ -16,6 +16,8 @@ export function useEmailBuilder(initialComponents: EmailComponent[] = []) {
     useState<EmailComponent | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [isNew, setIsNew] = useState(true);
+  const [isDirty, setIsDirty] = useState(false);
 
   const handleAddComponent = (type: string) => {
     const newComponent = {
@@ -23,8 +25,8 @@ export function useEmailBuilder(initialComponents: EmailComponent[] = []) {
       type,
       props: getDefaultProps(type),
     };
-
     setEmailComponents([...emailComponents, newComponent]);
+    setIsDirty(true);
     setSelectedComponent(newComponent);
   };
 
@@ -32,6 +34,7 @@ export function useEmailBuilder(initialComponents: EmailComponent[] = []) {
     id: string,
     updates: Partial<EmailComponent>
   ) => {
+    setIsDirty(true);
     setEmailComponents((prevComponents) =>
       prevComponents.map((component) =>
         component.id === id ? { ...component, ...updates } : component
@@ -45,7 +48,7 @@ export function useEmailBuilder(initialComponents: EmailComponent[] = []) {
 
     newComponents.splice(dragIndex, 1);
     newComponents.splice(hoverIndex, 0, draggedItem);
-
+    setIsDirty(true);
     setEmailComponents(newComponents);
   };
 
@@ -58,6 +61,10 @@ export function useEmailBuilder(initialComponents: EmailComponent[] = []) {
 
   const removeComponent = (id: string) => {
     setEmailComponents(emailComponents.filter((c) => c.id !== id));
+    if (emailComponents.length === 1) {
+      localStorage.removeItem("emailBuilderComponents");
+    }
+    setIsDirty(true);
     if (selectedComponent?.id === id) setSelectedComponent(null);
   };
 
@@ -87,13 +94,19 @@ export function useEmailBuilder(initialComponents: EmailComponent[] = []) {
   }, [selectedComponent]);
 
   useEffect(() => {
-    if (emailComponents.length) {
+    if (emailComponents.length && isNew) {
       localStorage.setItem(
         "emailBuilderComponents",
         JSON.stringify(emailComponents)
       );
     }
+
+    console.log("Mark:", isDirty);
   }, [emailComponents]);
+
+  const markAsSaved = () => {
+    setIsDirty(false);
+  };
 
   return {
     emailComponents,
@@ -104,6 +117,9 @@ export function useEmailBuilder(initialComponents: EmailComponent[] = []) {
     panelRef,
     canvasRef,
 
+    isDirty,
+    markAsSaved,
+    setIsNew,
     handleAddComponent,
     handleUpdateComponent,
     moveComponent,
