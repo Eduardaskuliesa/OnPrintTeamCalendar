@@ -71,7 +71,7 @@ export const defaultProps = {
     containerBackgroundColor: "transparent",
   },
   header: {
-    headingSize: "h1",
+    headingSize: "h2",
     containerBackgroundColor: "transparent",
     padding: {
       top: 5,

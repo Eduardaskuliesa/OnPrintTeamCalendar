@@ -65,6 +65,7 @@ const EmailHeading: React.FC<EmailHeadingProps> = ({
     marginLeft: margin.left !== undefined ? `${margin.left}px` : "0",
     marginRight: margin.right !== undefined ? `${margin.right}px` : "0",
     width: "100%",
+    height: "auto",
   } as React.CSSProperties;
 
   const sizeMap = {
@@ -78,6 +79,9 @@ const EmailHeading: React.FC<EmailHeadingProps> = ({
   const headingStyle = {
     fontSize: customFontSize || sizeMap[headingSize],
     fontWeight: "bold",
+    lineHeight: "100%",
+    margin: 0,
+    padding: 0,
   } as React.CSSProperties;
 
   return (
