@@ -1,10 +1,20 @@
 import React from "react";
 import NewEmailBuilder from "./NewEmailBuilder";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowBigLeftDash } from "lucide-react";
 
 const NewEmailPage = () => {
   return (
     <div className="container">
-      <h1 className="text-2xl font-bold mb-6">Create New Email Template</h1>
+      <div className="px-4">
+        <Link href={"/email"}>
+          <Button>
+            <ArrowBigLeftDash />
+            Atgal
+          </Button>
+        </Link>
+      </div>
       <NewEmailBuilder />
     </div>
   );

@@ -36,10 +36,8 @@ const CreateTemplateModal: React.FC<CreateTemplateModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Išsaugoti El. pašto šabloną</DialogTitle>
-          <DialogDescription>
-            Įveskite naujo el. pašto šablono pavadinimą
-          </DialogDescription>
+          <DialogTitle>Išsaugoti šabloną</DialogTitle>
+          <DialogDescription>Įveskite šablono pavadinimą</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col justify-center space-y-4">
