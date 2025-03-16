@@ -4,6 +4,8 @@ import { Trash2 } from "lucide-react";
 import Button from "./emailComponents/Button";
 import EmailImage from "./emailComponents/Image";
 import EmailHeading from "./emailComponents/Header";
+import EmailSpacer from "./emailComponents/Spacer";
+import EmailText from "./emailComponents/Text";
 
 const COMPONENT_TYPE = "EMAIL_COMPONENT";
 
@@ -75,6 +77,10 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
         return <EmailImage {...component.props} />;
       case "header":
         return <EmailHeading {...component.props} />;
+      case "spacer":
+        return <EmailSpacer {...component.props} />;
+      case "text":
+        return <EmailText {...component.props} />;
       default:
         return <div>Unknown component type</div>;
     }

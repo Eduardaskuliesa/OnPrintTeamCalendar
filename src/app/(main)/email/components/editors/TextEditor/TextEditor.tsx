@@ -1,24 +1,23 @@
 import React, { useState, useEffect } from "react";
-import HeaderEditorTab from "./HeaderEditorTab";
-import HeaderContentTab from "./HeaderContentTab";
-import HeaderStylesTab from "./HeaderStylesTab";
 import {
   BorderStyle,
   EmailHeadingProps,
 } from "../../../emailComponents/Header";
+import TextEditorTab from "./TextEditorTabs";
+import TextStylesTab from "./TextEditorStyles";
 
-interface HeaderComponent {
+interface EmailTextComponent {
   id: string;
   type: string;
   props: EmailHeadingProps;
 }
 
-interface HeaderEditorProps {
-  component: HeaderComponent;
-  updateComponent: (id: string, updates: Partial<HeaderComponent>) => void;
+interface TextEditorProps {
+  component: EmailTextComponent;
+  updateComponent: (id: string, updates: Partial<EmailTextComponent>) => void;
 }
 
-const HeaderEditor: React.FC<HeaderEditorProps> = ({
+const TextEditor: React.FC<TextEditorProps> = ({
   component,
   updateComponent,
 }) => {
@@ -50,7 +49,6 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({
       },
     });
   }, [component.id, component.props]);
-
 
   const handleBorderRadius = (containerBorderRadius: number) => {
     const updatedProps = {
@@ -165,29 +163,25 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({
   };
   return (
     <div className="">
-      <HeaderEditorTab
+      <TextEditorTab
         activeTab={activeTab}
         setActiveTab={(tab) => setActiveTab(tab as "content" | "styles")}
       />
 
-      {activeTab === "content" ? (
-        <HeaderContentTab />
-      ) : (
-        <HeaderStylesTab
-          localProps={localProps}
-          handleMarginChangeAll={handleMarginChangeAll}
-          handlePaddingChangeAll={handlePaddingChangeAll}
-          handlePaddingChange={handlePaddingChange}
-          handleMarginChange={handleMarginChange}
-          handleBackgroundColor={handleBackgroundColor}
-          handleBorderWidth={handleBorderWidth}
-          handleBorderStyle={handleBorderStyle}
-          handleBorderColor={handleBorderColor}
-          handleBorderRadius={handleBorderRadius}
-        />
-      )}
+      <TextStylesTab
+        localProps={localProps}
+        handleMarginChangeAll={handleMarginChangeAll}
+        handlePaddingChangeAll={handlePaddingChangeAll}
+        handlePaddingChange={handlePaddingChange}
+        handleMarginChange={handleMarginChange}
+        handleBackgroundColor={handleBackgroundColor}
+        handleBorderWidth={handleBorderWidth}
+        handleBorderStyle={handleBorderStyle}
+        handleBorderColor={handleBorderColor}
+        handleBorderRadius={handleBorderRadius}
+      />
     </div>
   );
 };
 
-export default HeaderEditor;
+export default TextEditor;

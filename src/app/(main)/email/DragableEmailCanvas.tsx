@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { Suspense, useRef, useState } from "react";
 import { useDrop } from "react-dnd";
 import DraggableComponent from "./DragableComponent";
 import { getDefaultProps } from "./utils/componentRegistry";
@@ -51,12 +51,15 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
           const mouseY = monitor.getClientOffset()?.y || 0;
           const relativeY = mouseY - canvasRect.top;
 
-          const children = Array.from(canvasRef.current.querySelectorAll('.component-container'));
+          const children = Array.from(
+            canvasRef.current.querySelectorAll(".component-container")
+          );
 
           for (let i = 0; i < children.length; i++) {
             const child = children[i];
             const childRect = child.getBoundingClientRect();
-            const childMiddleY = childRect.top + childRect.height / 2 - canvasRect.top;
+            const childMiddleY =
+              childRect.top + childRect.height / 2 - canvasRect.top;
 
             if (relativeY < childMiddleY) {
               setInsertPosition(i);
@@ -74,7 +77,8 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
     },
     drop: (item) => {
       if (item.type && !item.id) {
-        const position = insertPosition !== null ? insertPosition : components.length;
+        const position =
+          insertPosition !== null ? insertPosition : components.length;
 
         const newComponent = {
           id: `${item.type}-${Date.now()}`,
@@ -100,7 +104,9 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
 
   const renderInsertIndicator = (position: number) => {
     if (insertPosition === position && isDraggingNew && isOver) {
-      return <div className="h-1 bg-dcoffe w-full my-2 rounded animate-pulse" />;
+      return (
+        <div className="h-1 bg-dcoffe w-full my-2 rounded animate-pulse" />
+      );
     }
     return null;
   };
@@ -115,8 +121,11 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
   return (
     <div
       ref={canvasRef}
-      className={`min-h-[400px]  border-2 border-dashed ${isOver && isDraggingNew ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-gray-50"
-        } rounded p-4 transition-colors duration-200`}
+      className={`min-h-[400px]  border-2 ${selectedComponentId ? "overflow-visible" : "overflow-hidden"} border-dashed ${
+        isOver && isDraggingNew
+          ? "border-blue-400 bg-blue-50"
+          : "border-gray-300 bg-gray-50"
+      } rounded p-2 transition-colors duration-200`}
     >
       {components.length === 0 ? (
         <div className="text-center py-10 text-gray-400">
@@ -129,16 +138,18 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
             if (!component || !component.id) return null;
             return (
               <React.Fragment key={component.id}>
-                <div className="component-container ">
-                  <DraggableComponent
-                    id={component.id}
-                    index={index}
-                    component={component}
-                    moveComponent={moveComponent}
-                    removeComponent={removeComponent}
-                    onSelectComponent={onSelectComponent}
-                    isSelected={component.id === selectedComponentId}
-                  />
+                <div className="component-container">
+                  <Suspense fallback={<div>Loading....</div>}>
+                    <DraggableComponent
+                      id={component.id}
+                      index={index}
+                      component={component}
+                      moveComponent={moveComponent}
+                      removeComponent={removeComponent}
+                      onSelectComponent={onSelectComponent}
+                      isSelected={component.id === selectedComponentId}
+                    />
+                  </Suspense>
                 </div>
                 {renderInsertIndicator(index + 1)}
               </React.Fragment>

@@ -22,9 +22,10 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { MdColorLens } from "react-icons/md";
 import { Checkbox } from "@/components/ui/checkbox";
+import { EmailText } from "../../../emailComponents/Text";
 
-interface HeaderStyleTabProps {
-  localProps: EmailHeadingProps;
+interface TextStyleTabProps {
+  localProps: EmailText;
   handleBorderRadius: (value: number) => void;
   handleBorderStyle: (value: BorderStyle) => void;
   handleBorderWidth: (value: number) => void;
@@ -42,7 +43,7 @@ interface HeaderStyleTabProps {
   ) => void;
 }
 
-const HeaderStylesTab: React.FC<HeaderStyleTabProps> = ({
+const TextStylesTab: React.FC<TextStyleTabProps> = ({
   handleBorderRadius,
   localProps,
   handleBorderStyle,
@@ -828,4 +829,4 @@ const HeaderStylesTab: React.FC<HeaderStyleTabProps> = ({
   );
 };
 
-export default HeaderStylesTab;
+export default TextStylesTab;

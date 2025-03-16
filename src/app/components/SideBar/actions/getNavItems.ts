@@ -34,6 +34,7 @@ export async function getNavItems() {
         },
       ],
     },
+    { href: "/email", icon: "SquareLibary", text: "Šablonai" },
   ];
 
   return session?.user?.role === "ADMIN"

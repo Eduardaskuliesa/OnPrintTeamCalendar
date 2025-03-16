@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ShoppingCart,
   Tags,
+  SquareLibrary,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -31,7 +32,6 @@ interface ClientSidebarProps {
   navItems: NavItemProps[];
 }
 
-// Map string icon names to actual components
 const iconMap = {
   User: <User size={20} />,
   Calendar: <Calendar size={20} />,
@@ -39,6 +39,7 @@ const iconMap = {
   ShieldCheck: <ShieldCheck size={20} />,
   ShoppingCart: <ShoppingCart size={16} />,
   Tags: <Tags size={16} />,
+  SquareLibary: <SquareLibrary size={20} />,
 };
 
 const SubNavItem = ({
@@ -73,9 +74,12 @@ const NavItem = ({ href, icon, text, onClick, subItems }: NavItemProps) => {
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const hasSubItems = subItems && subItems.length > 0;
+  const isParentActive = pathname.startsWith(href) && href !== "/";
+
+  const isActive = pathname === href || isParentActive;
+
   const isChildActive =
     hasSubItems && subItems.some((item) => item.href === pathname);
-  const isActive = pathname === href;
 
   const iconComponent = iconMap[icon as keyof typeof iconMap];
   const activeIcon = React.cloneElement(iconComponent as React.ReactElement, {
@@ -104,8 +108,8 @@ const NavItem = ({ href, icon, text, onClick, subItems }: NavItemProps) => {
             isActive
               ? "bg-slate-50 text-[#102C57]"
               : isChildActive
-              ? " text-amber-900 "
-              : "text-gray-700"
+                ? " text-amber-900 "
+                : "text-gray-700"
           }
           ${!isActive && "hover:bg-slate-50"} hover:text-[#102C57] 
           transition-colors duration-200`}

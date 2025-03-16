@@ -47,8 +47,6 @@ export const defaultProps = {
     textColor: "#FFFFFF",
     fontWeight: "medium" as const,
     fontSize: 16,
-    paddingX: 24,
-    paddingY: 12,
     borderRadius: 0,
     borderStyle: "none" as const,
     borderWidth: 1,
@@ -73,7 +71,7 @@ export const defaultProps = {
     containerBackgroundColor: "transparent",
   },
   header: {
-    headingSize: "h1",
+    headingSize: "h2",
     containerBackgroundColor: "transparent",
     padding: {
       top: 5,
@@ -88,6 +86,10 @@ export const defaultProps = {
       right: 0,
     },
   } as EmailHeadingProps,
+  spacer: {
+    height: 20,
+    containerBackgroundColor: "transparent",
+  },
 };
 
 export function getDefaultProps(type: string) {

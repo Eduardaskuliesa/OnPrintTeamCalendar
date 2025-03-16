@@ -3,6 +3,8 @@ import { Html, Head, Body, Tailwind } from "@react-email/components";
 import Button from "./emailComponents/Button";
 import EmailImage from "./emailComponents/Image";
 import EmailHeading from "./emailComponents/Header";
+import EmailSpacer from "./emailComponents/Spacer";
+import EmailText from "./emailComponents/Text";
 
 interface EmailComponent {
   id: string;
@@ -21,7 +23,7 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({
     <Tailwind>
       <Html>
         <Head />
-        <Body className="p-0 m-0 box-content">
+        <Body className="p-0 box-content max-w-2xl mx-auto">
           {components.map((component) => {
             switch (component.type) {
               case "button":
@@ -38,6 +40,10 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({
                 );
               case "header":
                 return <EmailHeading key={component.id} {...component.props} />;
+              case "spacer":
+                return <EmailSpacer key={component.id} {...component.props} />;
+              case "text":
+                return <EmailText key={component.id} {...component.props} />;
               default:
                 return (
                   <div
