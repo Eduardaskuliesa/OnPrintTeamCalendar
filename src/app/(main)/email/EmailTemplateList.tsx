@@ -2,11 +2,10 @@ import { tempalteActions } from "@/app/lib/actions/templates";
 import { Template } from "@/app/types/emailTemplates";
 import Link from "next/link";
 
-
 export default async function EmailTemplateList() {
   const templates = (await tempalteActions.getTemplates()).data;
 
-  if (templates.length === 0) {
+  if (templates?.length === 0) {
     return (
       <div className="text-center py-12 bg-white rounded-lg">
         <p className="text-gray-600 mb-4">No templates found</p>
@@ -22,7 +21,7 @@ export default async function EmailTemplateList() {
 
   return (
     <div className="grid gap-4 bg-white ">
-      {templates.map((template: Template) => (
+      {templates?.map((template: Template) => (
         <div
           key={template.id}
           className="border rounded-lg p-4 hover:shadow-md transition-shadow"

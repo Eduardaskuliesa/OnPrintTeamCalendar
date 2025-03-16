@@ -44,6 +44,7 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
       left: 0,
       right: 0,
     },
+    content: component.props.content || "<p>Click Me</p>",
   });
 
   useEffect(() => {
@@ -61,6 +62,7 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
         left: 0,
         right: 0,
       },
+      content: component.props.content || "<p>Click Me</p>",
     });
   }, [component.id, component.props]);
 
@@ -201,6 +203,16 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     updateComponent(component.id, { props: updatedProps });
   };
 
+  const handleContentChange = (content: string) => {
+    const updatedProps = {
+      ...localProps,
+      content,
+    };
+
+    setLocalProps(updatedProps);
+    updateComponent(component.id, { props: updatedProps });
+  };
+
   const handleResetDefault = () => {
     const buttonDefaults = defaultProps.button;
     const resetProps: EmailButtonProps = {
@@ -232,17 +244,6 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     updateComponent(component.id, { props: resetProps });
   };
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const updatedProps = {
-      ...localProps,
-      [name]: value,
-    };
-
-    setLocalProps(updatedProps);
-    updateComponent(component.id, { props: updatedProps });
-  };
-
   const renderTab = () => {
     switch (activeTab) {
       case "content":
@@ -272,7 +273,12 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
           />
         );
       case "text":
-        return <TextTab handleTextChange={handleTextChange}></TextTab>;
+        return (
+          <TextTab
+            contentHtml={localProps.content}
+            handleContentChange={handleContentChange}
+          ></TextTab>
+        );
     }
   };
   return (

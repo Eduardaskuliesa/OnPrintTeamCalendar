@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "@react-email/components";
+import { Html, Link } from "@react-email/components";
 
 export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
 export type TextAlignment = "left" | "center" | "right";
@@ -7,7 +7,7 @@ export type ButtonWidth = "25%" | "50%" | "75%";
 export type ContentAlignment = "flex-start" | "center" | "flex-end";
 
 export interface EmailButtonProps {
-  text?: string;
+  content: string;
   url?: string;
 
   backgroundColor?: string;
@@ -37,7 +37,7 @@ export interface EmailButtonProps {
 }
 
 const Button: React.FC<EmailButtonProps> = ({
-  text,
+  content = "<p>Click me</p>",
   url,
   target = "_blank",
   backgroundColor = "#3B82F6",
@@ -98,7 +98,7 @@ const Button: React.FC<EmailButtonProps> = ({
   return (
     <div style={containerStyle}>
       <Link href={url} style={buttonStyle} target={target}>
-        {text}
+        <span dangerouslySetInnerHTML={{ __html: content }} />
       </Link>
     </div>
   );

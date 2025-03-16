@@ -146,6 +146,7 @@ const NewEmailBuilder: React.FC = () => {
   useEffect(() => {
     const updateEmailHtml = async () => {
       try {
+        console.log("selectedcomp", emailComponents);
         const template = <EmailTemplate emailComponents={emailComponents} />;
         const html = await render(template);
         setEmailHtml(html);
