@@ -13,14 +13,14 @@ import MiddlePanel from "./MiddlePanel";
 import { useEmailBuilder } from "../hooks/useEmailBuilder";
 import CreateTemplateModal from "./CreateTemplateModal";
 import EmailTemplate from "../EmailTemplate";
-import ViewModeToggle from "../ViewModeToggle";
-import EmailPreview from "../EmailPreview";
+// import ViewModeToggle from "../ViewModeToggle";
+// import EmailPreview from "../EmailPreview";
 
 const NewEmailBuilder: React.FC = () => {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [viewMode, setViewMode] = useState("dekstop");
-  const [emailHtml, setEmailHtml] = useState();
+  // const [viewMode, setViewMode] = useState("dekstop");
+  // const [emailHtml, setEmailHtml] = useState();
   const [templateName, setTemplateName] = useState("");
   const [nameError, setNameError] = useState("");
   const [dialogStatus, setDialogStatus] = useState<
@@ -143,22 +143,22 @@ const NewEmailBuilder: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const updateEmailHtml = async () => {
-      try {
-        const template = <EmailTemplate emailComponents={emailComponents} />;
-        const html = await render(template);
-        setEmailHtml(html);
-        console.log("Generated HTML:", html);
-      } catch (error) {
-        console.error("Error rendering email:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const updateEmailHtml = async () => {
+  //     try {
+  //       const template = <EmailTemplate emailComponents={emailComponents} />;
+  //       const html = await render(template);
+  //       setEmailHtml(html);
+  //       console.log("Generated HTML:", html);
+  //     } catch (error) {
+  //       console.error("Error rendering email:", error);
+  //     }
+  //   };
 
-    if (emailComponents.length) {
-      updateEmailHtml();
-    }
-  }, [emailComponents]);
+  //   if (emailComponents.length) {
+  //     updateEmailHtml();
+  //   }
+  // }, [emailComponents]);
 
   return (
     <>
@@ -186,7 +186,7 @@ const NewEmailBuilder: React.FC = () => {
           />
         </div>
 
-        <div className="w-full max-w-2xl">
+        {/* <div className="w-full max-w-2xl">
           <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
           <div className="border border-gray-300 rounded-lg p-4 shadow-sm bg-[#E4E4E7]">
             <h2 className="text-lg font-semibold text-gray-700 mb-3">
@@ -194,7 +194,7 @@ const NewEmailBuilder: React.FC = () => {
             </h2>
             <EmailPreview emailHtml={emailHtml} viewMode={viewMode} />
           </div>
-        </div>
+        </div> */}
       </DndProvider>
 
       {/* Template Name Dialog */}

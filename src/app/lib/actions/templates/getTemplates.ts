@@ -1,6 +1,5 @@
 "use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
-
 import { getServerSession } from "next-auth";
 
 export async function getTemplates() {
@@ -13,12 +12,13 @@ export async function getTemplates() {
       };
     }
 
-    const url = new URL(
-      `${process.env.VPS_QUEUE_ENDPOINT}/api/template`
-    );
+    const url = new URL(`${process.env.VPS_QUEUE_ENDPOINT}/api/template`);
 
     const response = await fetch(url, {
-      cache: "no-cache",
+      next: {
+        revalidate: 300,
+        tags: ["templates"],
+      },
       method: "GET",
       headers: {
         "Content-Type": "application/json",

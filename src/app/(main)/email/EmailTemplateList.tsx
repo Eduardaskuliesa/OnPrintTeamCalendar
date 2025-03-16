@@ -1,7 +1,7 @@
 import { tempalteActions } from "@/app/lib/actions/templates";
 import { Template } from "@/app/types/emailTemplates";
 import Link from "next/link";
-
+import EmailTemplateItem from "./EmailTemplateItem";
 
 export default async function EmailTemplateList() {
   const templates = (await tempalteActions.getTemplates()).data;
@@ -21,29 +21,9 @@ export default async function EmailTemplateList() {
   }
 
   return (
-    <div className="grid gap-4 bg-white ">
+    <div className="flex flex-col gap-2">
       {templates.map((template: Template) => (
-        <div
-          key={template.id}
-          className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-        >
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-lg font-medium">{template.templateName}</h2>
-            </div>
-            <div className="flex space-x-2">
-              <Link
-                href={`/email/${template.templateName}?id=${template.id}`}
-                className="px-3 py-1 bg-gray-100 text-gray-800 rounded hover:bg-gray-200 transition-colors"
-              >
-                Edit
-              </Link>
-              <button className="px-3 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors">
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+        <EmailTemplateItem key={template.id} template={template} />
       ))}
     </div>
   );
