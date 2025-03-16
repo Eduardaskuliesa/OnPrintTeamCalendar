@@ -6,7 +6,9 @@ import { useSearchParams } from "next/navigation";
 import React from "react";
 import EmailUpdateBuilder from "./UpdateEmailBuilder";
 import ComponentPanelSkeleton from "../components/skeletons/ComponentPanelSkeleton";
-import { Loader } from "lucide-react";
+import { ArrowBigLeftDash, Loader } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -16,6 +18,14 @@ const Page = () => {
 
   return (
     <div>
+      <div className="px-4">
+        <Link href={"/email"}>
+          <Button>
+            <ArrowBigLeftDash/>
+            Atgal
+          </Button>
+        </Link>
+      </div>
       {isFetching ? (
         <div className="container p-2 gap-6">
           <div className="flex flex-row w-full gap-6">

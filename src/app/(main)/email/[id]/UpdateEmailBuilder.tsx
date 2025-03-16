@@ -63,7 +63,7 @@ const EmailUpdateBuilder: React.FC<EmailUpdateBuilderProps> = ({
       const html = await render(templateHtml);
       const jsonData = JSON.stringify(emailComponents);
 
-      const result = await storeEmailTemplate({
+      await storeEmailTemplate({
         name: template.templateName,
         html: html,
         jsonData: jsonData,
@@ -72,6 +72,7 @@ const EmailUpdateBuilder: React.FC<EmailUpdateBuilderProps> = ({
       toast.success("Šablonas išsauguotas");
     } catch (error) {
       toast.error("Nepavyko išsauguoti šablono");
+      console.error(error);
     } finally {
       setIsSaving(false);
     }
