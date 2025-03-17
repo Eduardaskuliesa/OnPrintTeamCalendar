@@ -13,7 +13,7 @@ import Link from "next/link";
 const Page = () => {
   const searchParams = useSearchParams();
   const queryId = searchParams.get("id");
-  const { data, isFetching } = useGetTemplate(Number(queryId));
+  const { data, isFetching, isLoading } = useGetTemplate(Number(queryId));
   const template = data?.data as Template;
 
   return (
@@ -21,12 +21,12 @@ const Page = () => {
       <div className="px-4">
         <Link href={"/email"}>
           <Button>
-            <ArrowBigLeftDash/>
+            <ArrowBigLeftDash />
             Atgal
           </Button>
         </Link>
       </div>
-      {isFetching ? (
+      {isFetching && isLoading ? (
         <div className="container p-2 gap-6">
           <div className="flex flex-row w-full gap-6">
             <div className="max-w-md w-full max-h-[350px]">

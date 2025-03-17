@@ -4,13 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { EmailImageProps, ImageWidth } from "../../../emailComponents/Image";
-import { ChevronRight, Upload, Link2, Image } from "lucide-react";
+import { ChevronRight, Upload, Link2, Image, FolderOpen } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Slider } from "@/components/ui/slider";
+import { uploadImageToS3 } from "@/app/lib/actions/s3Actions/uploadImageToS3";
+import { toast } from "react-toastify";
 
 interface ImageContentTabProps {
   localProps: EmailImageProps;
@@ -28,6 +30,7 @@ const ImageContentTab: React.FC<ImageContentTabProps> = ({
   handleWidthChange,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [showWidthSlider, setShowWidthSlider] = useState(false);
   const [contentOpen, setContentOpen] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
@@ -49,18 +52,41 @@ const ImageContentTab: React.FC<ImageContentTabProps> = ({
     parseInt(localProps.width?.replace("%", "") || "50", 10)
   );
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      const srcEvent = {
-        target: {
-          name: "src",
-          value: imageUrl,
-        },
-      } as React.ChangeEvent<HTMLInputElement>;
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setIsLoading(true);
+      if (event.target.files) {
+        const file = event.target.files[0];
+        const data = new FormData();
+        data.append('file', file, file.name);
 
-      handleChange(srcEvent);
+
+        const response = await uploadImageToS3({
+          route: 'images',
+          fileName: file.name,
+          content: data,
+        });
+
+        if (response.ok && response.url) {
+          console.log(response.url)
+          const srcEvent = {
+            target: {
+              name: "src",
+              value: response.url,
+            },
+          } as React.ChangeEvent<HTMLInputElement>;
+
+          handleChange(srcEvent);
+          toast.success('Image uploaded successfully');
+        } else {
+          toast.error('Error uploading image');
+        }
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Unexpected error occurred');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -101,30 +127,30 @@ const ImageContentTab: React.FC<ImageContentTabProps> = ({
             >
               Image
             </Label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 justify-between">
               <Button
-                type="button"
+                disabled={isLoading}
+                className='justify-start w-full space-x-2'
                 onClick={() => fileInputRef.current?.click()}
-                className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
               >
-                <Upload className="h-4 w-4 mr-2" /> Upload
+                <Upload size={18} />
+                <span>Upload Image</span>
+                <Input
+                  ref={fileInputRef}
+                  disabled={isLoading}
+                  className='hidden'
+                  type='file'
+                  accept='image/*'
+                  id='upload-image'
+                  onChange={async (event) => {
+                    await handleFileUpload(event);
+                  }}
+                />
               </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                id="imageUpload"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              <Input
-                placeholder="or enter image URL"
-                className="bg-white flex-1"
-                id="imageSrc"
-                name="src"
-                value={localProps.src || ""}
-                onChange={handleChange}
-              />
+              <Button className="w-full justify-start">
+                <FolderOpen></FolderOpen>
+                Browse collection
+              </Button>
             </div>
 
             {localProps.src && (

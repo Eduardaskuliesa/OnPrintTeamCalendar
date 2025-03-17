@@ -1,8 +1,5 @@
 import Link from "next/link";
-import { Suspense } from "react";
-
 import EmailTemplateList from "./EmailTemplateList";
-import EmailTemplatesListSkeleton from "./components/skeletons/EmailTemplatesListSkeleton";
 import { Button } from "@/components/ui/button";
 import { SquarePlus } from "lucide-react";
 
@@ -18,9 +15,9 @@ const EmailTemplatesPage = async () => {
         </Link>
       </div>
 
-      <Suspense fallback={<EmailTemplatesListSkeleton />}>
-        <EmailTemplateList />
-      </Suspense>
+
+      <EmailTemplateList />
+
     </div>
   );
 };

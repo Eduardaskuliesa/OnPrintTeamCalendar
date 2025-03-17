@@ -3,6 +3,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { getServerSession } from "next-auth";
 
 export async function getTemplates() {
+  console.log(` Fetching Templates from DB :`, new Date().toISOString());
   try {
     const session = await getServerSession(authOptions);
     if (session?.user?.role !== "ADMIN") {

@@ -42,11 +42,13 @@ export const TagCardContent = ({ tag }: { tag: TagCardProps["tag"] }) => (
     <div className="flex flex-col justify-between h-full">
 
       <div className="flex justify-between items-center">
-        <div className="flex items-center text-gray-700">
-          <Timer className="w-4 h-4 mr-2" />
-          <span className="text-sm">
-            {formatWaitDuration(tag.scheduledFor)} laukimas
-          </span>
+        <div className="flex flex-col items-center text-gray-700">
+          <div className="flex items-center">
+            <Timer className="w-4 h-4 mr-2" />
+            <span className="text-sm">
+              {formatWaitDuration(tag.scheduledFor)} laukimas
+            </span>
+          </div>
         </div>
 
         <div className="text-right">

@@ -1,12 +1,20 @@
-import { tempalteActions } from "@/app/lib/actions/templates";
+"use client"
 import { Template } from "@/app/types/emailTemplates";
 import Link from "next/link";
 import EmailTemplateItem from "./EmailTemplateItem";
+import { useGetTemplates } from "@/app/lib/actions/templates/hooks/useGetTemplates";
+import EmailTemplatesListSkeleton from "./components/skeletons/EmailTemplatesListSkeleton";
 
-export default async function EmailTemplateList() {
-  const templates = (await tempalteActions.getTemplates()).data;
+export default function EmailTemplateList() {
+  const { data, isFetching } = useGetTemplates()
+  const templates = data?.data
 
-  if (templates.length === 0) {
+  if (isFetching) {
+    return (
+      <EmailTemplatesListSkeleton></EmailTemplatesListSkeleton>
+    )
+  }
+  if (templates?.length === 0) {
     return (
       <div className="text-center py-12 bg-white rounded-lg">
         <p className="text-gray-600 mb-4">No templates found</p>

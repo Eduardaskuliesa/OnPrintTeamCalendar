@@ -1,12 +1,12 @@
-import { Template } from "@/app/types/emailTemplates";
 import { useQuery } from "@tanstack/react-query";
 import { tempalteActions } from "..";
 
-export const useGetTemplate = (id: Template["id"]) =>
+export const useGetTemplates = () =>
   useQuery({
-    queryKey: [`template${id}`, id],
+    queryKey: [`templates`],
     queryFn: async () => {
-      const response = await tempalteActions.getTemplate(id);
+      const response = await tempalteActions.getTemplates();
+      console.log(response)
       return response;
     },
   });

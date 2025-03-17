@@ -46,6 +46,7 @@ export interface TagType {
   id: number;
   tagName: string;
   scheduledFor: number;
+  templateId?: number;
   jobsCount: number;
   tagType: tagType,
   createdAt: string;

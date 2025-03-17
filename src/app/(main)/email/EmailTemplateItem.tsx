@@ -2,7 +2,7 @@
 import { tempalteActions } from "@/app/lib/actions/templates";
 import { Template } from "@/app/types/emailTemplates";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
-import { Loader, Trash, Trash2 } from "lucide-react";
+import { Loader, Trash2 } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
@@ -82,9 +82,9 @@ const EmailTemplateItem = ({ template }: EmailTemplateItemProps) => {
         loading={isLoading}
         message={
           <>
-            <p>{`Ar tikrai norite ištrinti šabloną "${template.templateName}"?`}</p>
+            <span>{`Ar tikrai norite ištrinti šabloną "${template.templateName}"?`}</span>
             {deleteError && (
-              <p className="mt-2 text-red-500 text-sm">{deleteError}</p>
+              <span className="mt-2 text-red-500 text-sm">{deleteError}</span>
             )}
           </>
         }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Img, Link } from "@react-email/components";
 
 export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
