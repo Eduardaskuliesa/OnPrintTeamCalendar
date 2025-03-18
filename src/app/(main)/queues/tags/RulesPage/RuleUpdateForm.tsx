@@ -16,6 +16,7 @@ import { useGetTags } from "@/app/lib/actions/queuesTags/hooks/useGetTags";
 import { TagType } from "@/app/types/orderApi";
 import { Badge } from "@/components/ui/badge";
 import { rulesAction } from "@/app/lib/actions/rules";
+import { bullTimeConvert } from "@/app/utils/bullTimeConvert";
 
 interface Rule {
     id: number;
@@ -274,7 +275,7 @@ export default function RuleFormUpdate({ rule, onCancel, isOpen }: RuleFormUpdat
                                                 value={tag.id.toString()}
                                                 className="font-medium bg-white"
                                             >
-                                                {tag.tagName}
+                                                {tag.tagName} - {bullTimeConvert(tag.scheduledFor)}
                                             </SelectItem>
                                         ))
                                 ) : (
@@ -294,9 +295,9 @@ export default function RuleFormUpdate({ rule, onCancel, isOpen }: RuleFormUpdat
                             {formData.selectedTags.map((tag) => (
                                 <Badge
                                     key={tag.id}
-                                    className="flex items-center rounded-md shadow-sm bg-slate-50 border-blue-50 border  text-db text-xs py-1"
+                                    className="flex items-center rounded-md shadow-sm bg-slate-50 border-blue-50 border  text-db text-xs py-2 px-2"
                                 >
-                                    {tag.tagName}
+                                    {tag.tagName} - {bullTimeConvert(tag.scheduledFor)}
                                     <button
                                         type="button"
                                         onClick={() => removeTag(tag.id)}

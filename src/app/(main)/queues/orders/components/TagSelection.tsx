@@ -54,7 +54,7 @@ export function TagSelection({
                 .map((tag: TagType) => (
                   <SelectItem
                     key={tag.id}
-                    value={tag.id.toString()} // Use ID as value, convert to string
+                    value={tag.id.toString()} 
                     className="font-medium bg-white"
                   >
                     {tag.tagName} - {bullTimeConvert(tag.scheduledFor)}

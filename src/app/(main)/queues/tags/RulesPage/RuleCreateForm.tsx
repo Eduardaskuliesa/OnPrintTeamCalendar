@@ -16,6 +16,7 @@ import { useGetTags } from "@/app/lib/actions/queuesTags/hooks/useGetTags";
 import { TagType } from "@/app/types/orderApi";
 import { Badge } from "@/components/ui/badge";
 import { rulesAction } from "@/app/lib/actions/rules";
+import { bullTimeConvert } from "@/app/utils/bullTimeConvert";
 
 interface RuleFormProps {
     onCancel: () => void;
@@ -254,7 +255,7 @@ export default function RuleCreateForm({ onCancel }: RuleFormProps) {
                                                 value={tag.id.toString()}
                                                 className="font-medium bg-white"
                                             >
-                                                {tag.tagName}
+                                                {tag.tagName} - {bullTimeConvert(tag.scheduledFor)}
                                             </SelectItem>
                                         ))
                                 ) : (
@@ -277,7 +278,7 @@ export default function RuleCreateForm({ onCancel }: RuleFormProps) {
                                     variant="secondary"
                                     className="flex items-center bg-slate-100 border shadow-md rounded-md px-2 py-2 border-blue-50 gap-1 text-sm"
                                 >
-                                    {tag.tagName}
+                                    {tag.tagName} - {bullTimeConvert(tag.scheduledFor)}
                                     <button
                                         type="button"
                                         onClick={() => removeTag(tag.id)}
