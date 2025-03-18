@@ -16,13 +16,13 @@ import { TagCardContent } from "./TagCardContent";
 import { TagType } from "@/app/types/orderApi";
 
 interface TagCardProps {
-  tag: TagType
+  tag: TagType;
   onStatusUpdate: (tagId: number, newStatus: boolean) => void;
   onDelete: (tag: any) => void;
-  loadingTags: Record<string, boolean>;
+  onUpdate: (tag: TagType) => void;
 }
 
-export const TagCard = ({ tag, onStatusUpdate, onDelete }: TagCardProps) => (
+export const TagCard = ({ tag, onStatusUpdate, onDelete, onUpdate }: TagCardProps) => (
   <div className="bg-slate-50 border-blue-50 border-2 rounded-lg shadow-md">
     <div className="flex justify-between items-center px-4 py-2 border-b border-gray-300">
       <div className="flex items-center">
@@ -34,7 +34,10 @@ export const TagCard = ({ tag, onStatusUpdate, onDelete }: TagCardProps) => (
           <MoreHorizontal className="w-4 h-4 text-gray-700" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:cursor-pointer">
+          <DropdownMenuItem
+            className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:cursor-pointer"
+            onClick={() => onUpdate(tag)}
+          >
             <Pencil className="h-4 w-4 mr-2" />
             <span>Atnaujinti</span>
           </DropdownMenuItem>

@@ -8,6 +8,9 @@ import { RuleCard } from "./RuleCard";
 // import { toast } from "react-toastify";
 import RuleFormUpdate from "./RuleUpdateForm";
 import RuleCallFormButton from "./RuleCallFormButton";
+import { useQueryClient } from "@tanstack/react-query";
+import { rulesAction } from "@/app/lib/actions/rules";
+import { toast } from "react-toastify";
 
 interface Rule {
   id: number;
@@ -18,32 +21,27 @@ interface Rule {
 
 const RulePage = () => {
   const { data: rulesData, isFetching } = useGetAllRules();
-
   const [selectedRule, setSelectedRule] = useState<Rule | null>(null);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
-  //   const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
   const rules = rulesData?.data.data || [];
 
-  //   const handleDeleteRule = async (ruleId: number) => {
-  //     setDeletingRuleIds((prev) => [...prev, ruleId]);
+  const handleDeleteRule = async (ruleId: number) => {
+    try {
+      const response = await rulesAction.deleteRule(ruleId);
 
-  //     try {
-  //       const response = await deleteRule(ruleId);
-
-  //       if (response.success) {
-  //         toast.success("Taisyklė sėkmingai ištrinta");
-  //         await queryClient.invalidateQueries({ queryKey: ["rules"] });
-  //       } else {
-  //         toast.error("Nepavyko ištrinti taisyklės");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error deleting rule:", error);
-  //       toast.error("Įvyko klaida trinant taisyklę");
-  //     } finally {
-  //       setDeletingRuleIds((prev) => prev.filter((id) => id !== ruleId));
-  //     }
-  //   };
+      if (response.success) {
+        toast.success("Taisyklė sėkmingai ištrinta");
+        await queryClient.invalidateQueries({ queryKey: ["all-rules"] });
+      } else {
+        toast.error("Nepavyko ištrinti taisyklės");
+      }
+    } catch (error) {
+      console.error("Error deleting rule:", error);
+      toast.error("Įvyko klaida trinant taisyklę");
+    }
+  };
 
   const handleUpdateRule = (rule: Rule) => {
     setSelectedRule(rule);
@@ -56,7 +54,7 @@ const RulePage = () => {
         isFetching={isFetching}
         headerName="Taisyklės"
         searchQuery=""
-        onSearchChange={() => {}}
+        onSearchChange={() => { }}
       >
         <RuleCallFormButton
           buttonClassName="flex group items-center gap-2 px-4 py-2 bg-dcoffe hover:bg-vdcoffe rounded-md transition-colors whitespace-nowrap"
@@ -78,7 +76,7 @@ const RulePage = () => {
       ) : rules.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
           {rules.map((rule: any) => (
-            <RuleCard key={rule.id} rule={rule} onUpdate={handleUpdateRule} />
+            <RuleCard key={rule.id} rule={rule} onUpdate={handleUpdateRule} onDelete={handleDeleteRule} />
           ))}
         </div>
       ) : (

@@ -31,11 +31,11 @@ interface Rule {
 
 interface RuleCardProps {
   rule: Rule;
-
+  onDelete: (id: number) => void;
   onUpdate: (rule: Rule) => void;
 }
 
-export const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate }) => {
+export const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate, onDelete }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { data: tagsData } = useGetTags();
 
@@ -124,6 +124,7 @@ export const RuleCard: React.FC<RuleCardProps> = ({ rule, onUpdate }) => {
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={() => {
           setShowDeleteConfirm(false);
+          onDelete(rule.id)
         }}
         loading={false}
         message={`Ar tikrai norite ištrinti taisyklę "${rule.ruleName}"?`}

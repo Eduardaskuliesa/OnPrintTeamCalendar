@@ -55,7 +55,7 @@ export default function RuleFormUpdate({ rule, onCancel, isOpen }: RuleFormUpdat
     const queryClient = useQueryClient();
     const { data: tags, isLoading: isTagsLoading } = useGetTags();
 
-    // Populate form when rule changes or on component mount
+
     useEffect(() => {
         if (rule && isOpen) {
             const selectedTagObjects = tags?.data?.filter((tag: TagType) =>

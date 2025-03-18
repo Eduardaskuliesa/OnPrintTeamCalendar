@@ -1,5 +1,5 @@
 import React, { useState, FormEvent } from "react";
-import { X, Clock, Globe, Users, LayoutGrid } from "lucide-react";
+import { X, Clock, Globe, Users, LayoutGrid, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,8 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { createTag } from "@/app/lib/actions/queuesTags/createTag";
 import { TagType } from "@/app/types/orderApi";
+import { useGetTemplates } from "@/app/lib/actions/templates/hooks/useGetTemplates";
+import { Template } from "@/app/types/emailTemplates";
 
 interface QueueTagFormProps {
   onCancel: () => void;
@@ -31,8 +33,8 @@ interface FormData {
   days: string;
   hours: string;
   minutes: string;
+  templateId: number | null;
 }
-
 interface FormErrors {
   tagName?: string;
   scheduledFor?: string;
@@ -47,7 +49,13 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
     days: "0",
     hours: "0",
     minutes: "0",
+    templateId: null, // Add this line
   });
+
+  const { data, isFetching } = useGetTemplates()
+
+  const templates = data?.data
+  console.log(templates)
 
   const queryClient = useQueryClient();
 
@@ -92,6 +100,7 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
         tagName: formData.tagName,
         tagType: formData.tagType,
         scheduledFor: calculateTotalMilliseconds(),
+        templateId: formData.templateId,
       };
 
       const response = await createTag(tagData);
@@ -108,6 +117,7 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
         days: "0",
         hours: "0",
         minutes: "0",
+        templateId: null
       });
       onCancel();
     } catch (error: any) {
@@ -320,6 +330,70 @@ export default function QueueTagForm({ onCancel }: QueueTagFormProps) {
             {errors.scheduledFor && (
               <p className="text-sm text-red-500">{errors.scheduledFor}</p>
             )}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Šablonas (pasirinktinai)
+              </label>
+              <Select
+                value={formData.templateId ? formData.templateId.toString() : ""}
+                onValueChange={(value) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    templateId: value ? parseInt(value) : null
+                  }));
+                }}
+                disabled={isFetching || !templates || templates.length === 0}
+              >
+                <SelectTrigger className="w-full bg-white">
+                  <SelectValue placeholder="Pasirinkite šabloną" />
+                </SelectTrigger>
+                <SelectContent>
+                  {isFetching ? (
+                    <SelectItem value="loading" disabled>
+                      Kraunama...
+                    </SelectItem>
+                  ) : templates && templates.length > 0 ? (
+                    <>
+                      {templates.map((template: Template) => (
+                        <SelectItem
+                          key={template.id}
+                          value={template.id.toString()}
+                          className="font-medium bg-white"
+                        >
+                          <div className="flex items-center">
+                            <FileText className="h-4 w-4 mr-2" />
+                            {template.templateName}
+                          </div>
+                        </SelectItem>
+                      ))}
+
+                      {formData.templateId && (
+                        <div className="p-1 border-t mt-1">
+                          <Button
+                            variant="ghost"
+                            className="w-full bg-gray-50 text-gray-500 h-8"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setFormData(prev => ({
+                                ...prev,
+                                templateId: null
+                              }));
+                            }}
+                          >
+                            Išvalyti
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <SelectItem value="no_templates" disabled>
+                      Nėra galimų šablonų
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">

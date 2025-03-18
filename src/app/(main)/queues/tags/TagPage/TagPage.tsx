@@ -12,21 +12,23 @@ import { PageHeader } from '../PageHeader';
 import QueueStepSkeleton from './QueueTagSkeleton';
 import { Plus } from 'lucide-react';
 import QueueTagButton from '../QueueTagButton';
+import TagUpdateForm from './TagUpdateForm';
 
 const TagPage = () => {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-    const [selectedTag, setsSlectedTag] = useState<any>(null);
+    const [selectedTag, setSelectedTag] = useState<TagType | null>(null);
     const [loading, setLoading] = useState(false);
     const [loadingTags, setLoadingTags] = useState<Record<string, boolean>>({});
     const [searchQuery, setSearchQuery] = useState("");
     const [showStatusDialog, setShowStatusDialog] = useState(false);
+    const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [statusChangeInfo, setStatusChangeInfo] = useState<{
         tagId: number;
         newStatus: boolean;
     } | null>(null);
     const queryClient = useQueryClient();
     const { data: tags, isLoading, isFetching } = useGetTags();
-
+    console.log(tags)
     const handleDelete = async () => {
         if (!selectedTag) return;
 
@@ -46,8 +48,13 @@ const TagPage = () => {
         } finally {
             setLoading(false);
             setShowDeleteDialog(false);
-            setsSlectedTag(null);
+            setSelectedTag(null);
         }
+    };
+
+    const handleUpdateTag = (tag: TagType) => {
+        setSelectedTag(tag);
+        setShowUpdateForm(true);
     };
 
     const handleStatusUpdate = async (tagId: number, newStatus: boolean) => {
@@ -114,10 +121,11 @@ const TagPage = () => {
                             tag={tag}
                             onStatusUpdate={handleStatusUpdate}
                             onDelete={(tag) => {
-                                setsSlectedTag(tag);
+                                setSelectedTag(tag);
                                 setShowDeleteDialog(true);
                             }}
-                            loadingTags={loadingTags}
+                            onUpdate={handleUpdateTag}
+
                         />
                     ))}
                 </div>
@@ -134,7 +142,7 @@ const TagPage = () => {
                 onConfirm={handleDelete}
                 message={
                     <>
-                        Ar tikrai norite ištrinti <strong>{selectedTag?.tag}</strong> tagą?
+                        Ar tikrai norite ištrinti <strong>{selectedTag?.tagName}</strong> tagą?
                     </>
                 }
             />
@@ -152,6 +160,30 @@ const TagPage = () => {
                         : "Visos eilės kurios dabar yra aktyvios ir paveiktos šio tago bus sustabdytos, ar patvirtinate savo veiksmą?"
                 }
             />
+
+            {/* Update Form Modal */}
+            {showUpdateForm && selectedTag && (
+                <div
+                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                    onClick={() => {
+                        setShowUpdateForm(false);
+                        setSelectedTag(null);
+                    }}
+                >
+                    <div
+                        className="bg-white rounded-lg w-full max-w-lg mx-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <TagUpdateForm
+                            tag={selectedTag}
+                            onCancel={() => {
+                                setShowUpdateForm(false);
+                                setSelectedTag(null);
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
         </>
     );
 }
