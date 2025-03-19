@@ -1,11 +1,11 @@
 import React, { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { Trash2 } from "lucide-react";
-import Button from "./emailComponents/Button";
 import EmailImage from "./emailComponents/Image";
 import EmailHeading from "./emailComponents/Header";
 import EmailSpacer from "./emailComponents/Spacer";
 import EmailText from "./emailComponents/Text";
+import RichTextWrapperButton from "./richTextWrappers/RichTextWrapperButton";
 
 const COMPONENT_TYPE = "EMAIL_COMPONENT";
 
@@ -15,6 +15,7 @@ interface DraggableComponentProps {
   component: any;
   moveComponent: (dragIndex: number, hoverIndex: number) => void;
   removeComponent: (id: string) => void;
+  onUpdateComponent: (id: string, props: any) => void;
   onSelectComponent: (id: string) => void;
   isSelected: boolean;
 }
@@ -26,6 +27,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   moveComponent,
   removeComponent,
   onSelectComponent,
+  onUpdateComponent,
   isSelected,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -72,7 +74,13 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   const renderEmailComponent = () => {
     switch (component.type) {
       case "button":
-        return <Button {...component.props} />;
+        return (
+          <RichTextWrapperButton
+            component={component}
+            isSelected={isSelected}
+            onContentUpdate={onUpdateComponent}
+          />
+        );
       case "image":
         return <EmailImage {...component.props} />;
       case "header":

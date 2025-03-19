@@ -7,7 +7,7 @@ export type ButtonWidth = "25%" | "50%" | "75%";
 export type ContentAlignment = "flex-start" | "center" | "flex-end";
 
 export interface EmailButtonProps {
-  text?: string;
+  content?: string;
   url?: string;
 
   backgroundColor?: string;
@@ -37,7 +37,7 @@ export interface EmailButtonProps {
 }
 
 const Button: React.FC<EmailButtonProps> = ({
-  text,
+  content,
   url,
   target = "_blank",
   backgroundColor = "#3B82F6",
@@ -97,8 +97,8 @@ const Button: React.FC<EmailButtonProps> = ({
 
   return (
     <div style={containerStyle}>
-      <Link href={url} style={buttonStyle} target={target}>
-        {text}
+      <Link style={buttonStyle} target={target}>
+        {content}
       </Link>
     </div>
   );

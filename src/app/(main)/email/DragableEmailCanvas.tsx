@@ -22,6 +22,7 @@ interface DraggableEmailCanvasProps {
   components: EmailComponent[];
   setComponents: (components: EmailComponent[]) => void;
   moveComponent: (dragIndex: number, hoverIndex: number) => void;
+  onUpdateComponent: (id: string, props: any) => void;
   removeComponent: (id: string) => void;
   onSelectComponent: (id: string) => void;
   selectedComponentId?: string;
@@ -34,6 +35,7 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
   removeComponent,
   onSelectComponent,
   selectedComponentId,
+  onUpdateComponent,
 }) => {
   const [insertPosition, setInsertPosition] = useState<number | null>(null);
   const [isDraggingNew, setIsDraggingNew] = useState(false);
@@ -121,11 +123,10 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
   return (
     <div
       ref={canvasRef}
-      className={`min-h-[400px]  border-2 ${selectedComponentId ? "overflow-visible" : "overflow-hidden"} border-dashed ${
-        isOver && isDraggingNew
+      className={`min-h-[400px]  border-2 ${selectedComponentId ? "overflow-visible" : "overflow-hidden"} border-dashed ${isOver && isDraggingNew
           ? "border-blue-400 bg-blue-50"
           : "border-gray-300 bg-gray-50"
-      } rounded p-2 transition-colors duration-200`}
+        } rounded p-2 transition-colors duration-200`}
     >
       {components.length === 0 ? (
         <div className="text-center py-10 text-gray-400">
@@ -144,6 +145,7 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
                       id={component.id}
                       index={index}
                       component={component}
+                      onUpdateComponent={onUpdateComponent}
                       moveComponent={moveComponent}
                       removeComponent={removeComponent}
                       onSelectComponent={onSelectComponent}

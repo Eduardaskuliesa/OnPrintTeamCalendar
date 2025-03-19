@@ -42,6 +42,24 @@ export function useEmailBuilder(initialComponents: EmailComponent[] = []) {
     );
   };
 
+  const handleContentUpdate = (id: string, content: string) => {
+    setIsDirty(true);
+    setEmailComponents((prevComponents) =>
+      prevComponents.map((component) => {
+        if (component.id === id) {
+          return {
+            ...component,
+            props: {
+              ...component.props,
+              content: content, // Update only the content property
+            },
+          };
+        }
+        return component;
+      })
+    );
+  };
+
   const moveComponent = (dragIndex: number, hoverIndex: number) => {
     const newComponents = [...emailComponents];
     const draggedItem = newComponents[dragIndex];
@@ -124,6 +142,7 @@ export function useEmailBuilder(initialComponents: EmailComponent[] = []) {
     handleUpdateComponent,
     moveComponent,
     handleSelectComponent,
+    handleContentUpdate,
     removeComponent,
   };
 }

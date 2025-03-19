@@ -42,7 +42,7 @@ export const emailComponents = {
 export const defaultProps = {
   button: {
     text: "Click me",
-    url: "https://example.com",
+    url: "",
     backgroundColor: "#3B82F6",
     textColor: "#FFFFFF",
     fontWeight: "medium" as const,

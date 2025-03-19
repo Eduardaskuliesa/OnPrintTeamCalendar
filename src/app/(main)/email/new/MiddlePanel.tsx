@@ -9,6 +9,7 @@ interface MiddlePanelProps {
   emailComponents: any[];
   setEmailComponents: (components: any[]) => void;
   moveComponent: (dragIndex: number, hoverIndex: number) => void;
+  onUpdateComponent: (id: string, props: any) => void
   removeComponent: (id: string) => void;
   handleSelectComponent: (id: string) => void;
   selectedComponentId?: string;
@@ -23,6 +24,7 @@ const MiddlePanel: React.FC<MiddlePanelProps> = ({
   removeComponent,
   handleSelectComponent,
   selectedComponentId,
+  onUpdateComponent,
   openNameDialog,
 }) => {
   return (
@@ -40,6 +42,7 @@ const MiddlePanel: React.FC<MiddlePanelProps> = ({
           </Button>
         </div>
         <DraggableEmailCanvas
+          onUpdateComponent={onUpdateComponent}
           components={emailComponents}
           setComponents={setEmailComponents}
           moveComponent={moveComponent}
