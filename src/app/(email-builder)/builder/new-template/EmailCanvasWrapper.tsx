@@ -1,50 +1,64 @@
 "use client";
-import React from "react";
-import { Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
 import DraggableEmailCanvas from "@/app/(main)/email/DragableEmailCanvas";
+import ViewModeToggle from "./components/ViewModeToggle";
+import useEmailBuilderStore from "@/app/store/emailBuilderStore";
 
 interface EmailCanvasWrapperProps {
-    canvasRef: React.RefObject<HTMLDivElement>;
-    emailComponents: any[];
-    setEmailComponents: (components: any[]) => void;
-    moveComponent: (dragIndex: number, hoverIndex: number) => void;
-    onUpdateComponent: (id: string, props: any) => void
-    removeComponent: (id: string) => void;
-    handleSelectComponent: (id: string) => void;
-    selectedComponentId?: string;
+  canvasRef: React.RefObject<HTMLDivElement>;
 }
 
 const EmailCanvasWrapper: React.FC<EmailCanvasWrapperProps> = ({
-    canvasRef,
-    emailComponents,
-    setEmailComponents,
-    moveComponent,
-    removeComponent,
-    handleSelectComponent,
-    selectedComponentId,
-    onUpdateComponent,
+  canvasRef,
 }) => {
-    return (
-        <div ref={canvasRef} className="w-full  bg-gray-100">
-            <div className="bg-red-100 w-full h-[50px] sticky top-[70px]">
-         
-            </div>
-            <div className="flex items-center justify-center">
-                <div className="w-full max-w-4xl min-h-screen bg-white">
-                    <DraggableEmailCanvas
-                        onUpdateComponent={onUpdateComponent}
-                        components={emailComponents}
-                        setComponents={setEmailComponents}
-                        moveComponent={moveComponent}
-                        removeComponent={removeComponent}
-                        onSelectComponent={handleSelectComponent}
-                        selectedComponentId={selectedComponentId}
-                    />
-                </div>
-            </div>
+  const [viewMode, setViewMode] = useState("desktop");
+ 
+  const emailComponents = useEmailBuilderStore(
+    (state) => state.emailComponents
+  );
+  const selectedComponentId = useEmailBuilderStore(
+    (state) => state.selectedComponent?.id
+  );
+  const handleContentUpdate = useEmailBuilderStore(
+    (state) => state.handleContentUpdate
+  );
+  const setEmailComponents = useEmailBuilderStore(
+    (state) => state.setEmailComponents
+  );
+  const moveComponent = useEmailBuilderStore((state) => state.moveComponent);
+  const removeComponent = useEmailBuilderStore(
+    (state) => state.removeComponent
+  );
+  const handleSelectComponent = useEmailBuilderStore(
+    (state) => state.handleSelectComponent
+  );
+
+  return (
+    <div className="w-full  overflow-y-auto custom-scrollbar  bg-gray-100">
+      <div className="bg-slate-50 shadow-sm border-b-4 border-blue-50 w-full h-[60px] sticky top-0 z-[50]">
+        <ViewModeToggle
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+        ></ViewModeToggle>
+      </div>
+      <div className="flex justify-center">
+        <div
+          ref={canvasRef}
+          className={`w-full ${viewMode === "desktop" ? "max-w-2xl" : "max-w-[375px]"} transition-all  custom-scrollbar   bg-white`}
+        >
+          <DraggableEmailCanvas
+            onUpdateComponent={handleContentUpdate}
+            components={emailComponents}
+            setComponents={setEmailComponents}
+            moveComponent={moveComponent}
+            removeComponent={removeComponent}
+            onSelectComponent={handleSelectComponent}
+            selectedComponentId={selectedComponentId}
+          />
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default EmailCanvasWrapper;

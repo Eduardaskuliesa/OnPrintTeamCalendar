@@ -14,6 +14,9 @@ import MiddlePanel from "./MiddlePanel";
 import { useEmailBuilder } from "../hooks/useEmailBuilder";
 import CreateTemplateModal from "./CreateTemplateModal";
 import EmailTemplate from "../EmailTemplate";
+import useEmailBuilderStore, {
+  useEmailBuilderUI,
+} from "@/app/store/emailBuilderStore";
 // import ViewModeToggle from "../ViewModeToggle";
 // import EmailPreview from "../EmailPreview";
 
@@ -29,11 +32,9 @@ const NewEmailBuilder: React.FC = () => {
   >("idle");
   const {
     emailComponents,
-    setEmailComponents,
     selectedComponent,
+    setEmailComponents,
     setSelectedComponent,
-    panelRef,
-    canvasRef,
     handleAddComponent,
     handleUpdateComponent,
     moveComponent,
@@ -41,7 +42,9 @@ const NewEmailBuilder: React.FC = () => {
     removeComponent,
     markAsSaved,
     handleContentUpdate,
-  } = useEmailBuilder([]);
+  } = useEmailBuilderStore();
+
+  const { panelRef, canvasRef } = useEmailBuilderUI();
 
   useEffect(() => {
     const savedComponents = localStorage.getItem("emailBuilderComponents");
@@ -167,13 +170,7 @@ const NewEmailBuilder: React.FC = () => {
       <DndProvider backend={HTML5Backend}>
         <div className="flex flex-row min-h-screen w-full p-2 gap-6">
           {/* Left Panel - Component Palette */}
-          <LeftPanel
-            panelRef={panelRef}
-            selectedComponent={selectedComponent}
-            handleUpdateComponent={handleUpdateComponent}
-            handleAddComponent={handleAddComponent}
-            setSelectedComponent={setSelectedComponent}
-          />
+          <LeftPanel panelRef={panelRef} />
 
           {/* Middle Panel - Email Canvas */}
           <MiddlePanel
@@ -188,16 +185,6 @@ const NewEmailBuilder: React.FC = () => {
             openNameDialog={openNameDialog}
           />
         </div>
-
-        {/* <div className="w-full max-w-2xl">
-          <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
-          <div className="border border-gray-300 rounded-lg p-4 shadow-sm bg-[#E4E4E7]">
-            <h2 className="text-lg font-semibold text-gray-700 mb-3">
-              Email Preview
-            </h2>
-            <EmailPreview emailHtml={emailHtml} viewMode={viewMode} />
-          </div>
-        </div> */}
       </DndProvider>
 
       {/* Template Name Dialog */}

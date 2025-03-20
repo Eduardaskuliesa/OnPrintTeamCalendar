@@ -1,18 +1,19 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ComponentPalette from "../../(main)/email/components/palette/ComponentPalette";
-import ButtonEditor from "../../(main)/email/components/editors/ButtonEditor/ButtonEditor";
-import ImageEditor from "../../(main)/email/components/editors/ImageEditor/ImageEditor";
 import { FiArrowLeft } from "react-icons/fi";
-import HeaderEditor from "../../(main)/email/components/editors/HeaderEditor/HeaderEditor";
-import SpaceEditor from "../../(main)/email/components/editors/SpaceEditor/SpacerEditor";
-import TextEditor from "../../(main)/email/components/editors/TextEditor/TextEditor";
+import ButtonEditor from "../components/editors/ButtonEditor/ButtonEditor";
+import HeaderEditor from "../components/editors/HeaderEditor/HeaderEditor";
+import ImageEditor from "../components/editors/ImageEditor/ImageEditor";
+import TextEditor from "../components/editors/TextEditor/TextEditor";
+import ComponentPalette from "../components/palette/ComponentPalette";
+import SpacerEditor from "../components/editors/SpaceEditor/SpacerEditor";
 import useEmailBuilderStore from "@/app/store/emailBuilderStore";
 
 interface ComponentPanelProps {
   onBackToComponentPalette: () => void;
 }
+
 const ComponentPanel: React.FC<ComponentPanelProps> = ({
   onBackToComponentPalette,
 }) => {
@@ -54,7 +55,7 @@ const ComponentPanel: React.FC<ComponentPanelProps> = ({
         );
       case "spacer":
         return (
-          <SpaceEditor
+          <SpacerEditor
             component={selectedComponent}
             updateComponent={handleUpdateComponent}
           />

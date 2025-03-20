@@ -8,15 +8,16 @@ import {
   ImageWidth,
 } from "../../../emailComponents/Image";
 import ImageContentTab from "./ImageContnetTab";
+import { EmailComponent } from "@/app/store/emailBuilderStore";
 
 interface ImageComponent {
   id: string;
   type: string;
-  props: EmailImageProps;
+  props: Record<string, any>;
 }
 
 interface ImageEditorProps {
-  component: ImageComponent;
+  component: EmailComponent;
   updateComponent: (id: string, updates: Partial<ImageComponent>) => void;
 }
 
@@ -24,9 +25,10 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   component,
   updateComponent,
 }) => {
+  const imageProps = component.props as EmailImageProps;
   const [activeTab, setActiveTab] = useState<"content" | "styles">("content");
   const [localProps, setLocalProps] = useState<EmailImageProps>({
-    ...component.props,
+    ...imageProps,
     target: component.props.target || "_blank",
     borderRadius: component.props.borderRadius || 0,
     borderStyle: component.props.borderStyle || "none",
@@ -43,7 +45,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 
   useEffect(() => {
     setLocalProps({
-      ...component.props,
+      ...imageProps,
       target: component.props.target || "_blank",
       borderRadius: component.props.borderRadius || 0,
       borderStyle: component.props.borderStyle || "none",
@@ -194,7 +196,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     setLocalProps(updatedProps);
     updateComponent(component.id, { props: updatedProps });
   };
-  
+
   const resetImageDimensions = () => {
     const updatedProps = {
       ...localProps,

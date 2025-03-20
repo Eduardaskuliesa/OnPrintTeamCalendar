@@ -123,10 +123,11 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
   return (
     <div
       ref={canvasRef}
-      className={`min-h-[400px]  border-2 ${selectedComponentId ? "overflow-visible" : "overflow-hidden"} border-dashed ${isOver && isDraggingNew
+      className={`min-h-[calc(100vh-130px)]  ${selectedComponentId ? "overflow-visible" : "overflow-hidden"} hover:overflow-visible  ${
+        isOver && isDraggingNew
           ? "border-blue-400 bg-blue-50"
           : "border-gray-300"
-        } rounded p-2 transition-colors duration-200`}
+      } rounded py-0.5  transition-colors duration-200`}
     >
       {components.length === 0 ? (
         <div className="text-center py-10 text-gray-400">
@@ -139,7 +140,10 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
             if (!component || !component.id) return null;
             return (
               <React.Fragment key={component.id}>
-                <div className="component-container">
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="component-container"
+                >
                   <Suspense fallback={<div>Loading....</div>}>
                     <DraggableComponent
                       id={component.id}

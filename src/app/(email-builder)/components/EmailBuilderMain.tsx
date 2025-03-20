@@ -8,7 +8,7 @@ interface EmailBuilderMainProps {
 
 export function EmailBuilderMain({ children }: EmailBuilderMainProps) {
     return (
-        <div className="w-full min-h-[100vh]">
+        <div className="w-full max-h-[100vh] h-full">
             {children}
         </div>
     );

@@ -6,60 +6,80 @@ import React, { Suspense, useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import EmailCanvasWrapper from "./EmailCanvasWrapper";
-const ComponentPanelWrapper = React.lazy(() => import('../new-template/ComponentPanelWrapper'))
+import useEmailBuilderStore, {
+  useEmailBuilderUI,
+} from "@/app/store/emailBuilderStore";
+// import ViewModeToggle from "@/app/(main)/email/ViewModeToggle";
+// import EmailPreview from "@/app/(main)/email/EmailPreview";
+// import EmailTemplate from "@/app/(main)/email/EmailTemplate";
+// import { render } from "@react-email/render";
 
-
+const ComponentPanelWrapper = React.lazy(
+  () => import("../new-template/ComponentPanelWrapper")
+);
 
 const NewEmailBuilder: React.FC = () => {
-    const {
-        selectedComponent,
-        setSelectedComponent,
-        panelRef,
-        handleContentUpdate,
-        handleSelectComponent,
-        canvasRef,
-        moveComponent,
-        markAsSaved,
-        removeComponent,
-        emailComponents,
-        setEmailComponents,
-        handleAddComponent,
-        handleUpdateComponent,
-    } = useEmailBuilder([]);
+  const [viewMode, setViewMode] = useState("dekstop");
+  const [emailHtml, setEmailHtml] = useState();
+  const { setEmailComponents, markAsSaved } = useEmailBuilderStore();
 
-    return (
-        <>
-            <DndProvider backend={HTML5Backend}>
-                <div className="flex flex-row min-h-screen relative">
-                    {/* Left Panel - Component Palette */}
-                    <Suspense fallback={<ComponentPanelSkeleton />}>
-                        <ComponentPanelWrapper
-                            panelRef={panelRef}
-                            selectedComponent={selectedComponent}
-                            handleUpdateComponent={handleUpdateComponent}
-                            handleAddComponent={handleAddComponent}
-                            setSelectedComponent={setSelectedComponent}
-                        />
-                    </Suspense>
+  const { panelRef, canvasRef } = useEmailBuilderUI();
 
-                    <div className="min-h-[300vh]"></div>
+  useEffect(() => {
+    const savedComponents = localStorage.getItem("emailBuilderComponents");
+    if (savedComponents) {
+      try {
+        markAsSaved();
+        setEmailComponents(JSON.parse(savedComponents));
+        markAsSaved();
+      } catch (error) {
+        console.error("Error parsing saved components:", error);
+      }
+    }
+  }, [setEmailComponents]);
 
-                    {/* Middle Panel - Email Canvas */}
+  //   useEffect(() => {
+  //     const updateEmailHtml = async () => {
+  //       try {
+  //         const template = <EmailTemplate emailComponents={emailComponents} />;
+  //         const html = await render(template);
+  //         setEmailHtml(html);
+  //         console.log("Generated HTML:", html);
+  //       } catch (error) {
+  //         console.error("Error rendering email:", error);
+  //       }
+  //     };
 
-                    <EmailCanvasWrapper
-                        onUpdateComponent={handleContentUpdate}
-                        canvasRef={canvasRef}
-                        emailComponents={emailComponents}
-                        setEmailComponents={setEmailComponents}
-                        moveComponent={moveComponent}
-                        removeComponent={removeComponent}
-                        handleSelectComponent={handleSelectComponent}
-                        selectedComponentId={selectedComponent?.id}
-                    />
-                </div>
-            </DndProvider >
-        </>
-    );
+  //     if (emailComponents.length) {
+  //       updateEmailHtml();
+  //     }
+  //   }, [emailComponents]);
+  return (
+    <>
+      <DndProvider backend={HTML5Backend}>
+        <div className="flex flex-row h-full max-h-[calc(100vh-70px)] relative">
+          {/* Left Panel - Component Palette */}
+          <Suspense fallback={<ComponentPanelSkeleton />}>
+            <ComponentPanelWrapper panelRef={panelRef} />
+          </Suspense>
+
+          {/* Middle Panel - Email Canvas */}
+
+          <EmailCanvasWrapper canvasRef={canvasRef} />
+
+          {/* <div className="w-full max-w-2xl">
+            <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
+            <div className="border border-gray-300 rounded-lg p-4 shadow-sm bg-[#E4E4E7]">
+              <h2 className="text-lg font-semibold text-gray-700 mb-3">
+                Email Preview
+              </h2>
+              <EmailPreview emailHtml={emailHtml} viewMode={viewMode} />
+            </div>
+          </div> */}
+        </div>
+      </DndProvider>
+    </>
+  );
 };
 
 export default NewEmailBuilder;

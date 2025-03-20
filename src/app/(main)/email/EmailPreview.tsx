@@ -4,7 +4,7 @@ const EmailPreview = ({ emailHtml, viewMode }) => {
   return (
     <div
       className={`mx-auto transition-all duration-300 ${
-        viewMode === "mobile" ? "max-w-[375px]" : "w-full"
+        viewMode === "mobile" ? "max-w-[375px]" : "max-w-2xl"
       }`}
     >
       <iframe

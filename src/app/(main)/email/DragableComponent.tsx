@@ -1,6 +1,7 @@
-import React, { useRef } from "react";
+"use client";
+import React, { useEffect, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
-import { Trash2 } from "lucide-react";
+import { Trash2, ArrowUp, ArrowDown, Copy, GripVertical, Move } from "lucide-react";
 import EmailImage from "./emailComponents/Image";
 import EmailHeading from "./emailComponents/Header";
 import EmailSpacer from "./emailComponents/Spacer";
@@ -27,20 +28,26 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   moveComponent,
   removeComponent,
   onSelectComponent,
-  onUpdateComponent,
   isSelected,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const dragHandleRef = useRef<HTMLDivElement>(null);
 
-  const [{ isDragging }, drag] = useDrag({
+  const [{ isDragging }, drag, dragPreview] = useDrag({
     type: COMPONENT_TYPE,
-    item: { id, index },
+    item: () => {
+      return { id, index, type: component.type };
+    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
+
+    isDragging: (monitor) => {
+      return monitor.getItem().id === id;
+    },
   });
 
-  const [{ isOver }, drop] = useDrop({
+  const [{ isOver, canDrop }, drop] = useDrop({
     accept: COMPONENT_TYPE,
     hover: (item: any, monitor) => {
       const dragIndex = item.index;
@@ -66,21 +73,39 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
+      canDrop: !!monitor.canDrop(),
     }),
   });
 
-  drag(drop(ref));
+  dragPreview(drop(ref));
+
+  useEffect(() => {
+    if (dragHandleRef.current || isSelected) {
+      drag(dragHandleRef.current);
+    }
+  }, [drag, isSelected]);
+
+  const handleMoveUp = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (index > 0) {
+      moveComponent(index, index - 1);
+    }
+  };
+
+  const handleMoveDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    moveComponent(index, index + 1);
+  };
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log("Copy component:", id);
+  };
 
   const renderEmailComponent = () => {
     switch (component.type) {
       case "button":
-        return (
-          <RichTextWrapperButton
-            component={component}
-            isSelected={isSelected}
-            onContentUpdate={onUpdateComponent}
-          />
-        );
+        return <RichTextWrapperButton component={component} />;
       case "image":
         return <EmailImage {...component.props} />;
       case "header":
@@ -97,31 +122,66 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   return (
     <div
       ref={ref}
-      className={`relative ${isDragging ? "opacity-50" : ""}`}
+      className={`relative transition-all duration-200 ${
+        isDragging ? "opacity-50 scale-[0.97]" : ""
+      } ${isOver && canDrop ? "translate-y-1" : ""}`}
       onClick={() => onSelectComponent(id)}
     >
       <div
         className={`
           ${isSelected ? "outline outline-2 overflow-hidden outline-vdcoffe rounded" : ""}
-          ${isOver ? "outline outline-4 outline-vdcoffe rounded" : ""}
           hover:outline hover:outline-2 hover:outline-vdcoffe hover:rounded
-          cursor-grab transition-all duration-75
         `}
       >
         {renderEmailComponent()}
       </div>
 
       {isSelected && (
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            removeComponent(id);
-          }}
-          className="absolute top-2 group hover:cursor-pointer -right-10 flex bg-gray-800 bg-opacity-80 rounded text-white py-1 px-2 gap-2 z-10"
-        >
-          <button className="group-hover:text-red-300">
-            <Trash2 size={20} />
-          </button>
+        <div className="absolute top-0 rounded-sm -left-14 flex flex-col gap-2 z-10">
+          <div className="bg-white px-1 py-1 border border-gray-200 rounded shadow-sm flex flex-col items-center">
+            <div
+              ref={dragHandleRef}
+              className="p-1.5 cursor-grab border-b rounded-sm active:cursor-grabbing hover:bg-gray-100 transition-colors w-full text-center"
+              title="Drag to reorder"
+            >
+              <Move size={20} className="text-gray-700 mx-auto" />
+            </div>
+
+            <button
+              onClick={handleMoveUp}
+              className="p-1.5 hover:bg-gray-100 border-b rounded-sm transition-colors w-full text-gray-700"
+              title="Move up"
+            >
+              <ArrowUp size={20} className="mx-auto" />
+            </button>
+
+            <button
+              onClick={handleMoveDown}
+              className="p-1.5 hover:bg-gray-100 border-b rounded-sm transition-colors w-full text-gray-700"
+              title="Move down"
+            >
+              <ArrowDown size={20} className="mx-auto" />
+            </button>
+
+            <button
+              onClick={handleCopy}
+              className="p-1.5 hover:bg-gray-100 border-b rounded-sm transition-colors w-full text-gray-700"
+              title="Duplicate"
+            >
+              <Copy size={20} className="mx-auto" />
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                removeComponent(id);
+              }}
+              className="p-1.5 hover:bg-red-50 rounded-sm transition-colors w-full text-gray-700 hover:text-red-500"
+              title="Delete"
+            >
+              <Trash2 size={20} className="mx-auto" />
+            </button>
+          </div>
         </div>
       )}
     </div>
