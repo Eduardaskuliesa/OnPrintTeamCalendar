@@ -4,7 +4,7 @@ import React, { Suspense, useEffect, useRef, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getDefaultProps } from "./utils/componentRegistry";
-const ComponentPanel = React.lazy(() => import("./ComponentPanel"));
+const ComponentPanel = React.lazy(() => import("../../(email-builder)/components/ComponentPanel"));
 import DraggableEmailCanvas from "./DragableEmailCanvas";
 import ComponentPanelSkeleton from "./components/skeletons/ComponentPanelSkeleton";
 import EmailTemplate from "./EmailTemplate";

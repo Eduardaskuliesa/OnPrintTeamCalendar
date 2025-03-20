@@ -95,11 +95,25 @@ const Button: React.FC<EmailButtonProps> = ({
     paddingRight: padding.right !== undefined ? `${padding.right}px` : "0",
   } as React.CSSProperties;
 
+  const customStyles = `
+    <style>
+      .button-content p {
+        margin: 0;
+        padding: 0;
+        display: inline;
+      }
+      .button-content * {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  `;
+  const wrappedContent = content ?
+    `${customStyles}<div class="button-content">${content}</div>` : "";
+
   return (
     <div style={containerStyle}>
-      <Link style={buttonStyle} target={target}>
-        {content}
-      </Link>
+      <Link style={buttonStyle} target={target} dangerouslySetInnerHTML={{ __html: wrappedContent }} />
     </div>
   );
 };

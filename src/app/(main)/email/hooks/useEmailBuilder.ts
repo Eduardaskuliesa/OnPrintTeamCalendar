@@ -35,29 +35,44 @@ export function useEmailBuilder(initialComponents: EmailComponent[] = []) {
     updates: Partial<EmailComponent>
   ) => {
     setIsDirty(true);
-    setEmailComponents((prevComponents) =>
-      prevComponents.map((component) =>
-        component.id === id ? { ...component, ...updates } : component
-      )
+    const updatedComponents = emailComponents.map((component) =>
+      component.id === id ? { ...component, ...updates } : component
     );
+
+    setEmailComponents(updatedComponents);
+
+    if (selectedComponent && selectedComponent.id === id) {
+      const updatedComponent = updatedComponents.find(c => c.id === id);
+      if (updatedComponent) {
+        setSelectedComponent(updatedComponent);
+      }
+    }
   };
 
   const handleContentUpdate = (id: string, content: string) => {
     setIsDirty(true);
-    setEmailComponents((prevComponents) =>
-      prevComponents.map((component) => {
-        if (component.id === id) {
-          return {
-            ...component,
-            props: {
-              ...component.props,
-              content: content, // Update only the content property
-            },
-          };
-        }
-        return component;
-      })
-    );
+    let updatedComponent = null;
+    const updatedComponents = emailComponents.map((component) => {
+      if (component.id === id) {
+        const updated = {
+          ...component,
+          props: {
+            ...component.props,
+            content: content,
+          },
+        };
+        updatedComponent = updated;
+        return updated;
+      }
+      return component;
+    });
+
+    setEmailComponents(updatedComponents);
+    if (selectedComponent && selectedComponent.id === id && updatedComponent) {
+      setSelectedComponent(updatedComponent);
+    }
+
+    console.log("This is from handler:", content);
   };
 
   const moveComponent = (dragIndex: number, hoverIndex: number) => {
@@ -120,7 +135,7 @@ export function useEmailBuilder(initialComponents: EmailComponent[] = []) {
     }
 
     console.log("Mark:", isDirty);
-  }, [emailComponents]);
+  }, [emailComponents, selectedComponent]);
 
   const markAsSaved = () => {
     setIsDirty(false);

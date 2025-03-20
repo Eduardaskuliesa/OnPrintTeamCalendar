@@ -10,7 +10,7 @@ const ComponentPalette = ({ onAddComponent }: ComponentPaletteProps) => {
   const [activeTab, setActiveTab] = useState("simple");
 
   return (
-    <div className="p-4 bg-slate-50 border-blue-50 border-2 shadow-md rounded-lg max-w-md w-full">
+    <div className="p-6 max-w-md w-full">
       <h2 className="text-lg font-bold mb-4">Email Components</h2>
 
       <div className="flex border-b border-gray-200 mb-4">

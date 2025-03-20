@@ -3,7 +3,7 @@ import React from 'react'
 
 const ComponentPanelSkeleton = () => {
     return (
-        <div className="min-h-[350px] shadow-md rounded-md bg-slate-50 border-blue-50 border-2 p-6 space-y-6">
+        <div className="min-h-[350px] shadow-md rounded-md bg-slate-50 border-blue-50 border-2 p-10 space-y-6">
             <Skeleton className="w-32 h-5 animate-pulse"></Skeleton>
             <div className="flex flex-row gap-2">
                 <Skeleton className="h-8 w-44 animate-pulse"></Skeleton>

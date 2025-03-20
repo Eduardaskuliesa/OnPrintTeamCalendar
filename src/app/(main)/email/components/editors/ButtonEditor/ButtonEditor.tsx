@@ -9,8 +9,7 @@ import {
   EmailButtonProps,
   TextAlignment,
 } from "../../../emailComponents/Button";
-import { defaultProps } from "../../../emailComponents";
-import TextTab from "./TextTab";
+
 
 interface ButtonComponent {
   id: string;
@@ -26,6 +25,7 @@ interface ButtonEditorProps {
 const ButtonEditor: React.FC<ButtonEditorProps> = ({
   component,
   updateComponent,
+  
 }) => {
   const [activeTab, setActiveTab] = useState<"content" | "styles" | "text">(
     "content"
@@ -34,6 +34,7 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     ...component.props,
     target: component.props.target || "_blank",
     borderRadius: component.props.borderRadius || 0,
+    content: component.props.content || "",
     borderStyle: component.props.borderStyle || "none",
     textAlignment: component.props.textAlignment || "center",
     contentAlignment: component.props.contentAlignment || "center",
@@ -50,6 +51,7 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     setLocalProps({
       ...component.props,
       target: component.props.target || "_blank",
+      content: component.props.content || "",
       borderRadius: component.props.borderRadius || 0,
       borderStyle: component.props.borderStyle || "none",
       textAlignment: component.props.textAlignment || "center",
@@ -62,7 +64,7 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
         right: 0,
       },
     });
-  }, [component.id, component.props]);
+  }, [component.id, component.props,]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -201,47 +203,16 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     updateComponent(component.id, { props: updatedProps });
   };
 
-  const handleResetDefault = () => {
-    const buttonDefaults = defaultProps.button;
-    const resetProps: EmailButtonProps = {
-      ...localProps,
-      backgroundColor: buttonDefaults.backgroundColor,
-      textColor: buttonDefaults.textColor,
-      fontWeight: buttonDefaults.fontWeight,
-      fontSize: buttonDefaults.fontSize,
-      paddingX: buttonDefaults.paddingX,
-      paddingY: buttonDefaults.paddingY,
-      borderRadius: buttonDefaults.borderRadius,
-      borderStyle: buttonDefaults.borderStyle,
-      borderWidth: buttonDefaults.borderWidth,
-      borderColor: buttonDefaults.borderColor,
-      width: buttonDefaults.width as ButtonWidth,
-      textAlignment: buttonDefaults.textAlignment,
-      containerBackgroundColor: buttonDefaults.containerBackgroundColor,
-      containerBorderRadius: buttonDefaults.containerBorderRadius,
-      contentAlignment: buttonDefaults.contentAlignment,
-      target: buttonDefaults.target,
-      padding: { ...buttonDefaults.padding },
 
-      // Keep the current text and URL
-      text: localProps.text,
-      url: localProps.url,
-    };
 
-    setLocalProps(resetProps);
-    updateComponent(component.id, { props: resetProps });
-  };
+  useEffect(() => {
+    setLocalProps(prevProps => ({
+      ...prevProps,
+      content: component.props.content || ""
+    }));
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const updatedProps = {
-      ...localProps,
-      [name]: value,
-    };
-
-    setLocalProps(updatedProps);
-    updateComponent(component.id, { props: updatedProps });
-  };
+    console.log("Content updated:", component.props.content);
+  }, [component.props.content]);
 
   const renderTab = () => {
     switch (activeTab) {
@@ -256,7 +227,7 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
       case "styles":
         return (
           <ButtonStylesTab
-            handleResetDefault={handleResetDefault}
+
             handleWidthChange={handleWidthChange}
             handleContentAlignmentChange={handleContentAlignmentChange}
             handlePaddingChange={handlePaddingChange}
@@ -271,8 +242,7 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
             localProps={localProps}
           />
         );
-      case "text":
-        return <TextTab handleTextChange={handleTextChange}></TextTab>;
+
     }
   };
   return (

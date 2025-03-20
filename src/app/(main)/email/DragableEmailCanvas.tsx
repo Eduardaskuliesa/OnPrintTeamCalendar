@@ -125,7 +125,7 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
       ref={canvasRef}
       className={`min-h-[400px]  border-2 ${selectedComponentId ? "overflow-visible" : "overflow-hidden"} border-dashed ${isOver && isDraggingNew
           ? "border-blue-400 bg-blue-50"
-          : "border-gray-300 bg-gray-50"
+          : "border-gray-300"
         } rounded p-2 transition-colors duration-200`}
     >
       {components.length === 0 ? (

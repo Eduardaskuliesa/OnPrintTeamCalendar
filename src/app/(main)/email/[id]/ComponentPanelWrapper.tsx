@@ -2,7 +2,7 @@
 import React, { Suspense, useRef } from "react";
 import ComponentPanelSkeleton from "../components/skeletons/ComponentPanelSkeleton";
 
-const ComponentPanel = React.lazy(() => import("../ComponentPanel"));
+const ComponentPanel = React.lazy(() => import("../../../(email-builder)/components/ComponentPanel"));
 
 interface ComponentPanelWrapperProps {
   selectedComponent: any;

@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ComponentPalette from "./components/palette/ComponentPalette";
-import ButtonEditor from "./components/editors/ButtonEditor/ButtonEditor";
-import ImageEditor from "./components/editors/ImageEditor/ImageEditor";
+import ComponentPalette from "../../(main)/email/components/palette/ComponentPalette";
+import ButtonEditor from "../../(main)/email/components/editors/ButtonEditor/ButtonEditor";
+import ImageEditor from "../../(main)/email/components/editors/ImageEditor/ImageEditor";
 import { FiArrowLeft } from "react-icons/fi";
-import HeaderEditor from "./components/editors/HeaderEditor/HeaderEditor";
-import SpaceEditor from "./components/editors/SpaceEditor/SpacerEditor";
-import TextEditor from "./components/editors/TextEditor/TextEditor";
+import HeaderEditor from "../../(main)/email/components/editors/HeaderEditor/HeaderEditor";
+import SpaceEditor from "../../(main)/email/components/editors/SpaceEditor/SpacerEditor";
+import TextEditor from "../../(main)/email/components/editors/TextEditor/TextEditor";
 
 interface ComponentPanelProps {
   selectedComponent: any | null;
@@ -85,7 +85,7 @@ const ComponentPanel: React.FC<ComponentPanelProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="p-4 bg-slate-50 border-2 border-blue-50 shadow-md rounded-lg max-w-lg w-full "
+            className="p-4 max-w-lg w-full "
           >
             <div className="flex flex-row justify-between items-center mb-4">
               <h2 className="text-lg font-bold">

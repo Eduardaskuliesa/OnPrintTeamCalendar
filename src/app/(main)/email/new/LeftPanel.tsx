@@ -1,12 +1,13 @@
 "use client";
 import React, { Suspense } from "react";
 import ComponentPanelSkeleton from "../components/skeletons/ComponentPanelSkeleton";
-const ComponentPanel = React.lazy(() => import("../ComponentPanel"));
+const ComponentPanel = React.lazy(() => import("../../../(email-builder)/components/ComponentPanel"));
 
 interface LeftPanelProps {
   panelRef: React.RefObject<HTMLDivElement>;
   selectedComponent: any;
   handleUpdateComponent: (id: string, updates: any) => void;
+
   handleAddComponent: (type: string) => void;
   setSelectedComponent: (component: any) => void;
 }
@@ -16,6 +17,7 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
   selectedComponent,
   handleUpdateComponent,
   handleAddComponent,
+
   setSelectedComponent,
 }) => {
   return (

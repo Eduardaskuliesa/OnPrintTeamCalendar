@@ -8,7 +8,7 @@ import {
 import { EmailHeadingProps } from "./Header";
 
 type ButtonDefaultProps = {
-  text: string;
+  content: string;
   url: string;
   backgroundColor: string;
   textColor: string;
@@ -41,7 +41,7 @@ export const emailComponents = {
 
 export const defaultProps = {
   button: {
-    text: "Click me",
+    content: "Click me",
     url: "",
     backgroundColor: "#3B82F6",
     textColor: "#FFFFFF",

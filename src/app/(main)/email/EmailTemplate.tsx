@@ -27,7 +27,7 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({
           {components.map((component) => {
             switch (component.type) {
               case "button":
-                return <Button key={component.id} {...component.props} />;
+                return <Button  key={component.id} {...component.props} />;
 
               case "image":
                 return (

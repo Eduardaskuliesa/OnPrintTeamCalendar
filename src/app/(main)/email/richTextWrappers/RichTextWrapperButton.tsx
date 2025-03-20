@@ -32,8 +32,8 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
         bold: "700",
     };
 
-    // Initialize TipTap editor with formatting extensions
     const editor = useEditor({
+        immediatelyRender: false,
         extensions: [
             StarterKit.configure({
                 heading: false,
@@ -53,12 +53,8 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
         },
         onUpdate: ({ editor }) => {
             // Save content immediately when it changes
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = editor.getHTML();
-            const plainText = tempDiv.textContent || '';
-
-            // Update content in real-time
-            onContentUpdate(component.id, plainText);
+            const htmlContent = editor.getHTML();
+            onContentUpdate(component.id, htmlContent);
         }
     });
 
@@ -67,6 +63,13 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
         if (!isEditing) return;
 
         const handleClickOutside = (event: MouseEvent) => {
+            // Check if clicked on an element with data-keep-component="true"
+            if (event.target instanceof Element) {
+                const keepElement = event.target.closest('[data-keep-component="true"]');
+                if (keepElement) return; // Don't close if clicked on a keep element
+            }
+
+            // Check if clicked inside editor or toolbar
             if (
                 editorContainerRef.current &&
                 !editorContainerRef.current.contains(event.target as Node) &&
@@ -138,20 +141,12 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
         cursor: isEditing ? "text" : "pointer",
     } as React.CSSProperties;
 
-    // Handle toolbar button clicks
-    const handleFormatClick = (formatFunction: () => void) => (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        formatFunction();
-        // Re-focus the editor after format change
-        setTimeout(() => editor?.commands.focus(), 10);
-    };
-
     // Simple formatting toolbar component
     const FormattingToolbar = () => (
         <div
             ref={toolbarRef}
             className="flex gap-2 p-1 mb-1 bg-white rounded shadow-sm border border-gray-200"
+            data-keep-component="true"
         >
             <button
                 onMouseDown={(e) => {
@@ -193,7 +188,7 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
     // If editing, render a custom button with TipTap editor and formatting toolbar
     if (isEditing && isSelected && editor) {
         return (
-            <div className="relative">
+            <div className="relative" data-keep-component="true">
                 <div className="-top-10 left-0 z-[100] w-auto">
                     <FormattingToolbar />
                 </div>
@@ -217,7 +212,7 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
 
     // Regular button when not editing
     return (
-        <div onDoubleClick={handleDoubleClick}>
+        <div onDoubleClick={handleDoubleClick} data-keep-component={isSelected ? "true" : "false"}>
             <Button {...component.props} />
         </div>
     );

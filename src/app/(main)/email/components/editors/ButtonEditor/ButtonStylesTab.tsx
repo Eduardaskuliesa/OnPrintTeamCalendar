@@ -36,7 +36,6 @@ interface ButtonStylesTabProps {
   handleTextColorChange: (value: string) => void;
   handleBackgroundColorChange: (value: string) => void;
   handleWidthChange: (value: ButtonWidth) => void;
-  handleResetDefault: () => void;
   handleTextAlignmentChange: (value: TextAlignment) => void;
   handleContentAlignmentChange: (value: ContentAlignment) => void;
   handlePaddingChange: (
