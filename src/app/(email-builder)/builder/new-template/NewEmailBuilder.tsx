@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import ComponentPanelSkeleton from "@/app/(main)/email/components/skeletons/ComponentPanelSkeleton";
-import { useEmailBuilder } from "@/app/(main)/email/hooks/useEmailBuilder";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import EmailCanvasWrapper from "./EmailCanvasWrapper";
@@ -19,9 +18,9 @@ const ComponentPanelWrapper = React.lazy(
 );
 
 const NewEmailBuilder: React.FC = () => {
-  const [viewMode, setViewMode] = useState("dekstop");
-  const [emailHtml, setEmailHtml] = useState();
-  const { setEmailComponents, markAsSaved } = useEmailBuilderStore();
+  // const [viewMode, setViewMode] = useState("dekstop");
+  // const [emailHtml, setEmailHtml] = useState();
+  const { setEmailComponents, emailComponents, markAsSaved } = useEmailBuilderStore();
 
   const { panelRef, canvasRef } = useEmailBuilderUI();
 
@@ -38,22 +37,22 @@ const NewEmailBuilder: React.FC = () => {
     }
   }, [setEmailComponents]);
 
-  //   useEffect(() => {
-  //     const updateEmailHtml = async () => {
-  //       try {
-  //         const template = <EmailTemplate emailComponents={emailComponents} />;
-  //         const html = await render(template);
-  //         setEmailHtml(html);
-  //         console.log("Generated HTML:", html);
-  //       } catch (error) {
-  //         console.error("Error rendering email:", error);
-  //       }
-  //     };
+    // useEffect(() => {
+    //   const updateEmailHtml = async () => {
+    //     try {
+    //       const template = <EmailTemplate emailComponents={emailComponents} />;
+    //       const html = await render(template);
+    //       setEmailHtml(html);
+    //       console.log("Generated HTML:", html);
+    //     } catch (error) {
+    //       console.error("Error rendering email:", error);
+    //     }
+    //   };
 
-  //     if (emailComponents.length) {
-  //       updateEmailHtml();
-  //     }
-  //   }, [emailComponents]);
+    //   if (emailComponents.length) {
+    //     updateEmailHtml();
+    //   }
+    // }, [emailComponents]);
   return (
     <>
       <DndProvider backend={HTML5Backend}>

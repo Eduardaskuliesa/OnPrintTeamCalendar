@@ -100,11 +100,15 @@ const Button: React.FC<EmailButtonProps> = ({
       .button-content p {
         margin: 0;
         padding: 0;
-        display: inline;
+        display: block;
+
       }
       .button-content * {
         margin: 0;
         padding: 0;
+        overflow-wrap: break-word;
+        word-break: break-word;
+
       }
     </style>
   `;

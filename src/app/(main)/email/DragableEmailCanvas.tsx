@@ -123,7 +123,7 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
   return (
     <div
       ref={canvasRef}
-      className={`min-h-[calc(100vh-130px)]  ${selectedComponentId ? "overflow-visible" : "overflow-hidden"} hover:overflow-visible  ${
+      className={`canvas min-h-[calc(100vh-130px)]  ${selectedComponentId ? "overflow-visible" : "overflow-hidden"} hover:overflow-visible  ${
         isOver && isDraggingNew
           ? "border-blue-400 bg-blue-50"
           : "border-gray-300"

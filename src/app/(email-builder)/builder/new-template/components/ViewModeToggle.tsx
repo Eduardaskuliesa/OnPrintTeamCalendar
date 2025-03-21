@@ -12,7 +12,7 @@ const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
   setViewMode,
 }) => {
   return (
-    <div className="flex space-x-2 mb-2 justify-center p-2">
+    <div className="flex space-x-2 mb-2 justify-center p-2 mt-2">
       <div
         onClick={() => setViewMode("desktop")}
         className={`p-3 bg-gray-200 rounded-md hover:bg-gray-300 hover:cursor-pointer ${viewMode === "desktop" && "bg-gray-300"}`}

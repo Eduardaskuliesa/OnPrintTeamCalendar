@@ -17,7 +17,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             staleTime: Infinity,
           },
           mutations: {
-            // If a mutation fails, don't retry
             retry: false,
           },
         },

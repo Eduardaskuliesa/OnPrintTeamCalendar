@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
-import { Trash2, ArrowUp, ArrowDown, Copy, GripVertical, Move } from "lucide-react";
+import { Trash2, ArrowUp, ArrowDown, Copy, Move } from "lucide-react";
 import EmailImage from "./emailComponents/Image";
 import EmailHeading from "./emailComponents/Header";
 import EmailSpacer from "./emailComponents/Spacer";
