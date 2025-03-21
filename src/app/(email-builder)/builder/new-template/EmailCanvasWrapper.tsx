@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import DraggableEmailCanvas from "@/app/(main)/email/DragableEmailCanvas";
 import ViewModeToggle from "./components/ViewModeToggle";
 import useEmailBuilderStore from "@/app/store/emailBuilderStore";
-
+import DraggableCodePanel from "./components/CodePanel";
 
 interface EmailCanvasWrapperProps {
   canvasRef: React.RefObject<HTMLDivElement>;
@@ -13,7 +13,6 @@ const EmailCanvasWrapper: React.FC<EmailCanvasWrapperProps> = ({
   canvasRef,
 }) => {
   const [viewMode, setViewMode] = useState("desktop");
-  const [showCodeInspector, setShowCodeInspector] = useState(false);
 
   const emailComponents = useEmailBuilderStore(
     (state) => state.emailComponents
@@ -39,10 +38,7 @@ const EmailCanvasWrapper: React.FC<EmailCanvasWrapperProps> = ({
   return (
     <div className="w-full overflow-y-auto custom-scrollbar bg-gray-100">
       <div className="bg-slate-50 shadow-sm border-b-4 border-blue-50 w-full h-[60px] sticky top-0 z-[50] flex justify-center items-center">
-        <ViewModeToggle
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-        />
+        <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
       </div>
       <div className="flex justify-center">
         <div

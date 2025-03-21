@@ -10,7 +10,6 @@ export interface EmailComponent {
 }
 
 interface EmailBuilderState {
-
   emailComponents: EmailComponent[];
   selectedComponent: EmailComponent | null;
   isNew: boolean;
@@ -28,7 +27,7 @@ interface EmailBuilderState {
   removeComponent: (id: string) => void;
 }
 
-const useEmailBuilderStore = create<EmailBuilderState>((set, get) => ({
+const useEmailBuilderStore = create<EmailBuilderState>((set) => ({
   emailComponents: [],
   selectedComponent: null,
   isNew: true,
@@ -175,7 +174,7 @@ export const useEmailBuilderUI = () => {
         setSelectedComponent(null);
       }
     };
-
+    console.log(selectedComponent?.id);
     document.addEventListener("mousedown", clickOutsideHandler);
     return () => {
       document.removeEventListener("mousedown", clickOutsideHandler);

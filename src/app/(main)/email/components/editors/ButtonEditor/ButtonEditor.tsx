@@ -10,7 +10,6 @@ import {
   TextAlignment,
 } from "../../../emailComponents/Button";
 
-
 interface ButtonComponent {
   id: string;
   type: string;
@@ -25,7 +24,6 @@ interface ButtonEditorProps {
 const ButtonEditor: React.FC<ButtonEditorProps> = ({
   component,
   updateComponent,
-  
 }) => {
   const [activeTab, setActiveTab] = useState<"content" | "styles" | "text">(
     "content"
@@ -64,7 +62,7 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
         right: 0,
       },
     });
-  }, [component.id, component.props,]);
+  }, [component.id, component.props]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -203,15 +201,11 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
     updateComponent(component.id, { props: updatedProps });
   };
 
-
-
   useEffect(() => {
-    setLocalProps(prevProps => ({
+    setLocalProps((prevProps) => ({
       ...prevProps,
-      content: component.props.content || ""
+      content: component.props.content || "",
     }));
-
-    console.log("Content updated:", component.props.content);
   }, [component.props.content]);
 
   const renderTab = () => {
@@ -227,7 +221,6 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
       case "styles":
         return (
           <ButtonStylesTab
-
             handleWidthChange={handleWidthChange}
             handleContentAlignmentChange={handleContentAlignmentChange}
             handlePaddingChange={handlePaddingChange}
@@ -242,7 +235,6 @@ const ButtonEditor: React.FC<ButtonEditorProps> = ({
             localProps={localProps}
           />
         );
-
     }
   };
   return (

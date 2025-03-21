@@ -112,12 +112,17 @@ const Button: React.FC<EmailButtonProps> = ({
       }
     </style>
   `;
-  const wrappedContent = content ?
-    `${customStyles}<div class="button-content">${content}</div>` : "";
+  const wrappedContent = content
+    ? `${customStyles}<div class="button-content">${content}</div>`
+    : "";
 
   return (
     <div style={containerStyle}>
-      <Link style={buttonStyle} target={target} dangerouslySetInnerHTML={{ __html: wrappedContent }} />
+      <Link
+        style={buttonStyle}
+        target={target}
+        dangerouslySetInnerHTML={{ __html: wrappedContent }}
+      />
     </div>
   );
 };
