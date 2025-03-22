@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useRef, useCallback, useEffect } from "react";
+import { Extension } from "@tiptap/core";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
@@ -7,6 +8,8 @@ import Italic from "@tiptap/extension-italic";
 import Underline from "@tiptap/extension-underline";
 import useEmailBuilderStore from "@/app/store/emailBuilderStore";
 import useCodePanelStore from "@/app/store/codePanelStore";
+import Color from "@tiptap/extension-color";
+import useToolbarStore from "@/app/store/toolbarStore";
 
 /**
  * useRichTextEditor
@@ -20,6 +23,35 @@ import useCodePanelStore from "@/app/store/codePanelStore";
  *
  */
 
+const InlineStyle = Extension.create({
+  name: "inlineStyle",
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["paragraph", "heading"],
+        attributes: {
+          style: {
+            default: null,
+            parseHTML: (element) => element.getAttribute("style"),
+            renderHTML: (attributes) => {
+              if (!attributes.style) {
+                return {};
+              }
+
+              return {
+                style: attributes.style,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
+// Keep your InlineStyle Extension as is
+
 interface UseRichTextEditorProps {
   componentId: string;
   initialContent: string;
@@ -31,10 +63,9 @@ const useRichTextEditor = ({
   initialContent,
   textColor,
 }: UseRichTextEditorProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const toolbarRef = useRef<HTMLDivElement>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
 
+  // Get state from email builder store
   const isSelected = useEmailBuilderStore(
     (state) => state.selectedComponent?.id === componentId
   );
@@ -48,8 +79,11 @@ const useRichTextEditor = ({
     (state) => state.selectedComponent?.id
   );
 
+  // Get state from code panel store
   const { openPanel, isOpen, updateContent, closePanel, wasUserClosed } =
     useCodePanelStore();
+
+  const { isEditing, setIsEditing, closeToolbar } = useToolbarStore();
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -63,6 +97,8 @@ const useRichTextEditor = ({
       Bold,
       Italic,
       Underline,
+      Color,
+      InlineStyle,
       TextAlign.configure({
         types: ["paragraph"],
         alignments: ["left", "center", "right", "justify"],
@@ -88,10 +124,15 @@ const useRichTextEditor = ({
     (e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
       handleSelectComponent(componentId);
-      setIsEditing(true);
+      if (editor) {
+        useToolbarStore.getState().openToolbar(componentId, "button", editor);
+      }
     },
-    [handleSelectComponent, componentId]
+    [handleSelectComponent, componentId, editor]
   );
+
+  useEffect(() => {}, []);
+
   // Effect for click outside
   useEffect(() => {
     if (!isEditing) return;
@@ -106,12 +147,9 @@ const useRichTextEditor = ({
 
       if (
         editorContainerRef.current &&
-        !editorContainerRef.current.contains(event.target as Node) &&
-        toolbarRef.current &&
-        !toolbarRef.current.contains(event.target as Node)
+        !editorContainerRef.current.contains(event.target as Node)
       ) {
-        setIsEditing(false);
-
+        closeToolbar();
         if (isOpen) {
           closePanel(false);
         }
@@ -122,23 +160,31 @@ const useRichTextEditor = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isEditing, isOpen, closePanel]);
+  }, [isEditing, isOpen, closePanel, setIsEditing, closeToolbar]);
 
-  //  Effect for focusing then in isEditing mode
+  // Effect for focusing when in editing mode
   useEffect(() => {
     if (isEditing && editor) {
       setTimeout(() => editor.commands.focus(), 10);
     }
   }, [isEditing, editor]);
 
-  //   To close html pannel soft close
+  // To close HTML panel on soft close
   useEffect(() => {
     if (!isEditing && isOpen && selectedComponentId === componentId) {
+      closeToolbar();
       closePanel(false);
     }
-  }, [isEditing, isOpen, closePanel, selectedComponentId, componentId]);
+  }, [
+    isEditing,
+    isOpen,
+    closePanel,
+    selectedComponentId,
+    componentId,
+    closeToolbar,
+  ]);
 
-  //  To sync states html with pannel
+  // To sync states HTML with panel
   useEffect(() => {
     if (editor) {
       const currentContent = editor.getHTML();
@@ -150,12 +196,13 @@ const useRichTextEditor = ({
     }
   }, [initialContent, editor]);
 
-  // To close on esc and also close pannel
+  // To close on ESC and also close panel
   useEffect(() => {
     if (!isEditing) return;
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setIsEditing(false);
+        closeToolbar();
         if (isOpen) {
           closePanel(false);
         }
@@ -166,7 +213,7 @@ const useRichTextEditor = ({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isEditing, closePanel, isOpen]);
+  }, [isEditing, closePanel, isOpen, closeToolbar]);
 
   // Open panel when editing starts
   useEffect(() => {
@@ -187,21 +234,13 @@ const useRichTextEditor = ({
     componentId,
   ]);
 
-  const toggleCodeView = useCallback(() => {
-    if (!isOpen && editor && selectedComponentId) {
-      openPanel(editor.getHTML(), selectedComponentId);
-    }
-  }, [isOpen, editor, selectedComponentId, openPanel]);
-
   return {
     editor,
     isEditing,
     isSelected,
     isOpen,
-    toolbarRef,
     editorContainerRef,
     handleDoubleClick,
-    toggleCodeView,
   };
 };
 

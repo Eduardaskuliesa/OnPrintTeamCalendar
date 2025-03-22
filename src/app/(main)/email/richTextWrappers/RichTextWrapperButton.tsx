@@ -1,7 +1,6 @@
 import React from "react";
 import Button, { EmailButtonProps } from "../emailComponents/Button";
 import { EditorContent } from "@tiptap/react";
-import FormattingToolbar from "@/app/(email-builder)/components/FormattingToolbar";
 import useRichTextEditor from "@/app/(email-builder)/hooks/useRichTextEdititng";
 
 interface EditableButtonProps {
@@ -25,11 +24,8 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
     editor,
     isEditing,
     isSelected,
-    isOpen,
-    toolbarRef,
     editorContainerRef,
     handleDoubleClick,
-    toggleCodeView,
   } = useRichTextEditor({
     componentId: component.id,
     initialContent: component.props.content || "",
@@ -93,14 +89,6 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
   if (isEditing && isSelected) {
     return (
       <div className="relative" data-keep-component="true">
-        <div className="-top-10 left-0 z-[100] w-auto">
-          <FormattingToolbar
-            editor={editor}
-            isOpen={isOpen}
-            toggleCodeView={toggleCodeView}
-            toolbarRef={toolbarRef}
-          />
-        </div>
         <div style={containerStyle} ref={editorContainerRef}>
           <div style={buttonStyle} className="ring-2 ring-blue-300">
             <EditorContent

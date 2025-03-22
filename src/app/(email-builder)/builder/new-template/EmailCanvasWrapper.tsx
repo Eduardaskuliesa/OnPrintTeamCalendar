@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import DraggableEmailCanvas from "@/app/(main)/email/DragableEmailCanvas";
 import ViewModeToggle from "./components/ViewModeToggle";
 import useEmailBuilderStore from "@/app/store/emailBuilderStore";
-import DraggableCodePanel from "./components/CodePanel";
+import FormattingToolbar from "../../components/FormattingToolbar";
+import useToolbarStore from "@/app/store/toolbarStore";
 
 interface EmailCanvasWrapperProps {
   canvasRef: React.RefObject<HTMLDivElement>;
@@ -35,11 +36,17 @@ const EmailCanvasWrapper: React.FC<EmailCanvasWrapperProps> = ({
     (state) => state.handleSelectComponent
   );
 
+  const { isEditing, isVisible } = useToolbarStore();
+
+  console.log(isEditing);
+
   return (
     <div className="w-full overflow-y-auto custom-scrollbar bg-gray-100">
-      <div className="bg-slate-50 shadow-sm border-b-4 border-blue-50 w-full h-[60px] sticky top-0 z-[50] flex justify-center items-center">
+      <div className="bg-slate-50 shadow-sm border-b-4 border-blue-50 w-full h-[100px] sticky top-0 z-[50] flex flex-col justify-center items-center">
+        {isVisible && <FormattingToolbar></FormattingToolbar>}
         <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
       </div>
+      <div></div>
       <div className="flex justify-center">
         <div
           ref={canvasRef}

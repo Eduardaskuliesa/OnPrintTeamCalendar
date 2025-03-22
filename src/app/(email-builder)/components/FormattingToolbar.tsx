@@ -1,5 +1,4 @@
-import React from "react";
-import { Editor } from "@tiptap/react";
+import React, { useCallback, useEffect } from "react";
 import {
   AlignLeft as AlignLeftIcon,
   AlignCenter as AlignCenterIcon,
@@ -10,27 +9,35 @@ import {
   Underline as UnderlineIcon,
   Code as CodeIcon,
 } from "lucide-react";
+import useToolbarStore from "@/app/store/toolbarStore";
+import useEmailBuilderStore from "@/app/store/emailBuilderStore";
+import useCodePanelStore from "@/app/store/codePanelStore";
 
-interface FormattingToolbarProps {
-  editor: Editor | null;
-  isOpen: boolean;
-  toggleCodeView: () => void;
-  toolbarRef: React.RefObject<HTMLDivElement>;
-}
+const FormattingToolbar = () => {
+  const { editor, closeToolbar } = useToolbarStore();
+  const { openPanel, isOpen } = useCodePanelStore();
+  const selectedComponentId = useEmailBuilderStore(
+    (state) => state.selectedComponent?.id
+  );
 
-const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
-  editor,
-  isOpen,
-  toggleCodeView,
-  toolbarRef,
-}) => {
+  useEffect(() => {
+    if (selectedComponentId === undefined) {
+      closeToolbar();
+    }
+  }, [closeToolbar, selectedComponentId]);
+
+  const toggleCodeView = useCallback(() => {
+    if (!isOpen && editor && selectedComponentId) {
+      openPanel(editor.getHTML(), selectedComponentId);
+    }
+  }, [isOpen, editor, selectedComponentId, openPanel]);
+
   if (!editor) {
     return null;
   }
 
   return (
     <div
-      ref={toolbarRef}
       className="flex gap-2 p-1 mb-1 bg-white rounded shadow-sm border border-gray-200"
       data-keep-component="true"
     >
