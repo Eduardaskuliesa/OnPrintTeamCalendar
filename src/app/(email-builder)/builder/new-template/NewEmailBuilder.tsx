@@ -11,8 +11,8 @@ import useEmailBuilderStore, {
 import DraggableCodePanel from "./components/CodePanel";
 // import ViewModeToggle from "@/app/(main)/email/ViewModeToggle";
 // import EmailPreview from "@/app/(main)/email/EmailPreview";
-import EmailTemplate from "@/app/(main)/email/EmailTemplate";
-import { render } from "@react-email/render";
+// import EmailTemplate from "@/app/(main)/email/EmailTemplate";
+// import { render } from "@react-email/render";
 
 const ComponentPanelWrapper = React.lazy(
   () => import("../new-template/ComponentPanelWrapper")
