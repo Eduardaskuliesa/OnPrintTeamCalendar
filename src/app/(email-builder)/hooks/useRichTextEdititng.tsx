@@ -13,6 +13,7 @@ import FontSize from "tiptap-extension-font-size"
 import TextStyle from "@tiptap/extension-text-style";
 import Heading from "@tiptap/extension-heading";
 import FontFamily from "@tiptap/extension-font-family"
+import Link from "@tiptap/extension-link";
 import useToolbarStore, { ComponentType } from "@/app/store/toolbarStore";
 
 /**
@@ -103,6 +104,13 @@ const useRichTextEditor = ({
       Underline,
       TextStyle,
       FontSize,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          rel: 'noopener noreferrer',
+          class: 'text-blue-500 underline',
+        },
+      }),
       FontFamily,
       Color.configure(),
       Heading.configure({

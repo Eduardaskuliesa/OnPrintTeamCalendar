@@ -18,6 +18,7 @@ import useEmailBuilderStore from "@/app/store/emailBuilderStore";
 import useCodePanelStore from "@/app/store/codePanelStore";
 import { Input } from "@/components/ui/input";
 import FontFamily from "./FormattingToolbar/FontFamily";
+import LinkToolbar from "./FormattingToolbar/LinkToolBar";
 
 export type Level = 1 | 2 | 3 | 4 | 5 | 6
 
@@ -143,6 +144,7 @@ const FormattingToolbar = () => {
     return `p-2 rounded hover:bg-gray-100 ${isActive ? "bg-gray-200 text-blue-600" : ""}`;
   };
 
+
   return (
     <div
       className="flex flex-wrap items-center gap-1 mt-2 mb-2 py-1 px-2 bg-white shadow-md border rounded-xl border-gray-200"
@@ -187,7 +189,7 @@ const FormattingToolbar = () => {
       >
         <UnderlineIcon size={16} />
       </button>
-
+      <LinkToolbar />
       {/* Heading Dropdown */}
       <div className="relative" data-keep-component="true">
         <button
