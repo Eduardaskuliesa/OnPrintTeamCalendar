@@ -36,9 +36,7 @@ const EmailCanvasWrapper: React.FC<EmailCanvasWrapperProps> = ({
     (state) => state.handleSelectComponent
   );
 
-  const { isEditing, isVisible } = useToolbarStore();
-
-  console.log(isEditing);
+  const { isVisible } = useToolbarStore();
 
   return (
     <div className="w-full overflow-y-auto custom-scrollbar bg-gray-100">

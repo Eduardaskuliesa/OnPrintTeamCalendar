@@ -5,8 +5,8 @@ import { Trash2, ArrowUp, ArrowDown, Copy, Move } from "lucide-react";
 import EmailImage from "./emailComponents/Image";
 import EmailHeading from "./emailComponents/Header";
 import EmailSpacer from "./emailComponents/Spacer";
-import EmailText from "./emailComponents/Text";
 import RichTextWrapperButton from "./richTextWrappers/RichTextWrapperButton";
+import RichTextWrapperText from "./richTextWrappers/RichTextWrapperText";
 
 const COMPONENT_TYPE = "EMAIL_COMPONENT";
 
@@ -113,7 +113,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
       case "spacer":
         return <EmailSpacer {...component.props} />;
       case "text":
-        return <EmailText {...component.props} />;
+        return <RichTextWrapperText component={component} />;
       default:
         return <div>Unknown component type</div>;
     }
@@ -122,9 +122,8 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   return (
     <div
       ref={ref}
-      className={`relative transition-all duration-200 ${
-        isDragging ? "opacity-50 scale-[0.97]" : ""
-      } ${isOver && canDrop ? "translate-y-1" : ""}`}
+      className={`relative transition-all duration-200 ${isDragging ? "opacity-50 scale-[0.97]" : ""
+        } ${isOver && canDrop ? "translate-y-1" : ""}`}
       onClick={() => onSelectComponent(id)}
     >
       <div

@@ -90,6 +90,9 @@ export const defaultProps = {
     height: 20,
     containerBackgroundColor: "transparent",
   },
+  text: {
+    content: 'Simple texsxxt'
+  }
 };
 
 export function getDefaultProps(type: string) {

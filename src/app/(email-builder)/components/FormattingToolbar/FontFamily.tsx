@@ -1,10 +1,15 @@
 "use client"
-
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, MouseEvent } from "react"
 import { ChevronDownIcon } from "lucide-react"
 import useToolbarStore from "@/app/store/toolbarStore"
 
-const fontFamilies = [
+interface FontOption {
+    label: string;
+    value: string;
+}
+
+
+const fontFamilies: FontOption[] = [
     { label: "Arial", value: "Arial" },
     { label: "Helvetica", value: "Helvetica" },
     { label: "Times New Roman", value: "Times New Roman" },
@@ -15,76 +20,75 @@ const fontFamilies = [
     { label: "Impact", value: "Impact, Charcoal" },
     { label: "Comic Sans MS", value: "Comic Sans MS" },
     { label: "Lucida Sans", value: "Lucida Sans" },
+    { label: "Merriweather", value: "Merriweather" },
     { label: "Montserrat", value: "Montserrat" },
     { label: "Roboto", value: "Roboto" },
     { label: "Lato", value: "Lato" },
     { label: "Open Sans", value: "Open Sans" },
     { label: "Oswald", value: "Oswald" },
     { label: "Raleway", value: "Raleway" },
-    { label: "Merriweather", value: "Merriweather" },
     { label: "Ubuntu", value: "Ubuntu" },
     { label: "PT Sans", value: "PT Sans" },
     { label: "Futura", value: "Futura" },
 ]
 
 const FontFamily = () => {
-    const { editor } = useToolbarStore()
-    const [showDropdown, setShowDropdown] = useState(false)
-    const [selectedFont, setSelectedFont] = useState({ label: "Font", value: "" })
+    const { editor } = useToolbarStore();
+    const [showDropdown, setShowDropdown] = useState<boolean>(false);
+    const [selectedFont, setSelectedFont] = useState<FontOption>({ label: "Font", value: "" });
 
-    // Update the selected font when the editor changes
     useEffect(() => {
-        if (!editor) return
+        if (!editor) return;
 
         const updateSelectedFont = () => {
             for (const font of fontFamilies) {
                 if (editor.isActive("textStyle", { fontFamily: font.value })) {
-                    setSelectedFont(font)
-                    return
+                    setSelectedFont(font);
+                    return;
                 }
             }
-            setSelectedFont({ label: "Font", value: "" })
-        }
+            setSelectedFont({ label: "Font", value: "" });
+        };
 
-        updateSelectedFont()
+        updateSelectedFont();
 
-        editor.on("selectionUpdate", updateSelectedFont)
+        editor.on("selectionUpdate", updateSelectedFont);
 
         return () => {
-            editor.off("selectionUpdate", updateSelectedFont)
-        }
-    }, [editor])
+            editor.off("selectionUpdate", updateSelectedFont);
+        };
+    }, [editor]);
 
     const handleSelect = useCallback(
-        (font: string) => {
+        (font: FontOption) => {
             if (editor) {
-                editor.chain().focus().setFontFamily(font.value).run()
-                setSelectedFont(font)
+                editor.chain().focus().setFontFamily(font.value).run();
+                setSelectedFont(font);
             }
-            setShowDropdown(false)
+            setShowDropdown(false);
         },
         [editor],
-    )
+    );
 
     const handleUnsetFont = useCallback(
-        (e) => {
-            e.preventDefault()
-            e.stopPropagation()
+        (e: MouseEvent<HTMLButtonElement>) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (editor) {
-                editor.chain().focus().unsetFontFamily().run()
-                setSelectedFont({ label: "Font", value: "" })
+                editor.chain().focus().unsetFontFamily().run();
+                setSelectedFont({ label: "Font", value: "" });
             }
-            setShowDropdown(false)
+            setShowDropdown(false);
         },
         [editor],
-    )
+    );
 
     return (
         <div className="relative" data-keep-component="true">
             <button
-                onMouseDown={(e) => {
-                    e.preventDefault()
-                    setShowDropdown((prev) => !prev)
+                onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.preventDefault();
+                    setShowDropdown((prev) => !prev);
                 }}
                 className="p-2 rounded hover:bg-gray-100 transition-colors flex items-center gap-1 min-w-[120px]"
                 title="Font Family"
@@ -105,11 +109,13 @@ const FontFamily = () => {
                         {fontFamilies.map((font) => (
                             <button
                                 key={font.value}
-                                onMouseDown={(e) => {
-                                    e.preventDefault()
-                                    handleSelect(font)
+                                onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
+                                    e.preventDefault();
+                                    handleSelect(font);
                                 }}
-                                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-gray-50 transition-colors ${editor && editor.isActive("textStyle", { fontFamily: font.value }) ? "bg-gray-100 font-medium" : ""
+                                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-gray-50 transition-colors ${editor && editor.isActive("textStyle", { fontFamily: font.value })
+                                    ? "bg-gray-100 font-medium"
+                                    : ""
                                     }`}
                                 style={{ fontFamily: font.value }}
                             >
@@ -127,8 +133,7 @@ const FontFamily = () => {
                 </div>
             )}
         </div>
-    )
-}
+    );
+};
 
-export default FontFamily
-
+export default FontFamily;

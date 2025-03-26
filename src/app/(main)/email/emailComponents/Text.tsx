@@ -5,8 +5,8 @@ export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
 export type TextAlignment = "left" | "center" | "right";
 export type ContentAlignment = "flex-start" | "center" | "flex-end";
 
-export interface EmailText {
-  text?: string;
+export interface EmailTextProps {
+  content?: string;
   backgroundColor?: string;
   borderStyle?: BorderStyle;
   borderWidth?: number;
@@ -32,24 +32,21 @@ export interface EmailText {
   customFontSize?: string;
 }
 
-const EmailText: React.FC<EmailText> = ({
-  text = "This is simple text",
+const EmailText: React.FC<EmailTextProps> = ({
+  content = 'Simple text',
   borderStyle,
   borderWidth,
   containerBackgroundColor = "transparent",
   containerBorderRadius = 0,
-  contentAlignment = "flex-start",
   padding = { top: 0, bottom: 0, left: 0, right: 0 },
   margin = { top: 0, bottom: 0, left: 0, right: 0 },
   textSize = "16px",
   borderColor = "#000000",
+  textColor = "#000000",
+  textAlignment = "left",
 }) => {
   const containerStyle = {
-    display: "flex",
-    alignContent: "center",
-    fontSize: textSize,
     height: "auto",
-    justifyContent: contentAlignment,
     backgroundColor: containerBackgroundColor,
     borderStyle,
     borderColor: borderColor,
@@ -66,17 +63,41 @@ const EmailText: React.FC<EmailText> = ({
     marginLeft: margin.left !== undefined ? `${margin.left}px` : "0",
     marginRight: margin.right !== undefined ? `${margin.right}px` : "0",
     width: "100%",
+    textAlign: textAlignment,
   } as React.CSSProperties;
 
   const textStyles = {
     fontSize: textSize,
+    color: textColor,
     margin: 0,
     padding: 0,
   } as React.CSSProperties;
 
+  const customStyles = `
+    <style>
+      .text-content p {
+        margin: 0;
+        padding: 0;
+        display: block;
+      }
+      .text-content * {
+        margin: 0;
+        padding: 0;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+    </style>
+  `;
+  const wrappedContent = content
+    ? `${customStyles}<div class="text-content">${content}</div>`
+    : "";
+
   return (
     <div style={containerStyle}>
-      <Text style={textStyles}>{text}</Text>
+      <Text
+        style={textStyles}
+        dangerouslySetInnerHTML={{ __html: wrappedContent }}
+      />
     </div>
   );
 };

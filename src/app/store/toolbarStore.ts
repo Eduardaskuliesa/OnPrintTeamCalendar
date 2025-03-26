@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { Editor } from "@tiptap/react";
 
-type ComponentType = "button" | "text" | "image" | "divider" | null;
+export type ComponentType = "button" | "text" | "image" | "divider" | null;
 
 interface ToolbarState {
   isVisible: boolean;

@@ -30,6 +30,7 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
     componentId: component.id,
     initialContent: component.props.content || "",
     textColor: component.props.textColor || "#FFFFFF",
+    componentType: 'button'
   });
 
   const containerStyle = {

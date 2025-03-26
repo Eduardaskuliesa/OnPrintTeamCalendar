@@ -70,15 +70,12 @@ const FormattingToolbar = () => {
       const updateFontSize = () => {
         const attrs = editor.getAttributes('textStyle');
         if (attrs.fontSize) {
-          // Extract the numeric part from fontSize (e.g., "16pt" -> 16)
           const size = parseInt(attrs.fontSize, 10);
           if (!isNaN(size)) {
             setSelectedFontSize(size);
           }
         }
       };
-
-      // Update selected color when cursor position changes
       const updateColor = () => {
         const attrs = editor.getAttributes('textStyle');
         if (attrs.color) {
@@ -120,7 +117,7 @@ const FormattingToolbar = () => {
       setSelectedFontSize(size);
       setShowFontSizes(false);
       if (editor) {
-        editor.chain().focus().setFontSize(`${size}pt`).run();
+        editor.chain().focus().setFontSize(`${size}px`).run();
       }
     },
     [editor]
@@ -142,7 +139,6 @@ const FormattingToolbar = () => {
     return null;
   }
 
-  // Helper function to create toolbar button classes with proper highlighting
   const getToolbarButtonClass = (isActive: boolean) => {
     return `p-2 rounded hover:bg-gray-100 ${isActive ? "bg-gray-200 text-blue-600" : ""}`;
   };

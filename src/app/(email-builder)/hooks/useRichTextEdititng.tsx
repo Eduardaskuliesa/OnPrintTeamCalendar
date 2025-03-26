@@ -13,7 +13,7 @@ import FontSize from "tiptap-extension-font-size"
 import TextStyle from "@tiptap/extension-text-style";
 import Heading from "@tiptap/extension-heading";
 import FontFamily from "@tiptap/extension-font-family"
-import useToolbarStore from "@/app/store/toolbarStore";
+import useToolbarStore, { ComponentType } from "@/app/store/toolbarStore";
 
 /**
  * useRichTextEditor
@@ -59,12 +59,14 @@ interface UseRichTextEditorProps {
   componentId: string;
   initialContent: string;
   textColor: string;
+  componentType: ComponentType
 }
 
 const useRichTextEditor = ({
   componentId,
   initialContent,
   textColor,
+  componentType
 }: UseRichTextEditorProps) => {
   const editorContainerRef = useRef<HTMLDivElement>(null);
 
@@ -82,7 +84,6 @@ const useRichTextEditor = ({
     (state) => state.selectedComponent?.id
   );
 
-  // Get state from code panel store
   const { openPanel, isOpen, updateContent, closePanel, wasUserClosed } =
     useCodePanelStore();
 
@@ -92,8 +93,7 @@ const useRichTextEditor = ({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        // Enable heading in StarterKit
-        heading: false, // We'll use our own configuration
+        heading: false,
         bulletList: false,
         orderedList: false,
         codeBlock: false,
@@ -135,10 +135,10 @@ const useRichTextEditor = ({
       e.stopPropagation();
       handleSelectComponent(componentId);
       if (editor) {
-        useToolbarStore.getState().openToolbar(componentId, "button", editor);
+        useToolbarStore.getState().openToolbar(componentId, componentType, editor);
       }
     },
-    [handleSelectComponent, componentId, editor]
+    [handleSelectComponent, componentId, editor, componentType]
   );
 
   // Effect for click outside
