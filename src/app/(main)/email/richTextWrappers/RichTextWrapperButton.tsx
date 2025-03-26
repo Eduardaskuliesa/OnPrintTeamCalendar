@@ -25,7 +25,7 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
     isEditing,
     isSelected,
     editorContainerRef,
-    handleDoubleClick,
+    handleClick,
   } = useRichTextEditor({
     componentId: component.id,
     initialContent: component.props.content || "",
@@ -105,7 +105,7 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
   }
 
   return (
-    <div onDoubleClick={handleDoubleClick} data-keep-component="true">
+    <div onClick={handleClick} data-keep-component="true">
       <Button {...component.props} />
     </div>
   );

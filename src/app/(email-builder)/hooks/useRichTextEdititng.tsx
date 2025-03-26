@@ -9,6 +9,10 @@ import Underline from "@tiptap/extension-underline";
 import useEmailBuilderStore from "@/app/store/emailBuilderStore";
 import useCodePanelStore from "@/app/store/codePanelStore";
 import Color from "@tiptap/extension-color";
+import FontSize from "tiptap-extension-font-size"
+import TextStyle from "@tiptap/extension-text-style";
+import Heading from "@tiptap/extension-heading";
+import FontFamily from "@tiptap/extension-font-family"
 import useToolbarStore from "@/app/store/toolbarStore";
 
 /**
@@ -50,7 +54,6 @@ const InlineStyle = Extension.create({
   },
 });
 
-// Keep your InlineStyle Extension as is
 
 interface UseRichTextEditorProps {
   componentId: string;
@@ -89,7 +92,8 @@ const useRichTextEditor = ({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        heading: false,
+        // Enable heading in StarterKit
+        heading: false, // We'll use our own configuration
         bulletList: false,
         orderedList: false,
         codeBlock: false,
@@ -97,10 +101,16 @@ const useRichTextEditor = ({
       Bold,
       Italic,
       Underline,
-      Color,
+      TextStyle,
+      FontSize,
+      FontFamily,
+      Color.configure(),
+      Heading.configure({
+        levels: [1, 2, 3, 4, 5, 6],
+      }),
       InlineStyle,
       TextAlign.configure({
-        types: ["paragraph"],
+        types: ["paragraph", "heading"],
         alignments: ["left", "center", "right", "justify"],
       }),
     ],
@@ -120,7 +130,7 @@ const useRichTextEditor = ({
     },
   });
 
-  const handleDoubleClick = useCallback(
+  const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
       handleSelectComponent(componentId);
@@ -130,8 +140,6 @@ const useRichTextEditor = ({
     },
     [handleSelectComponent, componentId, editor]
   );
-
-  useEffect(() => {}, []);
 
   // Effect for click outside
   useEffect(() => {
@@ -240,7 +248,7 @@ const useRichTextEditor = ({
     isSelected,
     isOpen,
     editorContainerRef,
-    handleDoubleClick,
+    handleClick,
   };
 };
 

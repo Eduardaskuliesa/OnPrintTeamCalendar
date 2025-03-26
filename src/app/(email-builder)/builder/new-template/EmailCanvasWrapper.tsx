@@ -42,9 +42,14 @@ const EmailCanvasWrapper: React.FC<EmailCanvasWrapperProps> = ({
 
   return (
     <div className="w-full overflow-y-auto custom-scrollbar bg-gray-100">
-      <div className="bg-slate-50 shadow-sm border-b-4 border-blue-50 w-full h-[100px] sticky top-0 z-[50] flex flex-col justify-center items-center">
-        {isVisible && <FormattingToolbar></FormattingToolbar>}
+      <div className="bg-slate-50 shadow-sm border-b-4 border-blue-50 w-full h-auto sticky top-0 z-[50] flex flex-col justify-center items-center">
         <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
+        {isVisible ? (
+          <FormattingToolbar />
+        ) : (
+          <div className="h-[40px] mt-2 mb-1 p-1"></div>
+        )}
+
       </div>
       <div></div>
       <div className="flex justify-center">
