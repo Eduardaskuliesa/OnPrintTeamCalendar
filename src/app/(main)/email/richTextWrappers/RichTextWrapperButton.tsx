@@ -35,6 +35,7 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
 
   const containerStyle = {
     display: "flex",
+    lineHeight: '24px',
     justifyContent: component.props.contentAlignment || "center",
     backgroundColor: component.props.containerBackgroundColor || "transparent",
     borderRadius: component.props.containerBorderRadius

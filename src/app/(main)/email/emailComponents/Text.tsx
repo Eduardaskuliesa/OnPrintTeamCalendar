@@ -83,8 +83,6 @@ const EmailText: React.FC<EmailTextProps> = ({
       .text-content * {
         margin: 0;
         padding: 0;
-        overflow-wrap: break-word;
-        word-break: break-word;
       }
     </style>
   `;

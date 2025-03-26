@@ -86,7 +86,9 @@ const RichTextWrapperText: React.FC<EditableEmailTextProps> = ({
         return (
             <div className="relative" data-keep-component="true">
                 <div style={containerStyle} ref={editorContainerRef}>
-                    <div className="ring-2 ring-blue-300 w-full">
+                    <div style={{
+                        lineHeight: '24px'
+                    }} className="ring-2 ring-blue-300 w-full">
                         <EditorContent
                             editor={editor}
                             style={{
