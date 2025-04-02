@@ -1,18 +1,21 @@
 import React from "react";
 import { EditorContent } from "@tiptap/react";
 import useRichTextEditor from "@/app/(email-builder)/hooks/useRichTextEdititng";
-import EmailText, { EmailTextProps } from "../emailComponents/Text";
+import EmailHeader, { EmailHeadingProps } from "../emailComponents/Header";
 
-interface EditableEmailTextProps {
+
+
+interface EditableEmailHeaderProps {
     component: {
         id: string;
-        props: EmailTextProps;
+        props: EmailHeadingProps;
     };
 }
 
-const RichTextWrapperText: React.FC<EditableEmailTextProps> = ({
+const RichTextWrapperHeader: React.FC<EditableEmailHeaderProps> = ({
     component,
 }) => {
+    console.log(component.props.content)
     const {
         editor,
         isEditing,
@@ -23,7 +26,7 @@ const RichTextWrapperText: React.FC<EditableEmailTextProps> = ({
         componentId: component.id,
         initialContent: component.props.content || "",
         textColor: component.props.textColor || "#000000",
-        componentType: 'text'
+        componentType: 'header'
     });
 
     const containerStyle = {
@@ -73,12 +76,14 @@ const RichTextWrapperText: React.FC<EditableEmailTextProps> = ({
         width: "100%",
     } as React.CSSProperties;
 
+
     const textStyle = {
-        fontSize: component.props.textSize || "16px",
         color: component.props.textColor || "#000000",
         outline: "none",
         margin: 0,
         padding: 0,
+        fontSize: component.props.customFontSize,
+        fontWeight: 'bold'
     } as React.CSSProperties;
 
     if (isEditing && isSelected) {
@@ -86,7 +91,7 @@ const RichTextWrapperText: React.FC<EditableEmailTextProps> = ({
             <div className="relative" data-keep-component="true">
                 <div style={containerStyle} ref={editorContainerRef}>
                     <div style={{
-                        lineHeight: '24px'
+                        lineHeight: 'auto'
                     }} className="ring-2 ring-blue-300 w-full">
                         <EditorContent
                             editor={editor}
@@ -103,9 +108,9 @@ const RichTextWrapperText: React.FC<EditableEmailTextProps> = ({
 
     return (
         <div onClick={handleClick} data-keep-component="true">
-            <EmailText {...component.props} />
+            <EmailHeader {...component.props} />
         </div>
     );
 };
 
-export default React.memo(RichTextWrapperText);
+export default React.memo(RichTextWrapperHeader);

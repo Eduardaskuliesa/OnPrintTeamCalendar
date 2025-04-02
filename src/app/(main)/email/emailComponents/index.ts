@@ -7,6 +7,7 @@ import {
 } from "../emailComponents/Button";
 import { EmailHeadingProps } from "./Header";
 
+
 type ButtonDefaultProps = {
   content: string;
   url: string;
@@ -72,19 +73,22 @@ export const defaultProps = {
   },
   header: {
     headingSize: "h2",
+    customFontSize: '24px',
     containerBackgroundColor: "transparent",
     padding: {
-      top: 5,
-      bottom: 5,
+      top: 0,
+      bottom: 0,
       left: 0,
       right: 0,
     },
+    content: 'This is heading',
     margin: {
       top: 0,
       bottom: 0,
       left: 0,
       right: 0,
     },
+    fontWeight: 'bold'
   } as EmailHeadingProps,
   spacer: {
     height: 20,

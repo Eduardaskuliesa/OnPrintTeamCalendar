@@ -3,10 +3,10 @@ import React, { useEffect, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { Trash2, ArrowUp, ArrowDown, Copy, Move } from "lucide-react";
 import EmailImage from "./emailComponents/Image";
-import EmailHeading from "./emailComponents/Header";
 import EmailSpacer from "./emailComponents/Spacer";
 import RichTextWrapperButton from "./richTextWrappers/RichTextWrapperButton";
 import RichTextWrapperText from "./richTextWrappers/RichTextWrapperText";
+import RichTextWrapperHeader from "./richTextWrappers/RichTextWrapperHeader";
 
 const COMPONENT_TYPE = "EMAIL_COMPONENT";
 
@@ -101,7 +101,6 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
     e.stopPropagation();
     console.log("Copy component:", id);
   };
-
   const renderEmailComponent = () => {
     switch (component.type) {
       case "button":
@@ -109,7 +108,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
       case "image":
         return <EmailImage {...component.props} />;
       case "header":
-        return <EmailHeading {...component.props} />;
+        return <RichTextWrapperHeader component={component} />;
       case "spacer":
         return <EmailSpacer {...component.props} />;
       case "text":
