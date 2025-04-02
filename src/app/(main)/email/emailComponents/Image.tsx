@@ -12,7 +12,7 @@ export interface EmailImageProps {
   width?: ImageWidth;
   height?: number | string;
   maxWidth?: string;
-
+  maxHeight?: string
   borderRadius?: number;
   borderStyle?: BorderStyle;
   borderWidth?: number;
