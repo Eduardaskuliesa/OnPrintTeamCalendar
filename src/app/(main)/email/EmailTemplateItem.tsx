@@ -2,6 +2,7 @@
 import { tempalteActions } from "@/app/lib/actions/templates";
 import { Template } from "@/app/types/emailTemplates";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader, Trash2 } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -13,6 +14,7 @@ interface EmailTemplateItemProps {
 
 const EmailTemplateItem = ({ template }: EmailTemplateItemProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -29,7 +31,7 @@ const EmailTemplateItem = ({ template }: EmailTemplateItemProps) => {
       if (response.success) {
         setIsDeleteModalOpen(false);
         toast.success("Šablonas ištryntas");
-        await tempalteActions.getTemplates();
+        await queryClient.invalidateQueries({ queryKey: ["templates"] });
       } else {
         setDeleteError("Nepavyko ištrinti šablono");
         toast.error("Nepavyko ištrinti šablono");
@@ -54,7 +56,7 @@ const EmailTemplateItem = ({ template }: EmailTemplateItemProps) => {
           </div>
           <div className="flex space-x-2">
             <Link
-              href={`/email/${template.templateName}?id=${template.id}`}
+              href={`/builder/${template.templateName}?id=${template.id}`}
               className="px-3 py-1 bg-dcoffe text-db rounded hover:bg-dcoffe/80 transition-colors"
             >
               Edit

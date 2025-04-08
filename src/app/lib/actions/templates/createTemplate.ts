@@ -3,6 +3,7 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { Template } from "@/app/types/emailTemplates";
 import { getServerSession } from "next-auth";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export interface TemplateData {
   templateName: Template["templateName"];
@@ -23,9 +24,6 @@ export async function createTemplate(templateData: TemplateData) {
     const url = new URL(
       `${process.env.VPS_QUEUE_ENDPOINT}/api/template/create`
     );
-
-    console.log("Server sending templateData:", templateData);
-
     const response = await fetch(url, {
       cache: "no-cache",
       method: "POST",
@@ -46,7 +44,8 @@ export async function createTemplate(templateData: TemplateData) {
         errorType: responseData.errorType || "SERVER_ERROR",
       };
     }
-
+    revalidateTag('templates')
+    revalidatePath('/email')
     return {
       success: true,
       message: "Template created successfully",

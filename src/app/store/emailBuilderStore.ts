@@ -25,9 +25,19 @@ interface EmailBuilderState {
   moveComponent: (dragIndex: number, hoverIndex: number) => void;
   handleSelectComponent: (id: string) => void;
   removeComponent: (id: string) => void;
+  resetStore: () => void
 }
 
+const initialState = {
+  emailComponents: [],
+  selectedComponent: null,
+  isNew: true,
+  isDirty: false
+};
+
 const useEmailBuilderStore = create<EmailBuilderState>((set) => ({
+  ...initialState,
+
   emailComponents: [],
   selectedComponent: null,
   isNew: true,
@@ -37,6 +47,8 @@ const useEmailBuilderStore = create<EmailBuilderState>((set) => ({
   setSelectedComponent: (component) => set({ selectedComponent: component }),
   setIsNew: (isNew) => set({ isNew }),
   markAsSaved: () => set({ isDirty: false }),
+
+  resetStore: () => set(initialState),
 
   handleAddComponent: (type) => {
     const newComponent = {
@@ -99,8 +111,6 @@ const useEmailBuilderStore = create<EmailBuilderState>((set) => ({
         updatedSelectedComponent = updatedComponent;
       }
 
-      console.log("This is from handler:", content);
-
       return {
         emailComponents: updatedComponents,
         selectedComponent: updatedSelectedComponent,
@@ -157,6 +167,16 @@ export const useEmailBuilderUI = () => {
   const { selectedComponent, setSelectedComponent } = useEmailBuilderStore();
 
   useEffect(() => {
+    const unsubscribe = useEmailBuilderStore.subscribe(
+      state => console.log("Store state changed:", state)
+    );
+
+    console.log("Current store state:", useEmailBuilderStore.getState());
+
+    return () => unsubscribe();
+  }, [])
+
+  useEffect(() => {
     const clickOutsideHandler = (e: MouseEvent) => {
       if (!selectedComponent) return;
       const closestKeepElement =
@@ -174,7 +194,7 @@ export const useEmailBuilderUI = () => {
         setSelectedComponent(null);
       }
     };
-    console.log(selectedComponent?.id);
+
     document.addEventListener("mousedown", clickOutsideHandler);
     return () => {
       document.removeEventListener("mousedown", clickOutsideHandler);

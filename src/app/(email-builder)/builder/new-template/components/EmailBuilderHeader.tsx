@@ -19,11 +19,13 @@ import { storeEmailTemplate } from "@/app/lib/actions/s3Actions/storeEmailTempla
 import { TemplateData } from "@/app/lib/actions/templates/createTemplate";
 import { tempalteActions } from "@/app/lib/actions/templates";
 import useEmailBuilderStore from "@/app/store/emailBuilderStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 const EmailBuilderHeader = () => {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [templateName, setTemplateName] = useState("");
+  const queryClient = useQueryClient()
   const [nameError, setNameError] = useState("");
   const [dialogStatus, setDialogStatus] = useState<
     "idle" | "saving" | "navigating"
@@ -33,7 +35,7 @@ const EmailBuilderHeader = () => {
 
   const openNameDialog = () => {
     if (emailComponents.length === 0) {
-      toast.error("Pridėkite bent vieną komponentą prieš išsaugant");
+      toast.warning("Pridėkite bent vieną komponentą prieš išsaugant");
       return;
     }
     setNameError("");
@@ -80,7 +82,7 @@ const EmailBuilderHeader = () => {
         htmlUrl: result.htmlUrl,
         jsonUrl: result.jsonUrl,
       };
-
+   
       console.log("Sending templateData:", templateData);
       const createResponse = await tempalteActions.createTemplate(templateData);
 
@@ -100,17 +102,19 @@ const EmailBuilderHeader = () => {
       );
       await removeFromLocal;
       toast.success("Šablonas sėkmingai sukurtas");
-
+      await queryClient.invalidateQueries({ queryKey: ["templates"] });
       if (
         createResponse &&
         createResponse.data &&
         createResponse.data.template
       ) {
+        
         setDialogStatus("navigating");
+       
         const { template } = createResponse.data;
 
         setTimeout(() => {
-          router.push(`/email/${template.templateName}?id=${template.id}`);
+          router.push(`/builder/${template.templateName}?id=${template.id}`);
         }, 500);
       } else {
         console.log("Couldn't find template ID in response:", createResponse);
