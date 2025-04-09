@@ -1,26 +1,26 @@
-// src/features/emailBuilder/utils/componentRegistry.js
+/* eslint-disable import/no-anonymous-default-export */
 import { emailComponents, defaultProps } from "../emailComponents";
 import Button from "../emailComponents/Button";
 import Image from "../emailComponents/Image";
+
+export type EmailComponentType = keyof typeof defaultProps;
 
 export const componentEditors = {
   button: Button,
   image: Image,
 };
-
-// Function to get default props for a new component
-export const getDefaultProps = (componentType) => {
+export const getDefaultProps = (componentType: EmailComponentType) => {
   return defaultProps[componentType] || {};
 };
 
-// Function to get the appropriate editor for a component
-export const getEditorForComponent = (componentType) => {
-  return componentEditors[componentType] || null;
+
+export const getEditorForComponent = (componentType: EmailComponentType) => {
+  return componentEditors[componentType as keyof typeof componentEditors] || null;
 };
 
-// Function to get the actual component from type
-export const getComponent = (componentType) => {
-  return emailComponents[componentType] || null;
+
+export const getComponent = (componentType: EmailComponentType) => {
+  return emailComponents[componentType as keyof typeof emailComponents] || null;
 };
 
 export default {

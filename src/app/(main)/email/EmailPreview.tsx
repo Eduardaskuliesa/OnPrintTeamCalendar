@@ -1,6 +1,6 @@
 import React from "react";
 
-const EmailPreview = ({ emailHtml, viewMode }) => {
+const EmailPreview = ({ emailHtml, viewMode }: any) => {
   return (
     <div
       className={`mx-auto transition-all duration-300 p-0  max-w-2xl flex flex-col overflow-visible  ${

@@ -28,6 +28,12 @@ const EmailBuilderHeader: React.FC<EmailBuilderHeaderProps> = ({ template }) => 
 
     const { emailComponents, markAsSaved, isDirty } = useEmailBuilderStore();
 
+    const removeFromLocalStorage = () => {
+        localStorage.removeItem(
+            "emailBuilderComponents"
+        );
+    }
+
     const handleSaveTemplate = useCallback(async () => {
         if (isSaving) return;
         setIsSaving(true);
@@ -47,13 +53,13 @@ const EmailBuilderHeader: React.FC<EmailBuilderHeaderProps> = ({ template }) => 
             toast.error("Nepavyko išsauguoti šablono");
             console.error(error);
         } finally {
-            localStorage.removeItem(
-                "emailBuilderComponents"
-            );
+            removeFromLocalStorage()
             markAsSaved()
             setIsSaving(false);
         }
     }, [emailComponents, isSaving]);
+
+
 
     return (
         <div
@@ -62,7 +68,7 @@ const EmailBuilderHeader: React.FC<EmailBuilderHeaderProps> = ({ template }) => 
         >
             <div>
                 <Link href={"/email"}>
-                    <Button>
+                    <Button onClick={() => removeFromLocalStorage()}>
                         <ArrowBigLeftDash />
                         Atgal
                     </Button>

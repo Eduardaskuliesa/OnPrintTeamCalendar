@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import {
   BorderStyle,
-  EmailHeadingProps,
 } from "../../../emailComponents/Header";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronRight, Layout, Minus, Plus, Type } from "lucide-react";
+import { ChevronRight, Layout, Minus, Plus } from "lucide-react";
 import { RiShapeLine } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,10 +21,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { MdColorLens } from "react-icons/md";
 import { Checkbox } from "@/components/ui/checkbox";
-import { EmailText } from "../../../emailComponents/Text";
+import { EmailTextProps } from "../../../emailComponents/Text";
+
 
 interface TextStyleTabProps {
-  localProps: EmailText;
+  localProps: EmailTextProps;
   handleBorderRadius: (value: number) => void;
   handleBorderStyle: (value: BorderStyle) => void;
   handleBorderWidth: (value: number) => void;
@@ -350,9 +350,7 @@ const TextStylesTab: React.FC<TextStyleTabProps> = ({
                   onCheckedChange={(checked) => {
                     const isChecked = checked === true;
                     setApplyPaddingToAll(isChecked);
-                    if (isChecked) {
-                      const topValue = localProps.padding?.top || 0;
-                    }
+
                   }}
                 />
                 <Label

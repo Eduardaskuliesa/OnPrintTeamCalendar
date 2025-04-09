@@ -2,7 +2,7 @@ import React from "react";
 import { FaDesktop } from "react-icons/fa";
 import { FaMobileAlt } from "react-icons/fa";
 
-const ViewModeToggle = ({ viewMode, setViewMode }) => {
+const ViewModeToggle = ({ viewMode, setViewMode }: any) => {
   return (
     <div className="flex space-x-2 mb-2 justify-center">
       <div

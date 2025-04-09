@@ -10,7 +10,6 @@ const ButtonEditorTabs: React.FC<ButtonEditorTabsProps> = ({
   activeTab,
   setActiveTab,
 }) => {
-  // Calculate the position based on the active tab
   const getUnderlinePosition = () => {
     switch (activeTab) {
       case "content":

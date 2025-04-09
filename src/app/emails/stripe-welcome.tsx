@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import {
   Body,
   Button,
@@ -20,7 +21,7 @@ const baseUrl = process.env.VERCEL_URL
 export const StripeWelcomeEmail = () => (
   <Html>
     <Head />
-    <Preview>You're now ready to make live transactions with Stripe!</Preview>
+    <Preview>You&lsquo;re now ready to make live transactions with Stripe!</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={box}>

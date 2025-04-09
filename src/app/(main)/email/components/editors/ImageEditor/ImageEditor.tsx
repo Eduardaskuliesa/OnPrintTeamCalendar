@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import ImageEditorTabs from "./ImageEditorTabs";
 import ImageStylesTab from "./ImageStylesTab";

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
 import React, { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -109,7 +110,7 @@ const ImageContentTab: React.FC<ImageContentTabProps> = ({
           className={`flex w-full items-center justify-between p-2 font-medium ${contentOpen && "border-b-2 border-gray-300"}`}
         >
           <span className="flex items-center">
-            <Image className="mr-2 h-5 w-5" /> Image Content
+            <Image  className="mr-2 h-5 w-5" /> Image Content
           </span>
           <div className="p-1 bg-vdcoffe rounded-md">
             <ChevronRight

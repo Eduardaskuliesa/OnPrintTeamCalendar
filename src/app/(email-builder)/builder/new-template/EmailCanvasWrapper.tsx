@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState } from "react";
 import DraggableEmailCanvas from "@/app/(main)/email/DragableEmailCanvas";
 import ViewModeToggle from "./components/ViewModeToggle";
 import useEmailBuilderStore from "@/app/store/emailBuilderStore";
@@ -69,6 +69,7 @@ const EmailCanvasWrapper: React.FC<EmailCanvasWrapperProps> = ({
             selectedComponentId={selectedComponentId}
           />
         </div>
+
       </div>
     </div>
   );

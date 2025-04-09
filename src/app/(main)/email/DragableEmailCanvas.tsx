@@ -1,7 +1,7 @@
 import React, { Suspense, useRef, useState } from "react";
 import { useDrop } from "react-dnd";
 import DraggableComponent from "./DragableComponent";
-import { getDefaultProps } from "./utils/componentRegistry";
+import { EmailComponentType, getDefaultProps } from "./utils/componentRegistry";
 
 const COMPONENT_TYPE = "COMPONENT";
 const EMAIL_COMPONENT = "EMAIL_COMPONENT";
@@ -85,7 +85,7 @@ const DraggableEmailCanvas: React.FC<DraggableEmailCanvasProps> = ({
         const newComponent = {
           id: `${item.type}-${Date.now()}`,
           type: item.type,
-          props: getDefaultProps(item.type),
+          props: getDefaultProps(item.type as EmailComponentType),
         };
 
         const newComponents = [...components];

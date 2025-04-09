@@ -1,5 +1,6 @@
 "use client";
 import { tempalteActions } from "@/app/lib/actions/templates";
+import useEmailBuilderStore from "@/app/store/emailBuilderStore";
 import { Template } from "@/app/types/emailTemplates";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -16,6 +17,7 @@ const EmailTemplateItem = ({ template }: EmailTemplateItemProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { resetStore } = useEmailBuilderStore()
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleDeleteItem = async () => {
@@ -56,6 +58,7 @@ const EmailTemplateItem = ({ template }: EmailTemplateItemProps) => {
           </div>
           <div className="flex space-x-2">
             <Link
+              onClick={() => resetStore()}
               href={`/builder/${template.templateName}?id=${template.id}`}
               className="px-3 py-1 bg-dcoffe text-db rounded hover:bg-dcoffe/80 transition-colors"
             >

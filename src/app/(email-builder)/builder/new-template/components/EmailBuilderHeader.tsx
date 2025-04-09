@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-toastify";
-import CreateTemplateModal from "@/app/(main)/email/new/CreateTemplateModal";
 import { useRouter } from "next/navigation";
 import EmailTemplate from "@/app/(main)/email/EmailTemplate";
 import { render } from "@react-email/render";
@@ -20,6 +19,7 @@ import { TemplateData } from "@/app/lib/actions/templates/createTemplate";
 import { tempalteActions } from "@/app/lib/actions/templates";
 import useEmailBuilderStore from "@/app/store/emailBuilderStore";
 import { useQueryClient } from "@tanstack/react-query";
+import CreateTemplateModal from "./CreateTemplateModal";
 
 const EmailBuilderHeader = () => {
   const router = useRouter();

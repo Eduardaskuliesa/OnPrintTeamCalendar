@@ -22,7 +22,7 @@ interface EmailUpdateBuilderProps {
 }
 
 const UpdateEmailBuilder: React.FC<EmailUpdateBuilderProps> = ({ template }) => {
-    const { setEmailComponents, setIsNew } =
+    const { setEmailComponents } =
         useEmailBuilderStore();
     const draggableRef = useRef<HTMLDivElement>(null);
 
@@ -30,12 +30,13 @@ const UpdateEmailBuilder: React.FC<EmailUpdateBuilderProps> = ({ template }) => 
 
     useEffect(() => {
         const loadTemplateFromUrl = async () => {
+            
             try {
                 if (template?.jsonUrl) {
                     console.log("Renders");
                     const response = await getEmailTemplate(template.templateName);
                     setEmailComponents(JSON.parse(response.jsonData));
-                    setIsNew(false);
+
                 }
             } catch (error) {
                 console.error("Error loading template from URL:", error);

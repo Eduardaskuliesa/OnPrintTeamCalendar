@@ -119,6 +119,7 @@ const Button: React.FC<EmailButtonProps> = ({
   return (
     <div style={containerStyle}>
       <Link
+        href={url}
         style={buttonStyle}
         target={target}
         dangerouslySetInnerHTML={{ __html: wrappedContent }}

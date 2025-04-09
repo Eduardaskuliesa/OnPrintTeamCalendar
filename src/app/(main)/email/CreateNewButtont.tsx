@@ -10,7 +10,7 @@ const CreateNewButtont = () => {
 
     return (
         <Link href="/builder/new-template" className=" text-white rounded ">
-            <Button onClick={() => resetStore}>
+            <Button onClick={() => resetStore()}>
                 <SquarePlus /> Sukurti naują šabloną
             </Button>
         </Link>

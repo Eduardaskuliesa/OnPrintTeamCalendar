@@ -8,7 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronRight, Layout, Minus, Plus, Type } from "lucide-react";
+import { ChevronRight, Layout, Minus, Plus } from "lucide-react";
 import { RiShapeLine } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import {
@@ -349,9 +349,7 @@ const HeaderStylesTab: React.FC<HeaderStyleTabProps> = ({
                   onCheckedChange={(checked) => {
                     const isChecked = checked === true;
                     setApplyPaddingToAll(isChecked);
-                    if (isChecked) {
-                      const topValue = localProps.padding?.top || 0;
-                    }
+
                   }}
                 />
                 <Label

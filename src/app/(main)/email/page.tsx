@@ -9,10 +9,7 @@ const EmailTemplatesPage = async () => {
         <h1 className="text-2xl font-bold">Email Templates</h1>
         <CreateNewButtont></CreateNewButtont>
       </div>
-
-
       <EmailTemplateList />
-
     </div>
   );
 };
