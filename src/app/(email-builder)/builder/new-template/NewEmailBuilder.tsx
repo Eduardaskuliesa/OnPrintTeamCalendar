@@ -8,7 +8,7 @@ import EmailCanvasWrapper from "./EmailCanvasWrapper";
 import useEmailBuilderStore, {
   useEmailBuilderUI,
 } from "@/app/store/emailBuilderStore";
-import DraggableCodePanel from "./components/CodePanel";
+import DraggableCodePanel from "../../components/CodePanel";
 
 
 const ComponentPanelWrapper = React.lazy(

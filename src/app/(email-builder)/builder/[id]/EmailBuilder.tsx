@@ -10,7 +10,7 @@ import useEmailBuilderStore, {
 import { Template } from "@/app/types/emailTemplates";
 import { getEmailTemplate } from "@/app/lib/actions/s3Actions/getEmailTemplate";
 import EmailCanvasWrapper from "../new-template/EmailCanvasWrapper";
-import DraggableCodePanel from "../new-template/components/CodePanel";
+import DraggableCodePanel from "../../components/CodePanel";
 
 
 const ComponentPanelWrapper = React.lazy(
