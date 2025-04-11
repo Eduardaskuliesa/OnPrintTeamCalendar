@@ -23,11 +23,18 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({
     <Tailwind>
       <Html>
         <Head />
-        <Body className="p-0 box-content max-w-2xl mx-auto flex flex-col overflow-hidden">
+        <Body
+          style={{
+            padding: 0,
+            maxWidth: "42rem",
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
+        >
           {components.map((component) => {
             switch (component.type) {
               case "button":
-                return <Button  key={component.id} {...component.props} />;
+                return <Button key={component.id} {...component.props} />;
 
               case "image":
                 return (

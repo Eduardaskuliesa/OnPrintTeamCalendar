@@ -20,12 +20,13 @@ import { tempalteActions } from "@/app/lib/actions/templates";
 import useEmailBuilderStore from "@/app/store/emailBuilderStore";
 import { useQueryClient } from "@tanstack/react-query";
 import CreateTemplateModal from "./CreateTemplateModal";
+import SendTestButton from "@/app/(email-builder)/components/SendTestButton";
 
 const EmailBuilderHeader = () => {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [templateName, setTemplateName] = useState("");
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const [nameError, setNameError] = useState("");
   const [dialogStatus, setDialogStatus] = useState<
     "idle" | "saving" | "navigating"
@@ -82,7 +83,7 @@ const EmailBuilderHeader = () => {
         htmlUrl: result.htmlUrl,
         jsonUrl: result.jsonUrl,
       };
-   
+
       console.log("Sending templateData:", templateData);
       const createResponse = await tempalteActions.createTemplate(templateData);
 
@@ -108,9 +109,8 @@ const EmailBuilderHeader = () => {
         createResponse.data &&
         createResponse.data.template
       ) {
-        
         setDialogStatus("navigating");
-       
+
         const { template } = createResponse.data;
 
         setTimeout(() => {
@@ -161,13 +161,7 @@ const EmailBuilderHeader = () => {
           </Button>
         </div>
         <div>
-          <Button
-            variant="default2"
-            className="text-base bg-dcoffe text-db hover:bg-opacity-90 flex items-center gap-2"
-          >
-            <SendHorizonal size={18} />
-            Send Test Email
-          </Button>
+          <SendTestButton></SendTestButton>
         </div>
         <div>
           <Button

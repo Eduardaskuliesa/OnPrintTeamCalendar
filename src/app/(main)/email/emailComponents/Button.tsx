@@ -72,6 +72,7 @@ const Button: React.FC<EmailButtonProps> = ({
     fontSize: `${fontSize}px`,
     padding: `${paddingY}px ${paddingX}px`,
     borderRadius: `${borderRadius}px`,
+    margin: "0",
     borderStyle: borderStyle !== "none" ? borderStyle : "none",
     borderWidth: borderStyle !== "none" ? `${borderWidth}px` : 0,
     borderColor: borderStyle !== "none" ? borderColor : "transparent",
@@ -84,6 +85,7 @@ const Button: React.FC<EmailButtonProps> = ({
 
   const containerStyle = {
     display: "flex",
+    
     justifyContent: contentAlignment,
     backgroundColor: containerBackgroundColor,
     borderRadius: containerBorderRadius
@@ -95,25 +97,8 @@ const Button: React.FC<EmailButtonProps> = ({
     paddingRight: padding.right !== undefined ? `${padding.right}px` : "0",
   } as React.CSSProperties;
 
-  const customStyles = `
-    <style>
-      .button-content p {
-        margin: 0;
-        padding: 0;
-        display: block;
-
-      }
-      .button-content * {
-        margin: 0;
-        padding: 0;
-        overflow-wrap: break-word;
-        word-break: break-word;
-
-      }
-    </style>
-  `;
   const wrappedContent = content
-    ? `${customStyles}<div class="button-content">${content}</div>`
+    ? `<div style="margin:0;padding:0;overflow-wrap:break-word;word-break:break-word;">${content}</div>`
     : "";
 
   return (

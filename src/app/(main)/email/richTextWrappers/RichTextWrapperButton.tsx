@@ -20,22 +20,17 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
     bold: "700",
   };
 
-  const {
-    editor,
-    isEditing,
-    isSelected,
-    editorContainerRef,
-    handleClick,
-  } = useRichTextEditor({
-    componentId: component.id,
-    initialContent: component.props.content || "",
-    textColor: component.props.textColor || "#FFFFFF",
-    componentType: 'button'
-  });
+  const { editor, isEditing, isSelected, editorContainerRef, handleClick } =
+    useRichTextEditor({
+      componentId: component.id,
+      initialContent: component.props.content || "",
+      textColor: component.props.textColor || "#FFFFFF",
+      componentType: "button",
+    });
 
   const containerStyle = {
     display: "flex",
-    lineHeight: '24px',
+    lineHeight: "24px",
     justifyContent: component.props.contentAlignment || "center",
     backgroundColor: component.props.containerBackgroundColor || "transparent",
     borderRadius: component.props.containerBorderRadius
@@ -61,6 +56,7 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
 
   const buttonStyle = {
     display: "inline-block",
+    margin: "0",
     backgroundColor: component.props.backgroundColor || "#3B82F6",
     color: component.props.textColor || "#FFFFFF",
     fontWeight: fontWeightMap[component.props.fontWeight || "medium"],
@@ -98,6 +94,7 @@ const RichTextWrapperButton: React.FC<EditableButtonProps> = ({
               style={{
                 outline: "none",
                 textAlign: component.props.textAlignment || "center",
+                margin: "0",
               }}
             />
           </div>

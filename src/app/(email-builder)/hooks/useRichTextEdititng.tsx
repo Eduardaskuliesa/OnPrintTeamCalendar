@@ -37,7 +37,7 @@ const InlineStyle = Extension.create({
         types: ["paragraph", "heading"],
         attributes: {
           style: {
-            default: null,
+            default: "margin: 0;",
             parseHTML: (element) => element.getAttribute("style"),
             renderHTML: (attributes) => {
               if (!attributes.style) {
