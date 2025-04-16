@@ -9,7 +9,7 @@ export type ContentAlignment = "flex-start" | "center" | "flex-end";
 export interface EmailButtonProps {
   content?: string;
   url?: string;
-
+  
   backgroundColor?: string;
   textColor?: string;
   fontWeight?: "normal" | "medium" | "semibold" | "bold";
@@ -22,9 +22,9 @@ export interface EmailButtonProps {
   borderWidth?: number;
   borderColor?: string;
   width?: ButtonWidth;
-
+  
   textAlignment?: TextAlignment;
-
+  
   containerBackgroundColor?: string;
   containerBorderRadius?: number;
   contentAlignment?: ContentAlignment;
@@ -64,6 +64,14 @@ const Button: React.FC<EmailButtonProps> = ({
     bold: "700",
   };
 
+  // Map our custom contentAlignment to conventional HTML alignment values.
+  const htmlAlignment =
+    contentAlignment === "flex-end"
+      ? "right"
+      : contentAlignment === "flex-start"
+      ? "left"
+      : "center";
+
   const buttonStyle = {
     display: "inline-block",
     backgroundColor,
@@ -72,7 +80,6 @@ const Button: React.FC<EmailButtonProps> = ({
     fontSize: `${fontSize}px`,
     padding: `${paddingY}px ${paddingX}px`,
     borderRadius: `${borderRadius}px`,
-    margin: "0",
     borderStyle: borderStyle !== "none" ? borderStyle : "none",
     borderWidth: borderStyle !== "none" ? `${borderWidth}px` : 0,
     borderColor: borderStyle !== "none" ? borderColor : "transparent",
@@ -83,33 +90,36 @@ const Button: React.FC<EmailButtonProps> = ({
     lineHeight: "100%",
   } as React.CSSProperties;
 
-  const containerStyle = {
-    display: "flex",
-    
-    justifyContent: contentAlignment,
-    backgroundColor: containerBackgroundColor,
-    borderRadius: containerBorderRadius
-      ? `${containerBorderRadius}px`
-      : undefined,
-    paddingTop: padding.top !== undefined ? `${padding.top}px` : "0",
-    paddingBottom: padding.bottom !== undefined ? `${padding.bottom}px` : "0",
-    paddingLeft: padding.left !== undefined ? `${padding.left}px` : "0",
-    paddingRight: padding.right !== undefined ? `${padding.right}px` : "0",
-  } as React.CSSProperties;
-
-  const wrappedContent = content
-    ? `<div style="margin:0;padding:0;overflow-wrap:break-word;word-break:break-word;">${content}</div>`
-    : "";
-
   return (
-    <div style={containerStyle}>
-      <Link
-        href={url}
-        style={buttonStyle}
-        target={target}
-        dangerouslySetInnerHTML={{ __html: wrappedContent }}
-      />
-    </div>
+    <table
+      cellPadding="0"
+      cellSpacing="0"
+      width="100%"
+      style={{
+        backgroundColor: containerBackgroundColor,
+        borderRadius: containerBorderRadius ? `${containerBorderRadius}px` : undefined,
+      }}
+    >
+      <tr>
+        <td
+          align={htmlAlignment}
+          style={{
+            paddingTop: padding.top !== undefined ? `${padding.top}px` : "0",
+            paddingBottom: padding.bottom !== undefined ? `${padding.bottom}px` : "0",
+            paddingLeft: padding.left !== undefined ? `${padding.left}px` : "0",
+            paddingRight: padding.right !== undefined ? `${padding.right}px` : "0",
+            textAlign: htmlAlignment, // ensures compatibility with email clients
+          }}
+        >
+          <Link
+            href={url}
+            style={buttonStyle}
+            target={target}
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
+        </td>
+      </tr>
+    </table>
   );
 };
 
