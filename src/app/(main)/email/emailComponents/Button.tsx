@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "@react-email/components";
+import { Section, Row, Column, Link } from "@react-email/components";
 
 export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
 export type TextAlignment = "left" | "center" | "right";
@@ -9,7 +9,6 @@ export type ContentAlignment = "flex-start" | "center" | "flex-end";
 export interface EmailButtonProps {
   content?: string;
   url?: string;
-  
   backgroundColor?: string;
   textColor?: string;
   fontWeight?: "normal" | "medium" | "semibold" | "bold";
@@ -22,9 +21,7 @@ export interface EmailButtonProps {
   borderWidth?: number;
   borderColor?: string;
   width?: ButtonWidth;
-  
   textAlignment?: TextAlignment;
-  
   containerBackgroundColor?: string;
   containerBorderRadius?: number;
   contentAlignment?: ContentAlignment;
@@ -37,8 +34,8 @@ export interface EmailButtonProps {
 }
 
 const Button: React.FC<EmailButtonProps> = ({
-  content,
-  url,
+  content = "",
+  url = "#",
   target = "_blank",
   backgroundColor = "#3B82F6",
   textColor = "#FFFFFF",
@@ -64,62 +61,51 @@ const Button: React.FC<EmailButtonProps> = ({
     bold: "700",
   };
 
-  // Map our custom contentAlignment to conventional HTML alignment values.
+  // Map custom alignment to HTML
   const htmlAlignment =
-    contentAlignment === "flex-end"
-      ? "right"
-      : contentAlignment === "flex-start"
-      ? "left"
-      : "center";
+    contentAlignment === "flex-end" ? "right" :
+      contentAlignment === "flex-start" ? "left" : "center";
 
-  const buttonStyle = {
+  const buttonStyle: React.CSSProperties = {
     display: "inline-block",
-    backgroundColor,
+    backgroundColor: backgroundColor,
     color: textColor,
     fontWeight: fontWeightMap[fontWeight],
     fontSize: `${fontSize}px`,
     padding: `${paddingY}px ${paddingX}px`,
     borderRadius: `${borderRadius}px`,
-    borderStyle: borderStyle !== "none" ? borderStyle : "none",
-    borderWidth: borderStyle !== "none" ? `${borderWidth}px` : 0,
-    borderColor: borderStyle !== "none" ? borderColor : "transparent",
+    borderStyle: borderStyle !== "none" ? borderStyle : undefined,
+    borderWidth: borderStyle !== "none" ? `${borderWidth}px` : undefined,
+    borderColor: borderStyle !== "none" ? borderColor : undefined,
     textDecoration: "none",
     textAlign: textAlignment,
-    width: width,
-    msoLineHeightRule: "exactly",
+    width,
     lineHeight: "100%",
-  } as React.CSSProperties;
+  };
 
   return (
-    <table
-      cellPadding="0"
-      cellSpacing="0"
-      width="100%"
+    <Section
       style={{
         backgroundColor: containerBackgroundColor,
-        borderRadius: containerBorderRadius ? `${containerBorderRadius}px` : undefined,
+        borderRadius: containerBorderRadius,
       }}
     >
-      <tr>
-        <td
-          align={htmlAlignment}
-          style={{
-            paddingTop: padding.top !== undefined ? `${padding.top}px` : "0",
-            paddingBottom: padding.bottom !== undefined ? `${padding.bottom}px` : "0",
-            paddingLeft: padding.left !== undefined ? `${padding.left}px` : "0",
-            paddingRight: padding.right !== undefined ? `${padding.right}px` : "0",
-            textAlign: htmlAlignment, // ensures compatibility with email clients
-          }}
-        >
+      <Row>
+        <Column style={{
+          paddingTop: padding.top,
+          paddingBottom: padding.bottom,
+          paddingLeft: padding.left,
+          paddingRight: padding.right,
+        }} width={width} align={htmlAlignment}>
           <Link
             href={url}
-            style={buttonStyle}
             target={target}
+            style={buttonStyle}
             dangerouslySetInnerHTML={{ __html: content }}
           />
-        </td>
-      </tr>
-    </table>
+        </Column>
+      </Row>
+    </Section>
   );
 };
 

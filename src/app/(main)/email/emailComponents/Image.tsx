@@ -1,5 +1,5 @@
 import React from "react";
-import { Img, Link } from "@react-email/components";
+import { Section, Row, Column, Img, Link } from "@react-email/components";
 
 export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
 export type ImageWidth = string;
@@ -8,11 +8,13 @@ export type ContentAlignment = "flex-start" | "center" | "flex-end";
 export interface EmailImageProps {
   src: string;
   alt: string;
+  href?: string;
+  target?: "_blank" | "_self";
 
   width?: ImageWidth;
   height?: number | string;
   maxWidth?: string;
-  maxHeight?: string
+  maxHeight?: string;
   borderRadius?: number;
   borderStyle?: BorderStyle;
   borderWidth?: number;
@@ -29,8 +31,6 @@ export interface EmailImageProps {
     right?: number;
   };
 
-  href?: string;
-  target?: "_blank" | "_self";
   objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
 }
 
@@ -41,56 +41,65 @@ const EmailImage: React.FC<EmailImageProps> = ({
   target = "_blank",
   width = "100%",
   height = "auto",
+  maxWidth,
+  maxHeight,
   borderRadius = 0,
   borderStyle = "none",
   borderWidth = 1,
-  borderColor = "#000000",
+  borderColor = "#000",
   containerBackgroundColor = "transparent",
   containerBorderRadius = 0,
   contentAlignment = "center",
   padding = { top: 0, bottom: 0, left: 0, right: 0 },
   objectFit = "cover",
 }) => {
-  const imageStyle = {
-    borderRadius: borderRadius > 0 ? `${borderRadius}px` : undefined,
-    border:
-      borderStyle !== "none"
-        ? `${borderWidth}px ${borderStyle} ${borderColor}`
-        : "none",
-    width: width,
-    height: height,
+  // align values map
+  const alignMap: Record<ContentAlignment, "left" | "center" | "right"> = {
+    "flex-start": "left",
+    center: "center",
+    "flex-end": "right",
+  };
+  const htmlAlign = alignMap[contentAlignment];
+
+  // image styles
+  const imgStyle: React.CSSProperties = {
+    display: "block",
+    width,
+    height,
+    maxWidth,
+    maxHeight,
+    borderRadius: borderRadius ? `${borderRadius}px` : undefined,
+    borderStyle: borderStyle !== "none" ? borderStyle : undefined,
+    borderWidth: borderStyle !== "none" ? `${borderWidth}px` : undefined,
+    borderColor: borderStyle !== "none" ? borderColor : undefined,
     objectFit,
     objectPosition: "center",
-    display: "block",
-  } as React.CSSProperties;
+  };
 
-  const containerStyle = {
-    display: "flex",
-    justifyContent: contentAlignment,
-    backgroundColor: containerBackgroundColor,
-    borderRadius: containerBorderRadius
-      ? `${containerBorderRadius}px`
-      : undefined,
-    paddingTop: padding.top !== undefined ? `${padding.top}px` : "0",
-    paddingBottom: padding.bottom !== undefined ? `${padding.bottom}px` : "0",
-    paddingLeft: padding.left !== undefined ? `${padding.left}px` : "0",
-    paddingRight: padding.right !== undefined ? `${padding.right}px` : "0",
-  } as React.CSSProperties;
-
-  const renderImage = () => (
-    <Img src={src} alt={alt} width={width} height={height} style={imageStyle} />
-  );
+  // container padding on td
+  const cellPadding = [padding.top, padding.right, padding.bottom, padding.left]
+    .map((v) => (v ? `${v}px` : "0"))
+    .join(" ");
 
   return (
-    <div style={containerStyle}>
-      {href ? (
-        <Link href={href} style={{ textDecoration: "none" }} target={target}>
-          {renderImage()}
-        </Link>
-      ) : (
-        renderImage()
-      )}
-    </div>
+    <Section
+      style={{
+        backgroundColor: containerBackgroundColor,
+        borderRadius: containerBorderRadius ? `${containerBorderRadius}px` : undefined,
+      }}
+    >
+      <Row>
+        <Column width="100%" align={htmlAlign} style={{ padding: cellPadding }}>
+          {href ? (
+            <Link href={href} target={target} style={{ textDecoration: "none" }}>
+              <Img src={src} alt={alt} style={imgStyle} />
+            </Link>
+          ) : (
+            <Img src={src} alt={alt} style={imgStyle} />
+          )}
+        </Column>
+      </Row>
+    </Section>
   );
 };
 
