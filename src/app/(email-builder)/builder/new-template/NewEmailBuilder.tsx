@@ -9,6 +9,7 @@ import useEmailBuilderStore, {
   useEmailBuilderUI,
 } from "@/app/store/emailBuilderStore";
 import DraggableCodePanel from "../../components/CodePanel";
+import ConstantPanel from "../../components/ConstantPanel";
 
 
 const ComponentPanelWrapper = React.lazy(
@@ -53,6 +54,7 @@ const NewEmailBuilder: React.FC = () => {
 
         </div>
         <DraggableCodePanel canvasRef={draggableRef} />
+        <ConstantPanel canvasRef={draggableRef} />
       </DndProvider>
     </>
   );

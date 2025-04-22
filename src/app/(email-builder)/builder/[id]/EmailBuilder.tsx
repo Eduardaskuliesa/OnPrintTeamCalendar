@@ -11,6 +11,7 @@ import { Template } from "@/app/types/emailTemplates";
 import { getEmailTemplate } from "@/app/lib/actions/s3Actions/getEmailTemplate";
 import EmailCanvasWrapper from "../new-template/EmailCanvasWrapper";
 import DraggableCodePanel from "../../components/CodePanel";
+import ConstantPanel from "../../components/ConstantPanel";
 
 
 const ComponentPanelWrapper = React.lazy(
@@ -30,7 +31,7 @@ const UpdateEmailBuilder: React.FC<EmailUpdateBuilderProps> = ({ template }) => 
 
     useEffect(() => {
         const loadTemplateFromUrl = async () => {
-            
+
             try {
                 if (template?.jsonUrl) {
                     console.log("Renders");
@@ -64,6 +65,7 @@ const UpdateEmailBuilder: React.FC<EmailUpdateBuilderProps> = ({ template }) => 
 
                 </div>
                 <DraggableCodePanel canvasRef={draggableRef} />
+                <ConstantPanel canvasRef={draggableRef}></ConstantPanel>
             </DndProvider>
         </>
     );
