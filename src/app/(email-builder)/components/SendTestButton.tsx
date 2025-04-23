@@ -11,7 +11,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { sendTestEmail } from "@/app/lib/actions/emails/sendTestEmail";
 import EmailTemplate from "@/app/(main)/email/EmailTemplate";
@@ -29,7 +28,7 @@ const SendTestButton = () => {
 
   const { emailComponents } = useEmailBuilderStore();
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -109,18 +108,6 @@ const SendTestButton = () => {
                 onChange={handleChange}
               />
             </div>
-
-            {/* <div className="grid gap-2">
-              <Label htmlFor="body">Email Body</Label>
-              <Textarea
-                id="body"
-                name="body"
-                placeholder="Enter email content here..."
-                rows={5}
-                value={formData.body}
-                onChange={handleChange}
-              />
-            </div> */}
           </div>
 
           <DialogFooter>

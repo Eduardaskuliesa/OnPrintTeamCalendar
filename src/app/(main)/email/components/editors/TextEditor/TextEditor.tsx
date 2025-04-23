@@ -25,7 +25,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
   const [localProps, setLocalProps] = useState<EmailHeadingProps>({
     ...component.props,
     borderStyle: component.props.borderStyle || "none",
-    contentAlignment: component.props.contentAlignment || "center",
     padding: component.props.padding || {
       top: 5,
       bottom: 5,
@@ -39,8 +38,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
       ...component.props,
       containerBorderRadius: component.props.containerBorderRadius || 0,
       borderStyle: component.props.borderStyle || "none",
-      textAlignment: component.props.textAlignment || "center",
-      contentAlignment: component.props.contentAlignment || "flex-start",
       padding: component.props.padding || {
         top: 5,
         bottom: 5,

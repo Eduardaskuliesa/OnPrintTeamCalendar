@@ -3,7 +3,7 @@ import { Text } from "@react-email/components";
 
 export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
 export type TextAlignment = "left" | "center" | "right";
-export type ContentAlignment = "flex-start" | "center" | "flex-end";
+
 
 export interface EmailTextProps {
   content?: string;
@@ -21,7 +21,6 @@ export interface EmailTextProps {
   textColor?: string;
   containerBackgroundColor?: string;
   containerBorderRadius?: number;
-  contentAlignment?: ContentAlignment;
   padding?: {
     top?: number;
     bottom?: number;

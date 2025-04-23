@@ -1,7 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import useCodePanelStore from "@/app/store/codePanelStore";
 import useEmailBuilderStore from "@/app/store/emailBuilderStore";
+import useConstantPanelStore from "@/app/store/constantPanelStore";
+import useToolbarStore from "@/app/store/toolbarStore";
+
 
 interface DraggablePanelProps {
   canvasRef?: React.RefObject<HTMLDivElement>;
@@ -14,13 +17,17 @@ const ConstantPanel: React.FC<DraggablePanelProps> = ({ canvasRef }) => {
     portalTarget,
     closePanel,
     updatePosition,
-  } = useCodePanelStore();
+  } = useConstantPanelStore();
   const selectedComponentId = useEmailBuilderStore(
     (state) => state.selectedComponent?.id
   );
-  const handleContentUpdate = useEmailBuilderStore(
-    (state) => state.handleContentUpdate
-  );
+  const currentEditor = useToolbarStore((state) => state.editor)
+
+  const handleConstantClick = (constant: string) => {
+    if (selectedComponentId && currentEditor) {
+      currentEditor.commands.insertContent(constant);
+    }
+  };
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
@@ -92,6 +99,7 @@ const ConstantPanel: React.FC<DraggablePanelProps> = ({ canvasRef }) => {
         borderRadius: "4px",
         width: "250px",
       }}
+      data-keep-component="true"
     >
       <div
         style={{
@@ -119,12 +127,7 @@ const ConstantPanel: React.FC<DraggablePanelProps> = ({ canvasRef }) => {
           <button
             key={constant}
             onClick={() => {
-              if (selectedComponentId) {
-                handleContentUpdate(
-                  selectedComponentId,
-                  constant
-                );
-              }
+              handleConstantClick(constant)
             }}
             className="block w-full text-left p-2 mb-1 border border-gray-200 rounded hover:bg-gray-50 text-sm font-mono"
             type="button"

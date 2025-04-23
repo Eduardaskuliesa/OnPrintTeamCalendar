@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
   CheckCircle,
   AlertCircle,
-  SendHorizonal,
   PlusCircle,
   ArrowBigLeftDash,
 } from "lucide-react";

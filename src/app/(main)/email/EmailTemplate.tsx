@@ -24,12 +24,6 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({
       <Html>
         <Head />
         <Body
-          style={{
-            padding: 0,
-            maxWidth: "42rem",
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
         >
           {components.map((component) => {
             switch (component.type) {

@@ -22,6 +22,7 @@ interface EmailBuilderState {
   handleAddComponent: (type: string) => void;
   handleUpdateComponent: (id: string, updates: Partial<EmailComponent>) => void;
   handleContentUpdate: (id: string, content: string) => void;
+  appendContent: (id: string, contentToAppend: string) => void;
   moveComponent: (dragIndex: number, hoverIndex: number) => void;
   handleSelectComponent: (id: string) => void;
   removeComponent: (id: string) => void;
@@ -42,7 +43,6 @@ const useEmailBuilderStore = create<EmailBuilderState>((set) => ({
   selectedComponent: null,
   isNew: true,
   isDirty: false,
-
   setEmailComponents: (components) => set({ emailComponents: components }),
   setSelectedComponent: (component) => set({ selectedComponent: component }),
   setIsNew: (isNew) => set({ isNew }),
@@ -74,6 +74,43 @@ const useEmailBuilderStore = create<EmailBuilderState>((set) => ({
       if (state.selectedComponent && state.selectedComponent.id === id) {
         updatedSelectedComponent =
           updatedComponents.find((c) => c.id === id) || null;
+      }
+
+      return {
+        emailComponents: updatedComponents,
+        selectedComponent: updatedSelectedComponent,
+        isDirty: true,
+      };
+    });
+  },
+
+  appendContent: (id, contentToAppend) => {
+    set((state) => {
+      let updatedComponent = null;
+      const updatedComponents = state.emailComponents.map((component) => {
+        if (component.id === id) {
+          const currentContent = component.props.content || '';
+          
+          const updated = {
+            ...component,
+            props: {
+              ...component.props,
+              content: currentContent + contentToAppend,
+            },
+          };
+          updatedComponent = updated;
+          return updated;
+        }
+        return component;
+      });
+
+      let updatedSelectedComponent = state.selectedComponent;
+      if (
+        state.selectedComponent &&
+        state.selectedComponent.id === id &&
+        updatedComponent
+      ) {
+        updatedSelectedComponent = updatedComponent;
       }
 
       return {

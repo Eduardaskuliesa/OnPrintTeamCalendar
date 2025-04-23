@@ -19,6 +19,7 @@ import useCodePanelStore from "@/app/store/codePanelStore";
 import { Input } from "@/components/ui/input";
 import FontFamily from "./FormattingToolbar/FontFamily";
 import LinkToolbar from "./FormattingToolbar/LinkToolBar";
+import useConstantPanelStore from "@/app/store/constantPanelStore";
 
 export type Level = 1 | 2 | 3 | 4 | 5 | 6
 
@@ -26,6 +27,7 @@ export type Level = 1 | 2 | 3 | 4 | 5 | 6
 const FormattingToolbar = () => {
   const { editor, closeToolbar } = useToolbarStore();
   const { openPanel, isOpen } = useCodePanelStore();
+  const { openPanel: openConstantPanel, isOpen: isConstantPanelOpen } = useConstantPanelStore();
   const selectedComponentId = useEmailBuilderStore(
     (state) => state.selectedComponent?.id
   );
@@ -111,6 +113,12 @@ const FormattingToolbar = () => {
       openPanel(editor.getHTML(), selectedComponentId);
     }
   }, [isOpen, editor, selectedComponentId, openPanel]);
+
+  const toggleConstantView = useCallback(() => {
+    if (!isConstantPanelOpen && editor && selectedComponentId) {
+      openConstantPanel(editor.getHTML(), selectedComponentId)
+    }
+  }, [editor, openConstantPanel, selectedComponentId, isConstantPanelOpen])
 
   const setFontSize = useCallback(
     (size: number) => {
@@ -402,6 +410,18 @@ const FormattingToolbar = () => {
         onMouseDown={(e) => {
           e.preventDefault();
           toggleCodeView();
+        }}
+        className={getToolbarButtonClass(isOpen)}
+        title="HTML Code View"
+        type="button"
+      >
+        <CodeIcon size={16} />
+      </button>
+
+      <button
+        onMouseDown={(e) => {
+          e.preventDefault();
+          toggleConstantView();
         }}
         className={getToolbarButtonClass(isOpen)}
         title="HTML Code View"
