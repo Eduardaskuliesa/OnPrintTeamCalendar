@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
     CheckCircle,
     AlertCircle,
-    SendHorizonal,
     PlusCircle,
     ArrowBigLeftDash,
 } from "lucide-react";
@@ -16,6 +15,7 @@ import { render } from "@react-email/render";
 import { storeEmailTemplate } from "@/app/lib/actions/s3Actions/storeEmailTemplate";
 import useEmailBuilderStore from "@/app/store/emailBuilderStore";
 import { Template } from "@/app/types/emailTemplates";
+import SendTestButton from "@/app/(email-builder)/components/SendTestButton";
 
 
 interface EmailBuilderHeaderProps {
@@ -94,13 +94,7 @@ const EmailBuilderHeader: React.FC<EmailBuilderHeaderProps> = ({ template }) => 
                     </Button>
                 </div>
                 <div>
-                    <Button
-                        variant="default2"
-                        className="text-base bg-dcoffe text-db hover:bg-opacity-90 flex items-center gap-2"
-                    >
-                        <SendHorizonal size={18} />
-                        Send Test Email
-                    </Button>
+                    <SendTestButton></SendTestButton>
                 </div>
                 <div>
                     <Button
