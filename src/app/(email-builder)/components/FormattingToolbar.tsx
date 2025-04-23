@@ -11,6 +11,7 @@ import {
   UnderlineIcon,
   CodeIcon,
   ChevronDownIcon,
+  CurlyBracesIcon,
 } from "lucide-react";
 import { BsDropletFill } from "react-icons/bs";
 import useToolbarStore from "@/app/store/toolbarStore";
@@ -423,11 +424,11 @@ const FormattingToolbar = () => {
           e.preventDefault();
           toggleConstantView();
         }}
-        className={getToolbarButtonClass(isOpen)}
-        title="HTML Code View"
+        className={getToolbarButtonClass(isConstantPanelOpen)}
+        title="Constant pannel"
         type="button"
       >
-        <CodeIcon size={16} />
+        <CurlyBracesIcon size={16} />
       </button>
     </div>
   );

@@ -15,6 +15,7 @@ import Heading from "@tiptap/extension-heading";
 import FontFamily from "@tiptap/extension-font-family"
 import Link from "@tiptap/extension-link";
 import useToolbarStore, { ComponentType } from "@/app/store/toolbarStore";
+import useConstantPanelStore from "@/app/store/constantPanelStore";
 
 /**
  * useRichTextEditor
@@ -87,6 +88,8 @@ const useRichTextEditor = ({
 
   const { openPanel, isOpen, updateContent, closePanel, wasUserClosed } =
     useCodePanelStore();
+  const { openPanel: openConstantPanel, isOpen: isOpenConstantPanel, closePanel: closeConstantPanel, wasUserClosed: wasUserClosedConstant } =
+    useConstantPanelStore();
 
   const { isEditing, setIsEditing, closeToolbar } = useToolbarStore();
 
@@ -176,7 +179,36 @@ const useRichTextEditor = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isEditing, isOpen, closePanel, setIsEditing, closeToolbar]);
+  }, [isEditing, isOpen, closePanel, setIsEditing, closeToolbar, closeConstantPanel]);
+
+
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (event.target instanceof Element) {
+        const keepElement = event.target.closest(
+          '[data-keep-component="true"]'
+        );
+        if (keepElement) return;
+      }
+
+      if (
+        editorContainerRef.current &&
+        !editorContainerRef.current.contains(event.target as Node)
+      ) {
+        closeToolbar();
+        if (isOpenConstantPanel) {
+          closeConstantPanel(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isEditing, isOpenConstantPanel, setIsEditing, closeToolbar, closeConstantPanel]);
 
   // Effect for focusing when in editing mode
   useEffect(() => {
@@ -200,6 +232,13 @@ const useRichTextEditor = ({
     closeToolbar,
   ]);
 
+  useEffect(() => {
+    if (!isEditing && isOpenConstantPanel && selectedComponentId === componentId) {
+      closeToolbar();
+      closeConstantPanel(false);
+    }
+  }, [isEditing, isOpen, closePanel, selectedComponentId, componentId, closeToolbar, isOpenConstantPanel, closeConstantPanel]);
+
   // To sync states HTML with panel
   useEffect(() => {
     if (editor) {
@@ -222,6 +261,9 @@ const useRichTextEditor = ({
         if (isOpen) {
           closePanel(false);
         }
+        if (isOpenConstantPanel) {
+          closeConstantPanel()
+        }
       }
     };
 
@@ -229,7 +271,7 @@ const useRichTextEditor = ({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isEditing, closePanel, isOpen, closeToolbar]);
+  }, [isEditing, closePanel, isOpen, closeToolbar, isOpenConstantPanel, closeConstantPanel]);
 
   // Open panel when editing starts
   useEffect(() => {
@@ -249,6 +291,19 @@ const useRichTextEditor = ({
     isEditing,
     componentId,
   ]);
+
+  useEffect(() => {
+    console.log(wasUserClosedConstant)
+    if (
+      isEditing &&
+      selectedComponentId === componentId &&
+      !wasUserClosedConstant &&
+      editor
+    ) {
+      openConstantPanel(editor.getHTML(), selectedComponentId);
+    }
+  }, [selectedComponentId, editor, isEditing, componentId, wasUserClosedConstant, openConstantPanel]);
+
 
   return {
     editor,

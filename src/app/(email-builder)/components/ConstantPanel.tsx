@@ -71,6 +71,10 @@ const ConstantPanel: React.FC<DraggablePanelProps> = ({ canvasRef }) => {
 
   const handleDragEnd = () => setIsDragging(false);
 
+  const handleClose = () => {
+    closePanel(true)
+  }
+
   useEffect(() => {
     if (isDragging) {
       window.addEventListener("mousemove", handleDragMove);
@@ -115,7 +119,7 @@ const ConstantPanel: React.FC<DraggablePanelProps> = ({ canvasRef }) => {
       >
         <span className="font-medium text-sm">Constants</span>
         <button
-          onClick={() => closePanel(true)}
+          onClick={() => handleClose()}
           className="text-gray-500 hover:text-gray-700"
           type="button"
         >

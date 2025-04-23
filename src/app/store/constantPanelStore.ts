@@ -23,7 +23,7 @@ const useConstantPanelStore = create<ConstantPanelState>()(
       isOpen: false,
       content: "",
       portalTarget: null,
-      position: { x: -100, y: 100 },
+      position: { x: 600, y: 100 },
       componentId: null,
       wasUserClosed: false,
 
