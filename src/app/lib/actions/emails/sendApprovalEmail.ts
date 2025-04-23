@@ -5,7 +5,8 @@ import { createVacationPDF } from "./pdfs/VacationRequestPdf";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 
 export interface VacationEmailData {
-  sendTo: GlobalSettingsType["emails"]["accountant"];
+  sendToAccountant: GlobalSettingsType["emails"]["accountant"]
+  sendToUser: string;
   name: string;
   surname: string;
   startDate: string;
@@ -78,10 +79,22 @@ export async function sendApprovedEmail(data: VacationEmailData) {
   try {
     const pdfUint8Array = await createVacationPDF(data);
     const pdfBuffer = Buffer.from(pdfUint8Array);
+    await resend.emails.send({
+      from: `Atostogos@${resendDomain}`,
+      to: data.sendToAccountant,
+      subject: subject,
+      html: htmlContent,
+      attachments: [
+        {
+          filename: `Atostogų prašymas - ${data.name}${data.surname}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
+    })
 
     const response = await resend.emails.send({
       from: `Atostogos@${resendDomain}`,
-      to: data.sendTo,
+      to: data.sendToUser,
       subject: subject,
       html: htmlContent,
       attachments: [

@@ -70,15 +70,13 @@ export default function VacationRequestListContent({
         if (!userToSendEmail) {
           return console.log("User not exist email will not be send");
         }
-
-        console.log(userToSendEmail);
-
         const globalSettingsData = await getGlobalSettings();
 
         if (result.success) {
           await sendApprovedEmail({
-            sendTo: globalSettingsData.data?.emails
-              .accountant as GlobalSettingsType["emails"]["accountant"],
+            sendToAccountant:  globalSettingsData.data?.emails
+            .accountant as GlobalSettingsType["emails"]["accountant"],
+            sendToUser: userToSendEmail.email,
             name: userToSendEmail.name,
             founderNameSurname:
               globalSettingsData.data?.emails.founderNameSurname,
