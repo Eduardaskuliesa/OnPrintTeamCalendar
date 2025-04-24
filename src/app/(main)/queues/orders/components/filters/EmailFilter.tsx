@@ -13,7 +13,7 @@ export const EmailFilter = ({ value, onChange, onClear }: EmailFilterProps) => {
         <div className="relative bg-white">
             <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
-                placeholder="Ieškoti..."
+                placeholder="El-paštas"
                 className="pl-9 w-full"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
