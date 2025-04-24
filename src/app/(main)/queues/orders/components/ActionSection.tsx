@@ -26,8 +26,6 @@ export default function ActionSection({
   const { executeAction, isLoading } = useBulkActions();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  console.log(filters);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;

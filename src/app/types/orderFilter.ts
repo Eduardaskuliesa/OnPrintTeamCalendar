@@ -11,13 +11,6 @@ export type TagStatus =
   | "PENDING"
   | "INACTIVE"
   | "PAUSED";
-export type PaymentMethod =
-  | "BUSINESS_CARD"
-  | "ADVANCE_PAYMENT"
-  | "E_PAYMENT"
-  | "CASH"
-  | "BANK_TRANSFER"
-  | "CREDIT_CARD";
 
 export interface Location {
   country: string;
@@ -26,11 +19,12 @@ export interface Location {
 
 export interface FilterState {
   searchTerm: string;
+  email: string;
   tagIds: number[] | null;
   tagStatuses: TagStatus[] | null;
   location: Location | null;
-  agent: number | null;
-  paymentMethod: PaymentMethod | null;
+  agent: number[] | null;
+  paymentMethod: string[] | null;
   companyName: string;
   products: string[] | null;
   dateRange: {

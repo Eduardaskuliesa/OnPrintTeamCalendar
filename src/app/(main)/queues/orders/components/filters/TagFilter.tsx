@@ -23,13 +23,13 @@ export const TagFilter = ({
   onClear,
 }: TagFilterProps) => {
   const { data: tagsData, isLoading } = useGetTags();
-  console.log(tagsData);
+
 
   const tags = Array.isArray(tagsData)
     ? tagsData
     : tagsData?.data && Array.isArray(tagsData.data)
-    ? tagsData.data
-    : [];
+      ? tagsData.data
+      : [];
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="border border-gray-300" asChild>
@@ -70,7 +70,11 @@ export const TagFilter = ({
             ))}
             {selectedTags.length > 0 && (
               <DropdownMenuItem
-                onClick={onClear}
+                onSelect={(e) => {
+                  e.preventDefault()
+                  onClear()
+                }
+                }
                 className="py-2 px-4 hover:bg-gray-100 cursor-pointer text-gray-500"
               >
                 Išvalyti

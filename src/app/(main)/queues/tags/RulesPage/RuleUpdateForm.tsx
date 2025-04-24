@@ -56,6 +56,7 @@ export default function RuleFormUpdate({ rule, onCancel, isOpen }: RuleFormUpdat
     const queryClient = useQueryClient();
     const { data: tags, isLoading: isTagsLoading } = useGetTags();
 
+    const isGlobalRule = rule.ruleType === 'Global';
 
     useEffect(() => {
         if (rule && isOpen) {
@@ -80,10 +81,6 @@ export default function RuleFormUpdate({ rule, onCancel, isOpen }: RuleFormUpdat
 
         if (!formData.ruleType) {
             newErrors.ruleType = "Rule tipas yra privalomas";
-        }
-
-        if (formData.selectedTags.length === 0) {
-            newErrors.selectedTags = "Pasirinkite bent vieną tag'ą";
         }
 
         return newErrors;
@@ -155,13 +152,13 @@ export default function RuleFormUpdate({ rule, onCancel, isOpen }: RuleFormUpdat
     };
 
     const ruleTypeOptions = [
-        { value: "Global", label: "Global", icon: <Globe className="h-4 w-4 mr-2" /> },
         { value: "Subscriber", label: "Subscriber", icon: <Users className="h-4 w-4 mr-2" /> },
         { value: "Product", label: "Product", icon: <Package className="h-4 w-4 mr-2" /> },
         { value: "All", label: "All", icon: <LayoutGrid className="h-4 w-4 mr-2" /> }
     ];
 
     const getTagTypeIcon = (type: string) => {
+        if (type === 'Global') return <Globe className="h-4 w-4 mr-2" />;
         const option = ruleTypeOptions.find(opt => opt.value === type);
         return option ? option.icon : null;
     };
@@ -211,35 +208,43 @@ export default function RuleFormUpdate({ rule, onCancel, isOpen }: RuleFormUpdat
                         <label className="text-sm font-medium text-gray-700">
                             Taisyklės tipas
                         </label>
-                        <Select
-                            value={formData.ruleType}
-                            onValueChange={(value) => {
-                                setFormData(prev => ({ ...prev, ruleType: value as FormData['ruleType'] }));
-                                if (errors.ruleType) {
-                                    setErrors(prev => ({ ...prev, ruleType: undefined }));
-                                }
-                            }}
-                            defaultValue={rule.ruleType}
-                        >
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Pasirinkite taisyklės tipą">
-                                    <div className="flex items-center">
-                                        {getTagTypeIcon(formData.ruleType)}
-                                        {formData.ruleType}
-                                    </div>
-                                </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {ruleTypeOptions.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
+                        {isGlobalRule ? (
+                            <div className="flex items-center border rounded-md px-3 py-2 bg-gray-50">
+                                <Globe className="h-4 w-4 mr-2" />
+                                <span>Global</span>
+                                <span className="text-xs text-gray-500 ml-2">(negali būti pakeistas)</span>
+                            </div>
+                        ) : (
+                            <Select
+                                value={formData.ruleType}
+                                onValueChange={(value) => {
+                                    setFormData(prev => ({ ...prev, ruleType: value as FormData['ruleType'] }));
+                                    if (errors.ruleType) {
+                                        setErrors(prev => ({ ...prev, ruleType: undefined }));
+                                    }
+                                }}
+                                defaultValue={rule.ruleType}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Pasirinkite taisyklės tipą">
                                         <div className="flex items-center">
-                                            {option.icon}
-                                            {option.label}
+                                            {getTagTypeIcon(formData.ruleType)}
+                                            {formData.ruleType}
                                         </div>
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                                    </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {ruleTypeOptions.map((option) => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            <div className="flex items-center">
+                                                {option.icon}
+                                                {option.label}
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
                         {errors.ruleType && (
                             <p className="text-sm text-red-500">{errors.ruleType}</p>
                         )}
@@ -295,7 +300,7 @@ export default function RuleFormUpdate({ rule, onCancel, isOpen }: RuleFormUpdat
                             {formData.selectedTags.map((tag) => (
                                 <Badge
                                     key={tag.id}
-                                    className="flex items-center rounded-md shadow-sm bg-slate-50 border-blue-50 border  text-db text-xs py-2 px-2"
+                                    className="flex items-center rounded-md shadow-sm bg-slate-50 border-blue-50 border text-db text-xs py-2 px-2"
                                 >
                                     {tag.tagName} - {bullTimeConvert(tag.scheduledFor)}
                                     <button

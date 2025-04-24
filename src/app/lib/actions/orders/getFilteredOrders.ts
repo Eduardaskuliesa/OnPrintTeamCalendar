@@ -7,8 +7,6 @@ async function fetchOrdersFromDb(filters: FilterState, page: number = 1) {
   console.log("Fetching orders from DB at:", new Date().toISOString());
   const url = new URL(`${process.env.VPS_QUEUE_ENDPOINT}/api/order/filter?page=${page}&limit=100`);
 
-  console.log(filters);
-
   const response = await fetch(url, {
     method: "POST",
     headers: {

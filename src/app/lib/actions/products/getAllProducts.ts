@@ -18,7 +18,7 @@ async function fetchProductsFromDb() {
       message: data.message,
     };
   }
-  console.log(data);
+
   return data;
 }
 

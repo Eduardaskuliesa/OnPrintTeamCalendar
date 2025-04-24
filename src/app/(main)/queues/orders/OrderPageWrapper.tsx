@@ -16,6 +16,7 @@ const defaultFilterState: FilterState = {
   searchTerm: "",
   tagIds: [],
   tagStatuses: [],
+  email: "",
   location: null,
   agent: null,
   paymentMethod: null,
@@ -43,8 +44,6 @@ const OrderPageWrapper = () => {
     isFetching: isUnfilteredFetching,
   } = useGetOrders(page, { enabled: !activeFilters });
 
-  console.log(unfilteredOrders);
-
   const {
     data: filteredOrders,
     isLoading: isFilteredLoading,
@@ -55,8 +54,6 @@ const OrderPageWrapper = () => {
 
   const { data: salesAgentData } = useGetAllSalesAgents();
   const salesAgents = salesAgentData?.data.salesAgents || [];
-  console.log("SalesAgents:", salesAgents);
-
   const orders = activeFilters ? filteredOrders : unfilteredOrders;
   const isLoading = activeFilters ? isFilteredLoading : isUnfilteredLoading;
   const isFetching = activeFilters ? isFilteredFetching : isUnfilteredFetching;

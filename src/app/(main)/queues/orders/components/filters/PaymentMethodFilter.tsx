@@ -1,4 +1,3 @@
-// components/filters/PaymentMethodFilter.tsx
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import {
@@ -8,51 +7,73 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CreditCard, ChevronDown } from "lucide-react";
-import { PaymentMethod } from '@/app/types/orderFilter';
-
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface PaymentMethodFilterProps {
-    value: PaymentMethod | null;
-    onChange: (value: PaymentMethod | null) => void;
+    selectedPaymentMethods: string[];
+    onChange: (values: string[]) => void;
     onClear: () => void;
 }
 
-const paymentMethods: Record<PaymentMethod, string> = {
-    BUSINESS_CARD: "Verslo kortelė",
-    ADVANCE_PAYMENT: "Išankstinis mokėjimas",
-    E_PAYMENT: "Elektroninis mokėjimas",
-    CASH: "Grynaisiais",
-    BANK_TRANSFER: "Banko pavedimas",
-    CREDIT_CARD: "Kreditinė kortelė"
-};
 
-export const PaymentMethodFilter = ({ value, onChange, onClear }: PaymentMethodFilterProps) => {
+const paymentMethods = [
+    "Sąskaita išankstiniam apmokėjimui",
+    "PayPal",
+    "Sąskaita už mėnesį",
+    "El. bankininkystė (Populiariausias)",
+    "Grynaisiais atsiimant",
+    "Grynais užsakant",
+    "Kortele užsakant",
+    "Kortele atsiimant",
+    "Nemokamai"
+];
+
+export const PaymentMethodFilter = ({
+    selectedPaymentMethods = [],
+    onChange,
+    onClear
+}: PaymentMethodFilterProps) => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger className="border border-gray-300" asChild>
                 <Button variant="outline" className="w-full justify-between">
-                    <span className="flex items-center">
+                    <span className="flex items-center truncate">
                         <CreditCard className="h-4 w-4 mr-2 text-gray-700" />
-                        {value ? paymentMethods[value] : "Mokėjimo būdas"}
+                        {selectedPaymentMethods.length > 0
+                            ? `Pasirinkta ${selectedPaymentMethods.length} mokėjimo būdai`
+                            : "Mokėjimo būdas"}
                     </span>
                     <span className="bg-gray-200 p-0.5 ml-2 rounded-sm">
                         <ChevronDown className="h-4 w-4" />
                     </span>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48 bg-white" align="start">
-                {Object.entries(paymentMethods).map(([key, value]) => (
+            <DropdownMenuContent className="w-64 max-h-[300px] custom-scrollbar overflow-y-auto bg-white" align="start">
+                {paymentMethods.map((method) => (
                     <DropdownMenuItem
-                        key={key}
-                        onClick={() => onChange(key as PaymentMethod)}
-                        className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                        key={method}
+                        onSelect={(e) => {
+                            e.preventDefault();
+                            const newSelected = selectedPaymentMethods.includes(method)
+                                ? selectedPaymentMethods.filter(m => m !== method)
+                                : [...selectedPaymentMethods, method];
+                            onChange(newSelected);
+                        }}
+                        className="py-2 px-2 hover:bg-gray-100 cursor-pointer flex items-center"
                     >
-                        {value}
+                        <Checkbox
+                            checked={selectedPaymentMethods.includes(method)}
+                            className="mr-2"
+                        />
+                        <span className="ml-2">{method}</span>
                     </DropdownMenuItem>
                 ))}
-                {value && (
+                {selectedPaymentMethods.length > 0 && (
                     <DropdownMenuItem
-                        onClick={onClear}
+                        onSelect={(e) => {
+                            e.preventDefault();
+                            onClear()
+                        }}
                         className="py-2 px-4 hover:bg-gray-100 cursor-pointer text-gray-500"
                     >
                         Išvalyti

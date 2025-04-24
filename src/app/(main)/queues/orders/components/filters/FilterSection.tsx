@@ -13,6 +13,7 @@ import { TagFilter } from "./TagFilter";
 import { TagStatusFilter } from "./TagStatusFilter";
 import { ProductFilter } from "./ProductFilter";
 import { Search, X } from "lucide-react";
+import { EmailFilter } from "./EmailFilter";
 
 interface FilterSectionProps {
   onSubmit: (filters: FilterState) => void;
@@ -23,8 +24,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({ onSubmit }) => {
     tagIds: [],
     tagStatuses: [],
     location: null,
+    email: "",
     searchTerm: "",
-    agent: null,
+    agent: [],
     paymentMethod: null,
     companyName: "",
     products: null,
@@ -45,8 +47,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({ onSubmit }) => {
       searchTerm: "",
       tagIds: [],
       tagStatuses: [],
+      email: "",
       location: null,
-      agent: null,
+      agent: [],
       paymentMethod: null,
       companyName: "",
       products: null,
@@ -69,6 +72,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({ onSubmit }) => {
             onChange={(value) => handleFilterChange("searchTerm", value)}
             onClear={() => handleFilterChange("searchTerm", "")}
           />
+        </div>
+        <div className="flex-[1_1_300px] max-w-[250px]">
+          <EmailFilter onClear={() => handleFilterChange('email', "")} value={filters.email} onChange={(value) => handleFilterChange("email", value)} />
         </div>
 
         <div className="flex-[1_1_300px] max-w-[250px]">
@@ -105,7 +111,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ onSubmit }) => {
 
         <div className="flex-[1_1_300px] max-w-[250px]">
           <AgentFilter
-            value={filters.agent}
+            selectedAgents={filters.agent || []}
             onChange={(value) => handleFilterChange("agent", value)}
             onClear={() => handleFilterChange("agent", null)}
           />
@@ -138,7 +144,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ onSubmit }) => {
 
         <div className="flex-[1_1_300px] max-w-[250px]">
           <PaymentMethodFilter
-            value={filters.paymentMethod}
+            selectedPaymentMethods={filters.paymentMethod || []}
             onChange={(value) => handleFilterChange("paymentMethod", value)}
             onClear={() => handleFilterChange("paymentMethod", null)}
           />
