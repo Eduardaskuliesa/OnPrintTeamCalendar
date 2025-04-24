@@ -40,7 +40,7 @@ const SendTestButton = () => {
     try {
       setIsSending(true);
 
-      const template = <EmailTemplate emailComponents={emailComponents} />;
+      const template = <EmailTemplate templateType="promotional" emailComponents={emailComponents} />;
 
       const html = await render(template);
       console.log("HTML:", html);

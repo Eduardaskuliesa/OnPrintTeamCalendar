@@ -67,7 +67,7 @@ const EmailBuilderHeader = () => {
     setNameError("");
 
     try {
-      const template = <EmailTemplate emailComponents={emailComponents} />;
+      const template =  await <EmailTemplate templateType='regular' emailComponents={emailComponents} />;;
       const html = await render(template);
       const jsonData = JSON.stringify(emailComponents);
 

@@ -12,18 +12,35 @@ interface EmailComponent {
   props: Record<string, any>;
 }
 
+export type TemplateType = 'regular' | 'promotional';
+
 interface EmailTemplateProps {
   emailComponents: EmailComponent[];
+  templateType: TemplateType
 }
 
 const EmailTemplate: React.FC<EmailTemplateProps> = ({
   emailComponents: components,
+  templateType
 }) => {
+
+  const getBodyStyle = (type: TemplateType): React.CSSProperties => {
+    if (type === 'regular') {
+      return {}
+    }
+
+    return {
+      maxWidth: '42rem',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    };
+
+  };
   return (
     <Tailwind>
       <Html>
         <Head />
-        <Body
+        <Body style={getBodyStyle(templateType)}
         >
           {components.map((component) => {
             switch (component.type) {

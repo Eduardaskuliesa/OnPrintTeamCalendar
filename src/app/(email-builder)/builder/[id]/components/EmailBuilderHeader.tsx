@@ -38,7 +38,7 @@ const EmailBuilderHeader: React.FC<EmailBuilderHeaderProps> = ({ template }) => 
         if (isSaving) return;
         setIsSaving(true);
         try {
-            const templateHtml = <EmailTemplate emailComponents={emailComponents} />;
+            const templateHtml = <EmailTemplate templateType="promotional" emailComponents={emailComponents} />;
             const html = await render(templateHtml);
             const jsonData = JSON.stringify(emailComponents);
 
