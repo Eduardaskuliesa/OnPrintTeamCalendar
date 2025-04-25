@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import {
     CheckCircle,
     AlertCircle,
-    PlusCircle,
     ArrowBigLeftDash,
+    Save,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-toastify";
@@ -100,7 +100,7 @@ const EmailBuilderHeader: React.FC<EmailBuilderHeaderProps> = ({ template }) => 
                         onClick={handleSaveTemplate}
                         className="text-base flex items-center gap-2"
                     >
-                        <PlusCircle size={18} />
+                        <Save size={18} />
                         Save Template
                     </Button>
                 </div>
