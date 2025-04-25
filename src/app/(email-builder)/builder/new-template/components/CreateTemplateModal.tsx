@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,8 @@ interface CreateTemplateModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   templateName: string;
+  templateType: "regular" | "promotional";
+  setTemplateType: (type: "regular" | "promotional") => void;
   onTemplateNameChange: (name: string) => void;
   nameError: string;
   dialogStatus: "idle" | "saving" | "navigating";
@@ -31,6 +33,8 @@ const CreateTemplateModal: React.FC<CreateTemplateModalProps> = ({
   nameError,
   dialogStatus,
   onSubmit,
+  setTemplateType,
+  templateType
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -54,6 +58,28 @@ const CreateTemplateModal: React.FC<CreateTemplateModalProps> = ({
               autoFocus
               disabled={dialogStatus !== "idle"}
             />
+          </div>
+          <div className="flex gap-2 ">
+            <div>
+              <Button
+                variant={'outline'}
+                className={templateType === "regular" ? "bg-db text-white" : "bg-gray-200 text-black"}
+                onClick={() => setTemplateType('regular')}
+              >
+                <Mail className='h-5 w-5'></Mail>
+                <span>Regular</span>
+              </Button>
+            </div>
+            <div>
+              <Button
+                variant={'outline'}
+                className={templateType === "promotional" ? "bg-db text-white" : "bg-gray-200 text-black"}
+                onClick={() => setTemplateType('promotional')}
+              >
+                <Mail className='h-5 w-5'></Mail>
+                <span>Promotional</span>
+              </Button>
+            </div>
           </div>
 
           {nameError && (

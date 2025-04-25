@@ -25,6 +25,7 @@ const EmailBuilderHeader = () => {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [templateName, setTemplateName] = useState("");
+  const [templateType, setTemplateType] = useState<"regular" | "promotional">('regular')
   const queryClient = useQueryClient();
   const [nameError, setNameError] = useState("");
   const [dialogStatus, setDialogStatus] = useState<
@@ -67,7 +68,7 @@ const EmailBuilderHeader = () => {
     setNameError("");
 
     try {
-      const template =  await <EmailTemplate templateType='regular' emailComponents={emailComponents} />;;
+      const template = <EmailTemplate templateType={templateType} emailComponents={emailComponents} />;;
       const html = await render(template);
       const jsonData = JSON.stringify(emailComponents);
 
@@ -78,6 +79,7 @@ const EmailBuilderHeader = () => {
       });
 
       const templateData: TemplateData = {
+        templateType: templateType,
         templateName: templateName,
         htmlUrl: result.htmlUrl,
         jsonUrl: result.jsonUrl,
@@ -96,11 +98,11 @@ const EmailBuilderHeader = () => {
         setDialogStatus("idle");
         return;
       }
-      await markAsSaved();
-      const removeFromLocal = await localStorage.removeItem(
+      markAsSaved();
+      localStorage.removeItem(
         "emailBuilderComponents"
       );
-      await removeFromLocal;
+
       toast.success("Šablonas sėkmingai sukurtas");
       await queryClient.invalidateQueries({ queryKey: ["templates"] });
       if (
@@ -175,6 +177,8 @@ const EmailBuilderHeader = () => {
 
       <CreateTemplateModal
         isOpen={isDialogOpen}
+        templateType={templateType}
+        setTemplateType={setTemplateType}
         onOpenChange={handleDialogOpenChange}
         templateName={templateName}
         onTemplateNameChange={handleTemplateNameChange}

@@ -24,8 +24,7 @@ interface EmailBuilderHeaderProps {
 const EmailBuilderHeader: React.FC<EmailBuilderHeaderProps> = ({ template }) => {
 
     const [isSaving, setIsSaving] = useState(false);
-
-
+   
     const { emailComponents, markAsSaved, isDirty } = useEmailBuilderStore();
 
     const removeFromLocalStorage = () => {
@@ -38,7 +37,7 @@ const EmailBuilderHeader: React.FC<EmailBuilderHeaderProps> = ({ template }) => 
         if (isSaving) return;
         setIsSaving(true);
         try {
-            const templateHtml = <EmailTemplate templateType="promotional" emailComponents={emailComponents} />;
+            const templateHtml = <EmailTemplate templateType={template.type} emailComponents={emailComponents} />;
             const html = await render(templateHtml);
             const jsonData = JSON.stringify(emailComponents);
 

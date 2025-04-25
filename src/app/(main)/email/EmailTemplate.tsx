@@ -25,6 +25,7 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({
 }) => {
 
   const getBodyStyle = (type: TemplateType): React.CSSProperties => {
+    console.log(templateType)
     if (type === 'regular') {
       return {}
     }

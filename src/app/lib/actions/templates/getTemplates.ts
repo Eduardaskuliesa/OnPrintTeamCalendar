@@ -37,7 +37,7 @@ export async function getTemplates() {
 
     return {
       success: true,
-      message: "Template created successfully",
+      message: "",
       data: responseData.data,
     };
   } catch (error) {

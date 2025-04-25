@@ -61,7 +61,7 @@ const UpdateEmailBuilder: React.FC<EmailUpdateBuilderProps> = ({ template }) => 
 
                     {/* Middle Panel - Email Canvas */}
 
-                    <EmailCanvasWrapper canvasRef={canvasRef} />
+                    <EmailCanvasWrapper template={template} canvasRef={canvasRef} />
 
                 </div>
                 <DraggableCodePanel canvasRef={draggableRef} />

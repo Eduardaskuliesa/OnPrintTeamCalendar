@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 export interface TemplateData {
+  templateType: Template["type"];
   templateName: Template["templateName"];
   jsonUrl: Template["jsonUrl"];
   htmlUrl: Template["htmlUrl"];

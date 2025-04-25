@@ -55,7 +55,7 @@ export async function deleteTemplate(
     revalidateTag("templates");
     return {
       success: true,
-      message: "Template delete successfully",
+      message: "Template deleted successfully",
     };
   } catch (error) {
     return {

@@ -5,15 +5,24 @@ import { useGetTemplates } from "@/app/lib/actions/templates/hooks/useGetTemplat
 import EmailTemplatesListSkeleton from "./components/skeletons/EmailTemplatesListSkeleton";
 
 export default function EmailTemplateList() {
-  const { data, isFetching } = useGetTemplates()
-  const templates = data?.data
+  const { data, isFetching, isError } = useGetTemplates();
+  const templates = data?.data;
 
   if (isFetching) {
     return (
       <EmailTemplatesListSkeleton></EmailTemplatesListSkeleton>
-    )
+    );
   }
-  if (templates?.length === 0) {
+
+  if (isError || !templates) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-600 mb-4">Nėra sukurta jokiu šablonų</p>
+      </div>
+    );
+  }
+
+  if (templates.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-600 mb-4">Nėra sukurta jokiu šablonų</p>

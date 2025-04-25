@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { SendHorizonal } from "lucide-react";
+import { Mail, SendHorizonal } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import {
@@ -24,6 +24,7 @@ const SendTestButton = () => {
     to: "",
     subject: "",
     body: "",
+    templateType: "regular" as "regular" | "promotional",
   });
 
   const { emailComponents } = useEmailBuilderStore();
@@ -40,11 +41,10 @@ const SendTestButton = () => {
     try {
       setIsSending(true);
 
-      const template = <EmailTemplate templateType="promotional" emailComponents={emailComponents} />;
+      const template = <EmailTemplate templateType={formData.templateType} emailComponents={emailComponents} />;
 
       const html = await render(template);
-      console.log("HTML:", html);
-
+  
       await sendTestEmail({
         to: formData.to,
         subject: formData.subject,
@@ -58,6 +58,7 @@ const SendTestButton = () => {
         to: "",
         subject: "",
         body: "",
+        templateType: "regular"
       });
     } catch (error) {
       console.error("Failed to send test email:", error);
@@ -107,6 +108,30 @@ const SendTestButton = () => {
                 value={formData.subject}
                 onChange={handleChange}
               />
+            </div>
+
+
+            <div className="flex gap-2 ">
+              <div>
+                <Button
+                  variant={'outline'}
+                  className={formData.templateType === "regular" ? "bg-db text-white" : "bg-gray-200 text-black"}
+                  onClick={() => setFormData((prev) => ({ ...prev, templateType: "regular" }))}
+                >
+                  <Mail className='h-5 w-5'></Mail>
+                  <span>Regular</span>
+                </Button>
+              </div>
+              <div>
+                <Button
+                  variant={'outline'}
+                  className={formData.templateType === "promotional" ? "bg-db text-white" : "bg-gray-200 text-black"}
+                  onClick={() => setFormData((prev) => ({ ...prev, templateType: "promotional" }))}
+                >
+                  <Mail className='h-5 w-5'></Mail>
+                  <span>Promotional</span>
+                </Button>
+              </div>
             </div>
           </div>
 
