@@ -68,6 +68,7 @@ const Button: React.FC<EmailButtonProps> = ({
 
   const buttonStyle: React.CSSProperties = {
     display: "inline-block",
+    whiteSpace: "pre-wrap",
     backgroundColor: backgroundColor,
     color: textColor,
     fontWeight: fontWeightMap[fontWeight],

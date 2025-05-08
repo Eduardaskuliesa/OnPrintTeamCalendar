@@ -53,7 +53,6 @@ const EmailImage: React.FC<EmailImageProps> = ({
   padding = { top: 0, bottom: 0, left: 0, right: 0 },
   objectFit = "cover",
 }) => {
-  // align values map
   const alignMap: Record<ContentAlignment, "left" | "center" | "right"> = {
     "flex-start": "left",
     center: "center",
@@ -61,7 +60,6 @@ const EmailImage: React.FC<EmailImageProps> = ({
   };
   const htmlAlign = alignMap[contentAlignment];
 
-  // image styles
   const imgStyle: React.CSSProperties = {
     display: "block",
     width,
@@ -76,7 +74,6 @@ const EmailImage: React.FC<EmailImageProps> = ({
     objectPosition: "center",
   };
 
-  // container padding on td
   const cellPadding = [padding.top, padding.right, padding.bottom, padding.left]
     .map((v) => (v ? `${v}px` : "0"))
     .join(" ");

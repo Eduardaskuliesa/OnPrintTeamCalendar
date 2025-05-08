@@ -78,10 +78,12 @@ const EmailText: React.FC<EmailTextProps> = ({
         margin: 0;
         padding: 0;
         display: block;
+        white-space: pre-wrap;
       }
       .text-content * {
         margin: 0;
         padding: 0;
+        white-space: pre-wrap;
       }
     </style>
   `;

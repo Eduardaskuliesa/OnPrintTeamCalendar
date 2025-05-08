@@ -83,10 +83,12 @@ const EmailHeader: React.FC<EmailHeadingProps> = ({
         margin: 0;
         padding: 0;
         display: block;
+        whiteSpace: pre-wrap;
       }
       .text-content * {
         margin: 0;
         padding: 0;
+        whiteSpace: pre-wrap;
       }
     </style>
   `;
