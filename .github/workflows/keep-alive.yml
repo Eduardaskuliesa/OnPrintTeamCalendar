@@ -1,0 +1,21 @@
+name: Keep Alive
+on:
+  schedule:
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: keep-alive
+      - name: Update keep-alive branch
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          echo "Last updated: $(date)" > keep-alive.txt
+          git add keep-alive.txt
+          git commit -m "Keep repository alive"
+          git push origin keep-alive
