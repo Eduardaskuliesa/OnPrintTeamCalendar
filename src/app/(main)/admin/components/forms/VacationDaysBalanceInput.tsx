@@ -42,7 +42,7 @@ export const VacationDaysBalanceInput = ({
           }}
           step="0.00000001"
           max="1000"
-          min="0"
+          min="-1000"
           className="w-full h-10 rounded-lg"
         />
       </div>
@@ -61,7 +61,7 @@ export const VacationDaysBalanceInput = ({
             onChange("updateAmount", val === '' ? 0 : Number(val));
           }}
           step="0.00000001"
-          min="0"
+          min="-1000"
           className="w-full h-10 rounded-lg"
           placeholder="0.05479452"
         />
