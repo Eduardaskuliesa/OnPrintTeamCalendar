@@ -7,10 +7,13 @@ on:
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write 
     steps:
       - uses: actions/checkout@v4
         with:
           ref: keep-alive
+          token: ${{ secrets.GITHUB_TOKEN }} 
       - name: Update keep-alive branch
         run: |
           git config --local user.email "action@github.com"
