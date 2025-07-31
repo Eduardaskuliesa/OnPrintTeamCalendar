@@ -40,7 +40,7 @@ export const VacationDaysBalanceInput = ({
             setLocalVacationDays(val);
             onChange("vacationDays", val === '' ? 0 : Number(val));
           }}
-          step="0.00000001"
+          step="0.000000000001"
           max="1000"
           min="-1000"
           className="w-full h-10 rounded-lg"
@@ -60,7 +60,7 @@ export const VacationDaysBalanceInput = ({
             setLocalUpdateAmount(val);
             onChange("updateAmount", val === '' ? 0 : Number(val));
           }}
-          step="0.00000001"
+          step="0.000000000001"
           min="-1000"
           className="w-full h-10 rounded-lg"
           placeholder="0.05479452"
