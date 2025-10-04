@@ -6,7 +6,8 @@ export const useGetTemplates = () =>
     queryKey: [`templates`],
     queryFn: async () => {
       const response = await tempalteActions.getTemplates();
-      console.log(response)
       return response;
     },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });

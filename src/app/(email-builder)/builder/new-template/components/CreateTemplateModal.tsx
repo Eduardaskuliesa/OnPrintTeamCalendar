@@ -17,9 +17,11 @@ interface CreateTemplateModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   templateName: string;
+  tempalteSubject: string;
   templateType: "regular" | "promotional";
   setTemplateType: (type: "regular" | "promotional") => void;
   onTemplateNameChange: (name: string) => void;
+  onTemplateSubjectChange: (name: string) => void;
   nameError: string;
   dialogStatus: "idle" | "saving" | "navigating";
   onSubmit: () => void;
@@ -29,7 +31,9 @@ const CreateTemplateModal: React.FC<CreateTemplateModalProps> = ({
   isOpen,
   onOpenChange,
   templateName,
+  tempalteSubject,
   onTemplateNameChange,
+  onTemplateSubjectChange,
   nameError,
   dialogStatus,
   onSubmit,
@@ -54,6 +58,20 @@ const CreateTemplateModal: React.FC<CreateTemplateModalProps> = ({
               value={templateName}
               onChange={(e) => onTemplateNameChange(e.target.value)}
               placeholder="pvz. Sveikinimo laiškas"
+              className="flex-grow"
+              autoFocus
+              disabled={dialogStatus !== "idle"}
+            />
+          </div>
+           <div className="items-center gap-2 space-y-1">
+            <Label htmlFor="templateName" className="flex-shrink-0 w-42">
+              Šablono subjecet
+            </Label>
+            <Input
+              id="templateName"
+              value={tempalteSubject}
+              onChange={(e) => onTemplateSubjectChange(e.target.value)}
+              placeholder="pvz. Dėkojame, kad prisijungėte prie mūsų"
               className="flex-grow"
               autoFocus
               disabled={dialogStatus !== "idle"}

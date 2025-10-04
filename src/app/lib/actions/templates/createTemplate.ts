@@ -1,4 +1,3 @@
-// app/lib/actions/templates/createTemplate.ts
 "use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { Template } from "@/app/types/emailTemplates";
@@ -8,6 +7,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 export interface TemplateData {
   templateType: Template["type"];
   templateName: Template["templateName"];
+  templateSubject: Template["templateSubject"];
   jsonUrl: Template["jsonUrl"];
   htmlUrl: Template["htmlUrl"];
 }

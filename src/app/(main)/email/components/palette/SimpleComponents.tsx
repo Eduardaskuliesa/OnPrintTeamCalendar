@@ -6,7 +6,6 @@ import {
   IoDocumentTextOutline,
 } from "react-icons/io5";
 import { BsTypeH1 } from "react-icons/bs";
-import { FiDivide } from "react-icons/fi";
 import { MdDragIndicator } from "react-icons/md";
 import { LuRectangleHorizontal } from "react-icons/lu";
 
@@ -75,7 +74,6 @@ const SimpleComponents: React.FC<SimpleComponentsProps> = ({
     { id: "header", name: "Header", icon: <BsTypeH1 size={24} /> },
     { id: "text", name: "Text", icon: <IoDocumentTextOutline size={24} /> },
     { id: "spacer", name: "Spacer", icon: <LuRectangleHorizontal size={24} /> },
-    { id: "divider", name: "Divider", icon: <FiDivide size={24} /> },
   ];
 
   return (
