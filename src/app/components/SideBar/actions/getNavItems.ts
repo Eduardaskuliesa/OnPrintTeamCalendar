@@ -23,11 +23,6 @@ export async function getNavItems() {
           text: "Užsakymai",
         },
         {
-          href: "/queues",
-          icon: "Mail",
-          text: "Visos eilės",
-        },
-        {
           href: "/queues/tags",
           icon: "Tags",
           text: "Tagai",

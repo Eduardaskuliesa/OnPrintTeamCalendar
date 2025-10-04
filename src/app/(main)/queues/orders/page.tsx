@@ -1,5 +1,3 @@
-"use client";
-
 import { Suspense } from "react";
 import OrderPageWrapper from "./OrderPageWrapper";
 
