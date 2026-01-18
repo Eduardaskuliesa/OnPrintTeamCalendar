@@ -1,5 +1,6 @@
 import { Main } from "../components/Main";
 import { SideBar } from "../components/SideBar/Sidebar";
+import { ImpersonationBanner } from "../components/ImpersonationBanner";
 
 export default function MainLayout({
   children,
@@ -8,6 +9,7 @@ export default function MainLayout({
 }) {
   return (
     <>
+      <ImpersonationBanner />
       <SideBar />
       <Main>{children}</Main>
     </>

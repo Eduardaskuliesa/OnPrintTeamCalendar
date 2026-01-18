@@ -14,6 +14,7 @@ async function fetchAllCustomDays() {
     });
 
     const result = await dynamoDb.send(command);
+    console.log(result);
     return {
       data: result.Items,
     };

@@ -4,7 +4,7 @@ import { sanitizeSettings } from "@/app/lib/actions/settings/sanitizeSettings";
 import { getUserSettings } from "@/app/lib/actions/settings/user/getUserSettings";
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 import { useQueryClient } from "@tanstack/react-query";
-import { Home, ScrollText, CalendarHeart, Bell } from "lucide-react";
+import { Home, ScrollText, CalendarHeart, Bell, History } from "lucide-react";
 import { User } from "@/app/types/api";
 import WorkRecordButton from "../WorkRecord/WorkRecordButton";
 import NavButton from "./NavigationTabButton";
@@ -56,6 +56,12 @@ const NavigationTabs = ({
         isActive={activeTab === "dashboard"}
         onClick={() => setActiveTab("dashboard")}
         actionColor="bg-yellow-100"
+      />
+      <NavButton
+        icon={History}
+        isActive={activeTab === "history"}
+        onClick={() => setActiveTab("history")}
+        actionColor="bg-gray-100"
       />
       <NavButton
         isActive={activeTab === "customDays"}

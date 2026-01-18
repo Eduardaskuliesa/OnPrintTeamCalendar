@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { User } from "@/app/types/api";
 import { usersActions } from "../../lib/actions/users";
+import { createImpersonationUrl, getCurrentSessionToken } from "../../lib/actions/impersonation";
+import { pushSessionToStack } from "../../components/ImpersonationBanner";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { UserActionButtons } from "./UserActionButtons";
@@ -15,6 +17,7 @@ import {
   Pencil,
   Settings,
   Trash2,
+  LogIn,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -69,6 +72,21 @@ export default function UserListContent({
     onUserUpdated(updatedUser);
     setShowUpdateModal(false);
     setUserToUpdate(null);
+  };
+
+  const handleImpersonate = async (user: User) => {
+    try {
+      // Store current session on stack before impersonating
+      const currentToken = await getCurrentSessionToken();
+      if (currentToken) {
+        pushSessionToStack(currentToken);
+      }
+
+      const url = await createImpersonationUrl(user.userId);
+      window.location.href = url;
+    } catch (error: any) {
+      toast.error(error.message || "Nepavyko prisijungti kaip vartotojas");
+    }
   };
 
   const confirmDelete = async () => {
@@ -156,6 +174,7 @@ export default function UserListContent({
                     onWorkRecords={() => handleWorkRecords(user)}
                     onDelete={() => handleDelete(user)}
                     onVacation={() => handleVacation(user)}
+                    onImpersonate={() => handleImpersonate(user)}
                     isDeleting={deletingEmail === user.email}
                     isAdmin={user.role === "ADMIN"}
                   />
@@ -182,6 +201,13 @@ export default function UserListContent({
                       >
                         <Pencil size={18} className="mr-2 text-teal-800" />
                         Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleImpersonate(user)}
+                        className="flex items-center"
+                      >
+                        <LogIn size={18} className="mr-2 text-purple-800" />
+                        Login as
                       </DropdownMenuItem>
                       {user.role && !user.role.includes("ADMIN") && (
                         <DropdownMenuItem

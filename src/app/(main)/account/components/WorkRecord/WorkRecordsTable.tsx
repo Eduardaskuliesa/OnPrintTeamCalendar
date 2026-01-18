@@ -1,6 +1,6 @@
 import ReasonCell from "@/app/(main)/admin/ReasonCell";
 import { WorkRecord } from "@/app/types/api";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Lock } from "lucide-react";
 import React from "react";
 
 interface WorkRecordTablePops {
@@ -43,7 +43,7 @@ const WorkRecordsTable = ({
             </thead>
             <tbody className="bg-slate-50 divide-y divide-gray-200">
               {workRecordsData.map((record, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+                <tr key={index} className={`hover:bg-gray-50 ${record.transferredFrom ? "bg-blue-50/50" : ""}`}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                     {record.date.slice(0, 10)}
                   </td>
@@ -70,20 +70,27 @@ const WorkRecordsTable = ({
                     <ReasonCell reason={record.reason} />
                   </td>
                   <td className="pr-10 py-4 whitespace-nowrap text-sm">
-                    <div className="flex items-center justify-end space-x-2">
-                      <button
-                        onClick={() => handleEditClick(record)}
-                        className="text-db hover:text-slate-800 transition-colors"
-                      >
-                        <Pencil className="h-4 w-4"></Pencil>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(record)}
-                        className="text-red-600 hover:text-red-800 transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                    {record.transferredFrom ? (
+                      <div className="flex items-center justify-end space-x-2 text-gray-400">
+                        <Lock className="h-4 w-4" />
+                        <span className="text-xs">Perkelta</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-end space-x-2">
+                        <button
+                          onClick={() => handleEditClick(record)}
+                          className="text-db hover:text-slate-800 transition-colors"
+                        >
+                          <Pencil className="h-4 w-4"></Pencil>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(record)}
+                          className="text-red-600 hover:text-red-800 transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

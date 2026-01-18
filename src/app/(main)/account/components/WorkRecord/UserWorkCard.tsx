@@ -7,6 +7,7 @@ import {
   Loader2,
   X,
   FolderDown,
+  ArrowRightLeft,
 } from "lucide-react";
 
 import { useGetAllUserMonthlyWorkRecordsNotFiltered } from "@/app/lib/actions/workrecords/hooks";
@@ -17,6 +18,7 @@ import {
 } from "@/app/utils/workRecordsCalculation";
 import { WorkRecord } from "@/app/types/api";
 import { deleteWorkRecord } from "@/app/lib/actions/workrecords/deleteWorkRecord";
+import { transferBalanceToNextYear } from "@/app/lib/actions/workrecords/transferBalanceToNextYear";
 import { useQueryClient } from "@tanstack/react-query";
 import DeleteConfirmation from "@/app/ui/DeleteConfirmation";
 import { toast } from "react-toastify";
@@ -26,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import UserWorkRecordFilter from "./UserWorkRecordsFilter";
 import WorkRecordsTable from "./WorkRecordsTable";
 import WorkRecordUpdateForm from "./UpdateWorkRecordForm";
+import TransferBalanceModal from "./TransferBalanceModal";
 
 interface UserWorkRecordCardProps {
   userId: string;
@@ -58,6 +61,8 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
   const [selectedRecord, setSelectedRecord] = useState<WorkRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showTable, setShowTable] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [isTransferring, setIsTransferring] = useState(false);
 
   const { data, isLoading } = useGetAllUserMonthlyWorkRecordsNotFiltered(
     userId,
@@ -141,6 +146,37 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
   const absentHours = calculateTotalHours(data?.data, ["early_leave", "late"]);
   const overtimeBalance = calculateOvertimeBalance(overtimeHours, absentHours);
 
+  // Check if we're viewing a past year (not current year) and only year is selected
+  const isViewingPastYear =
+    selectedYear < currentYear && searchDate.length === 4;
+
+  const handleTransferConfirm = async () => {
+    setIsTransferring(true);
+    try {
+      const result = await transferBalanceToNextYear({
+        userId,
+        fromYear: selectedYear,
+        balanceTime: overtimeBalance.value,
+        isPositive: overtimeBalance.isPositive,
+      });
+
+      if (result.success) {
+        toast.success(result.message);
+        // Invalidate queries for both years
+        await queryClient.invalidateQueries({
+          queryKey: ["userWorkRecords", userId],
+        });
+      } else {
+        toast.error(result.error);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Nepavyko perkelti balanso");
+    } finally {
+      setIsTransferring(false);
+      setIsTransferModalOpen(false);
+    }
+  };
+
   return (
     <>
       <div className="bg-[#EADBC8] mb-6 w-full max-w-4xl p-6 rounded-2xl shadow-md">
@@ -215,7 +251,7 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
               />
             </div>
 
-            <div className="flex justify-start mb-4">
+            <div className="flex justify-start gap-2 mb-4">
               <Button
                 onClick={() => setShowTable(!showTable)}
                 variant="ghost"
@@ -233,6 +269,17 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
                   </>
                 )}
               </Button>
+
+              {isViewingPastYear && overtimeBalance.value !== "00:00" && (
+                <Button
+                  onClick={() => setIsTransferModalOpen(true)}
+                  variant="ghost"
+                  className="bg-[#fefaf6] text-dbflex items-center gap-2"
+                >
+                  <ArrowRightLeft className="h-4 w-4" />
+                  Perkelti į {selectedYear + 1} m.
+                </Button>
+              )}
             </div>
 
             <AnimatePresence>
@@ -285,6 +332,16 @@ const UserWorkRecordCard: React.FC<UserWorkRecordCardProps> = ({ userId }) => {
             "Ar tikrai norite ištrinti šį įrašą?"
           )
         }
+      />
+
+      <TransferBalanceModal
+        isOpen={isTransferModalOpen}
+        onClose={() => setIsTransferModalOpen(false)}
+        onConfirm={handleTransferConfirm}
+        loading={isTransferring}
+        fromYear={selectedYear}
+        balanceValue={overtimeBalance.value}
+        isPositive={overtimeBalance.isPositive}
       />
     </>
   );

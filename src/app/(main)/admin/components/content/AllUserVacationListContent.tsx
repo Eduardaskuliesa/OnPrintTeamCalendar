@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { SettingHeader } from "../../SettingsHeader";
 import { User, Vacation } from "@/app/types/api";
 import { useGetUserVacations } from "@/app/lib/actions/users/hooks/useGetUserVacations";
+import { useUserVacationStats } from "@/app/lib/actions/users/hooks/useUserVacationStats";
 import { Loader2, MoreVertical, Trash2 } from "lucide-react";
+import AdminVacationStats, {
+  AdminVacationStatsSkeleton,
+} from "./AdminVacationStats";
 import { FaRegFilePdf } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,6 +55,9 @@ const AllUserVacationListContent = ({
 
   const userVacationQuery = useGetUserVacations(selectedUserId);
   const allVacationsQuery = useGetAdminVacations();
+  const { stats, isLoading: statsLoading } = useUserVacationStats(
+    selectedUserId !== "all" ? selectedUserId : ""
+  );
 
   const { data: allRecords, isLoading } =
     selectedUserId === "all" ? allVacationsQuery : userVacationQuery;
@@ -158,6 +165,14 @@ const AllUserVacationListContent = ({
         users={users}
         selectedUserId={selectedUserId}
       />
+
+      {selectedUserId !== "all" && (
+        statsLoading ? (
+          <AdminVacationStatsSkeleton />
+        ) : stats ? (
+          <AdminVacationStats stats={stats} />
+        ) : null
+      )}
 
       <div className="bg-slate-50 rounded-lg shadow-md border border-blue-50">
         {isLoading ? (

@@ -12,7 +12,7 @@ export async function createWorkRecord(workRecord: WorkRecord) {
   const year = workRecord.date.slice(0, 4)
 
   try {
-    const formattedRecord = {
+    const formattedRecord: Record<string, any> = {
       userId: workRecord.userId,
       date: `${workRecord.date}#${timestamp}`,
       type: workRecord.type,
@@ -24,6 +24,11 @@ export async function createWorkRecord(workRecord: WorkRecord) {
       updatedAt: timestamp,
       approvedBy: workRecord.approvedBy,
     };
+
+    // Add transferredFrom if present (for transferred balance records)
+    if (workRecord.transferredFrom) {
+      formattedRecord.transferredFrom = workRecord.transferredFrom;
+    }
 
     const command = new PutCommand({
       TableName: process.env.WORKRECORD_DYNAMODB_TABLE_NAME!,

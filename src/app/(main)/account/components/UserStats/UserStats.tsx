@@ -8,6 +8,7 @@ import DashboardContent from "./tabs/VacationContent/index.";
 import SettingsContent from "./tabs/SettingsContent";
 import CustomAndBirghtDays from "./tabs/CustomAndBirghtDays";
 import CustomDayHeader from "./CustomDayHeader";
+import VacationHistoryContent from "./tabs/VacationHistoryContent";
 
 
 const slideVariants = {
@@ -25,7 +26,7 @@ const slideVariants = {
   }),
 };
 
-const TABS = ["dashboard", "customDays", "settings"];
+const TABS = ["dashboard", "history", "customDays", "settings"];
 
 interface UserStatsProps {
   realCurrentBalance: number;
@@ -143,6 +144,9 @@ const UserStats = ({
                     approvedVacations={approvedFutureVacations}
                     pendingVacations={pendingVacations}
                   />
+                )}
+                {activeTab === "history" && (
+                  <VacationHistoryContent userId={userData.userId} />
                 )}
                 {activeTab === "customDays" && (
                   <CustomAndBirghtDays

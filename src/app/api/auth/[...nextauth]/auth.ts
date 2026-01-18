@@ -69,6 +69,9 @@ export const authOptions: AuthOptions = {
         session.user.userId = token.userId;
         session.user.email = token.email;
         session.user.role = token.role;
+        if (token.impersonatedBy) {
+          session.user.impersonatedBy = token.impersonatedBy as string;
+        }
       }
       return session;
     },

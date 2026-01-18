@@ -11,6 +11,8 @@ const fredoka = Outfit({
 const CustomDayHeader = () => {
   const { data: customDayData, isLoading } = useGetAllCustomDays();
 
+  console.log("CustomDayHeader - customDayData:", customDayData);
+
   if (isLoading) {
     return (
       <div className="w-auto h-14 flex items-center bg-[#EADBC8] absolute rounded-t-2xl border-blue-50 top-0 -mt-14 -right-[2px] border-t-2 border-l-2 border-r-2">

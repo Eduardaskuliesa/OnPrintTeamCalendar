@@ -1,6 +1,28 @@
 // src/app/validations/helpers/index.ts
 import { GlobalSettingsType } from "@/app/types/bookSettings";
 
+// Helper to check if a date matches a holiday (comparing only month and day, ignoring year)
+function isHolidayMatch(holiday: string, date: Date): boolean {
+  // Holiday can be in "MM-DD" or "YYYY-MM-DD" format
+  const parts = holiday.split("-");
+  let holidayMonth: number;
+  let holidayDay: number;
+
+  if (parts.length === 2) {
+    // MM-DD format
+    holidayMonth = parseInt(parts[0], 10) - 1; // JS months are 0-indexed
+    holidayDay = parseInt(parts[1], 10);
+  } else if (parts.length === 3) {
+    // YYYY-MM-DD format - ignore year
+    holidayMonth = parseInt(parts[1], 10) - 1;
+    holidayDay = parseInt(parts[2], 10);
+  } else {
+    return false;
+  }
+
+  return date.getMonth() === holidayMonth && date.getDate() === holidayDay;
+}
+
 export function isWorkingDay(
   date: Date,
   weekendRestriction: GlobalSettingsType["restrictedDays"]["weekends"]["restriction"]
@@ -108,14 +130,7 @@ function calculateDuration(
   while (currentDate <= endDate) {
     if (dayType === "working") {
       const isValidWorkingDay = isWorkingDay(currentDate, weekendRestriction);
-      const isHoliday = holidays.some((holiday) => {
-        const holidayDate = new Date(holiday);
-        return (
-          holidayDate.getFullYear() === currentDate.getFullYear() &&
-          holidayDate.getMonth() === currentDate.getMonth() &&
-          holidayDate.getDate() === currentDate.getDate()
-        );
-      });
+      const isHoliday = holidays.some((holiday) => isHolidayMatch(holiday, currentDate));
 
       if (isValidWorkingDay && !isHoliday) {
         duration++;
@@ -168,14 +183,7 @@ export function calculateGapDays(
   while (gapDaysCount < gapDays) {
     if (dayType === "working") {
       const isValidWorkingDay = isWorkingDay(currentDate, weekendRestriction);
-      const isHoliday = holidays.some((holiday) => {
-        const holidayDate = new Date(holiday);
-        return (
-          holidayDate.getFullYear() === currentDate.getFullYear() &&
-          holidayDate.getMonth() === currentDate.getMonth() &&
-          holidayDate.getDate() === currentDate.getDate()
-        );
-      });
+      const isHoliday = holidays.some((holiday) => isHolidayMatch(holiday, currentDate));
 
       if (isValidWorkingDay && !isHoliday) {
         gapDaysCount++;
@@ -222,14 +230,7 @@ export function calculateVacationDays(
     calendarDays++;
 
     const isValidWorkingDay = isWorkingDay(current, weekendRestriction);
-    const isHoliday = holidays.some((holiday) => {
-      const holidayDate = new Date(holiday);
-      return (
-        holidayDate.getFullYear() === current.getFullYear() &&
-        holidayDate.getMonth() === current.getMonth() &&
-        holidayDate.getDate() === current.getDate()
-      );
-    });
+    const isHoliday = holidays.some((holiday) => isHolidayMatch(holiday, current));
 
     if (isValidWorkingDay && !isHoliday) {
       workingDays++;

@@ -5,6 +5,7 @@ import {
   Settings,
   Briefcase,
   Palmtree,
+  LogIn,
 } from "lucide-react";
 
 interface UserActionButtonsProps {
@@ -15,6 +16,7 @@ interface UserActionButtonsProps {
   isDeleting: boolean;
   isAdmin: boolean;
   onWorkRecords: () => void;
+  onImpersonate: () => void;
 }
 
 export function UserActionButtons({
@@ -25,6 +27,7 @@ export function UserActionButtons({
   onVacation,
   isDeleting,
   isAdmin,
+  onImpersonate,
 }: UserActionButtonsProps) {
   return (
     <div className="flex space-x-2">
@@ -55,6 +58,13 @@ export function UserActionButtons({
         title="Vartotojo duomenys"
       >
         <Pencil size={18} />
+      </button>
+      <button
+        onClick={onImpersonate}
+        className="p-2 text-purple-800 bg-purple-100 rounded-md hover:bg-purple-200 transition-colors"
+        title="Prisijungti kaip vartotojas"
+      >
+        <LogIn size={18} />
       </button>
       {!isAdmin && (
         <button

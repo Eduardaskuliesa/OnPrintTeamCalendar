@@ -57,6 +57,7 @@ export interface WorkRecord {
   createdAt: string;
   updatedAt: string;
   approvedBy?: string;
+  transferredFrom?: number; // Year from which balance was transferred (e.g., 2025)
 }
 
 export interface CustomBrithDayForm {
